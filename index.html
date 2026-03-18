@@ -52,9 +52,6 @@
   @keyframes pulse-row{0%,100%{background:var(--on-break-bg);}50%{background:rgba(255,107,53,0.18);}}
   .agent-header{display:flex;align-items:center;gap:10px;padding:10px 16px 5px 16px;flex-wrap:wrap;}
   .agent-row-num{font-family:'DM Mono',monospace;font-size:14px;color:var(--muted);min-width:20px;}
-  select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;padding:5px 22px 5px 7px;outline:none;cursor:pointer;width:78px;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%236b7080'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;}
-  select:focus{border-color:var(--accent);}
-  select.agent-select{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;width:170px;}
   .agent-dropdown{position:relative;width:170px;user-select:none;}
   .agent-dropdown-trigger{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;font-weight:600;padding:5px 26px 5px 9px;cursor:pointer;display:flex;align-items:center;gap:6px;width:100%;transition:border-color 0.2s;position:relative;}
   .agent-row.active-row{box-shadow:0 0 0 2px var(--accent) inset;}
@@ -97,7 +94,6 @@
   .time-colon{font-family:'DM Mono',monospace;font-size:14px;color:var(--muted);user-select:none;flex-shrink:0;}
   .start-break-btn{border:1px solid rgba(34,197,94,0.4);border-radius:6px;background:rgba(34,197,94,0.10);color:var(--done);cursor:pointer;font-size:14px;font-weight:700;font-family:'DM Mono',monospace;padding:4px 8px;transition:all 0.18s;white-space:nowrap;}
   .start-break-btn:hover{background:rgba(34,197,94,0.22);}
-  .start-break-btn:disabled{opacity:0;pointer-events:none;width:0;padding:0;border:none;overflow:hidden;}
   .stop-break-btn{border:1px solid rgba(255,107,53,0.5);border-radius:6px;background:rgba(255,107,53,0.12);color:var(--on-break);cursor:pointer;font-size:14px;font-weight:700;font-family:'DM Mono',monospace;padding:4px 8px;transition:all 0.18s;white-space:nowrap;}
   .stop-break-btn:hover{background:rgba(255,107,53,0.25);}
   .slot-clear-btn{border:1px solid rgba(255,107,53,0.25);border-radius:5px;background:rgba(255,107,53,0.06);color:rgba(255,107,53,0.7);cursor:pointer;font-size:14px;font-weight:700;font-family:'DM Mono',monospace;padding:4px 8px;transition:all 0.18s;white-space:nowrap;}
@@ -106,13 +102,12 @@
   .row-clear-btn{border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;padding:5px 12px;transition:all 0.18s;white-space:nowrap;}
   .row-clear-btn:not(:disabled):hover{border-color:var(--on-break);color:var(--on-break);background:rgba(255,107,53,0.08);}
   .row-clear-btn:disabled{opacity:0.2;cursor:default;}
-  .overlap-banner{background:rgba(245,158,11,0.09);border:1px solid rgba(245,158,11,0.30);border-radius:10px;padding:11px 16px;font-size:14px;color:var(--warning);font-weight:600;margin-bottom:14px;display:none;align-items:center;gap:10px;}
-  .overlap-banner.visible{display:flex;}
   .sync-bar{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:14px;font-family:'DM Mono',monospace;color:var(--muted);display:flex;align-items:center;gap:7px;z-index:999;}
   .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--done);}
   .sync-dot.syncing{background:var(--warning);animation:blink 0.6s infinite;}
   .sync-dot.err{background:var(--on-break);}
   ::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  /* ── AVAILABLE SLOTS PANEL ── */
   .avail-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:18px;}
   .avail-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .avail-title-left{display:flex;align-items:center;gap:8px;}
@@ -124,14 +119,13 @@
   .avail-slot.clickable{cursor:pointer;}
   .avail-slot.clickable:hover{transform:scale(1.08);filter:brightness(1.3);}
   .avail-slot.selected-from{outline:2px solid var(--accent);outline-offset:2px;}
+  /* GREEN = open/future, RED+strikethrough = has bookings, GREY = past */
   .avail-free{background:rgba(34,197,94,0.13);border-color:rgba(34,197,94,0.28);color:var(--done);}
-  .avail-one{background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.28);color:var(--warning);}
   .avail-full{background:rgba(255,107,53,0.10);border-color:rgba(255,107,53,0.22);color:rgba(255,107,53,0.6);text-decoration:line-through;}
   .avail-past{background:rgba(107,112,128,0.07);border-color:rgba(107,112,128,0.15);color:rgba(107,112,128,0.4);}
-  .avail-inactive{background:transparent;border-color:rgba(107,112,128,0.08);color:rgba(107,112,128,0.2);}
-  .avail-count{font-size:14px;opacity:0.75;margin-left:2px;}
   .avail-now-marker{position:relative;}
   .avail-now-marker::after{content:'NOW';position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:var(--kyiv);letter-spacing:0.5px;font-family:'DM Mono',monospace;}
+  /* ── BREAK TIMER PANEL ── */
   .break-timer-panel{background:var(--on-break-bg);border:1px solid var(--on-break-border);border-radius:14px;padding:14px 20px;margin-bottom:18px;display:none;}
   .break-timer-panel.visible{display:block;}
   .break-timer-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--on-break);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
@@ -144,7 +138,6 @@
   .break-timer-bar-wrap{width:70px;height:4px;background:rgba(255,107,53,0.15);border-radius:2px;overflow:hidden;}
   .break-timer-bar{height:100%;border-radius:2px;background:var(--on-break);transition:width 1s linear;}
   .break-timer-bar.urgent{background:#ff3b3b;}
-
   /* ── GUIDE MODAL ── */
   .guide-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:2000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
   .guide-overlay.open{display:flex;}
@@ -202,12 +195,9 @@
   <div class="shift-indicator">Shift: <span id="shift-label">--</span> &nbsp;·&nbsp; Cutoff: <span id="cutoff-label">--</span></div>
 </header>
 
-<!-- ══════════════════════════════════════════
-     GUIDE MODAL — single instance, toggled via JS
-     ══════════════════════════════════════════ -->
+<!-- GUIDE MODAL -->
 <div class="guide-overlay closed" id="guide-overlay" onclick="if(event.target===this)closeGuide()">
   <div class="guide-modal">
-
     <div class="guide-head">
       <div>
         <div class="guide-head-title">📋 Break Sheet — How It Works</div>
@@ -215,10 +205,7 @@
       </div>
       <button class="guide-close-btn" onclick="closeGuide()">✕</button>
     </div>
-
     <div class="guide-body">
-
-      <!-- IMPORTANT -->
       <div class="guide-section">
         <div class="guide-section-label">⚡ First — Two Important Things</div>
         <div class="guide-cards">
@@ -232,134 +219,78 @@
           </div>
         </div>
       </div>
-
-      <!-- LAYOUT -->
       <div class="guide-section">
         <div class="guide-section-label">🖥 What You're Looking At</div>
         <div class="guide-text">
-          The <strong>top bar</strong> shows the Kyiv clock in the middle, and your current shift + cutoff time on the right — so you always know how much time is left.<br><br>
-          Below that is the <strong>Available Break Slots grid</strong> — the fastest way to see open times and book a break.<br><br>
-          Below that is a <strong>policy reminder bar</strong> summarising the main rules.<br><br>
-          The <strong>main table</strong> is split into two columns — Rows 1–5 on the left, Rows 6–10 on the right. One row per agent.<br><br>
-          At the <strong>very bottom</strong> are live stats: who's on break right now, who's finished, planned breaks, and total agents loaded.
+          The <strong>top bar</strong> shows the Kyiv clock and your current shift + cutoff time.<br><br>
+          Below that is the <strong>Available Break Slots grid</strong> — 🟢 <strong>Green</strong> = open slot, 🔴 <strong>Red / crossed out</strong> = already has someone booked there (informational only), <strong>Grey</strong> = time already passed.<br><br>
+          The <strong>main table</strong> is split into two columns — Rows 1–5 on the left, Rows 6–10 on the right. One row per agent.
         </div>
       </div>
-
-      <!-- STEP 1 -->
       <div class="guide-section">
         <div class="guide-section-label">① Select Your Name</div>
         <div class="guide-text">
           Pick any empty row (1–10). Click the dropdown that says <span class="tag">— select agent —</span>. Start typing your name to filter the list, then click it to select.<br><br>
-          <strong>That row is now yours for this session.</strong><br><br>
-          If your name isn't there — tell a supervisor. We can add it instantly in the Agent Setup panel.
+          <strong>That row is now yours for this session.</strong>
         </div>
       </div>
-
-      <!-- STEP 2 -->
       <div class="guide-section">
-        <div class="guide-section-label">② Your Row Activates Automatically</div>
-        <div class="guide-text">
-          As soon as you select your name, your row activates automatically — you'll see the blue outline appear straight away. No extra click needed.<br><br>
-          You can also click anywhere on a row header to manually switch your active row — useful if you need to help someone else or correct a different row.<br><br>
-          The habit is:
-        </div>
-        <div class="flow">
-          <span>Select name</span>
-          <span class="flow-arrow">→</span>
-          <span>Row activates (blue outline)</span>
-          <span class="flow-arrow">→</span>
-          <span>Book break</span>
-        </div>
-      </div>
-
-      <!-- STEP 3 -->
-      <div class="guide-section">
-        <div class="guide-section-label">③ Booking Your Break</div>
-        <div class="guide-text">You get <strong>60 minutes total</strong> and up to <strong>3 slots</strong>. Split however you want — 60, 30+30, 20+20+20, etc. Just don't go over 60 minutes.</div>
+        <div class="guide-section-label">② Book Your Break</div>
+        <div class="guide-text">You get <strong>60 minutes total</strong> and up to <strong>3 slots</strong>. Split however you want — 60, 30+30, 20+20+20, etc.</div>
         <div class="guide-cards" style="margin-top:12px;">
           <div class="guide-card">
             <div class="guide-card-title green">🟢 Option A — Use the Grid (Fastest)</div>
-            <div class="guide-card-body">
-              Each block in the grid = 15 minutes.<br><br>
-              🟢 <strong>Green</strong> = Free &nbsp;·&nbsp; 🟠 <strong>Amber</strong> = 1 person booked (1 spot left) &nbsp;·&nbsp; 🔴 <strong>Red / crossed out</strong> = Full &nbsp;·&nbsp; <strong>Grey</strong> = Time already passed &nbsp;·&nbsp; <strong style="color:#38bdf8;">Light blue NOW</strong> = Current window<br><br>
-              <strong>Make sure your row is active.</strong> Then: 1st click = start time. 2nd click = end time. Done — it fills into your next empty slot automatically. If it breaks a rule, it flashes red. Just pick another time.
-            </div>
+            <div class="guide-card-body">Make sure your row is active. Then: <strong>1st click = start time, 2nd click = end time.</strong> Done — fills into your next empty slot automatically.</div>
           </div>
           <div class="guide-card">
             <div class="guide-card-title purple">⌨️ Option B — Type Manually</div>
-            <div class="guide-card-body">
-              Each slot has a start and end time box in <strong>HH:MM</strong> format. Type 2 digits for the hour — it jumps to minutes automatically. Type 2 digits for minutes, then press Tab or click away to save.<br><br>
-              If valid → saves instantly. If not → turns red and clears. Try a different time.
-            </div>
+            <div class="guide-card-body">Each slot has a start and end time box in <strong>HH:MM</strong> format. Type 2 digits for the hour — it jumps to minutes automatically. Tab or click away to save.</div>
           </div>
         </div>
       </div>
-
-      <!-- STEP 4 -->
       <div class="guide-section">
-        <div class="guide-section-label">④ Start & Stop Your Break</div>
+        <div class="guide-section-label">③ Start & Stop Your Break</div>
         <div class="guide-text">
           <strong>Booking a slot ≠ being on break.</strong><br><br>
           Once both times are filled, a <span class="pill-g">▶ Start</span> button appears. Press it when you're <em>actually walking away</em> — it shifts your break to begin right now while keeping the same duration.<br><br>
-          Example: You booked <strong>13:00–13:30</strong>. You press Start at <strong>13:05</strong>. It becomes <strong>13:05–13:35</strong>.<br><br>
-          When you return, press <span class="pill-o">■ Stop</span>. That locks the end time to right now and marks the slot as done.
+          When you return, press <span class="pill-o">■ Stop</span>. That locks the end time and marks the slot done.
         </div>
       </div>
-
-      <!-- CLEAR BUTTONS -->
       <div class="guide-section">
         <div class="guide-section-label">🗑 Clear Buttons</div>
         <div class="guide-other-list">
-          <div><strong>Slot Clear</strong> — removes just that one break slot. Everything else stays.</div>
-          <div><strong>Row Clear</strong> — wipes the agent name and all 3 slots for that row. Use if you need to start fresh.</div>
-          <div><strong>Clear All Rows</strong> — resets every single row. <strong>Supervisors only.</strong> Used at the start of a new shift.</div>
+          <div><strong>Slot Clear</strong> — removes just that one break slot.</div>
+          <div><strong>Row Clear</strong> — wipes the agent name and all 3 slots for that row.</div>
+          <div><strong>Clear All Rows</strong> — resets every row. <strong>Supervisors only.</strong></div>
         </div>
       </div>
-
-      <!-- RULES -->
       <div class="guide-rules-box">
-        <div class="guide-rules-label">⚠️ Rules — Automatically Enforced</div>
+        <div class="guide-rules-label">⚠️ Rules</div>
         <div class="guide-rules-list">
+          <div>👤 <strong>Max 1 agent on break at the same time.</strong> The Start button is blocked while anyone else is on break — wait for them to return first.</div>
           <div>🍱 <strong>No breaks in the last 30 minutes of any shift.</strong> Blocked times: 14:30–15:00, 22:30–23:00, 06:30–07:00.</div>
-          <div>👥 <strong>Max 2 agents on break at the same time.</strong> A 3rd person cannot book into a full window.</div>
-          <div>⏱ <strong>Two agents can only overlap for up to 30 minutes.</strong> If agent A is on 05:00–06:00, agent B can only share 30 min of that (e.g. 05:30–06:00 is fine, 05:00–05:45 is not).</div>
           <div>🕐 <strong>Max 60 minutes total</strong> per agent per shift, across all 3 slots combined.</div>
         </div>
       </div>
-
-      <!-- OTHER -->
-      <div class="guide-section">
-        <div class="guide-section-label">⑤ Other Things to Know</div>
-        <div class="guide-other-list">
-          <div>🔴 <strong>Red input</strong> = time rejected (breaks a rule). Try a different time.</div>
-          <div>🌐 <strong>Everything syncs live</strong> — every change is visible to everyone instantly.</div>
-          <div>🕓 <strong>All times are Kyiv time</strong> — shown in the top-right clock. Use that, not your device.</div>
-          <div>➕ <strong>Name not in the list?</strong> Tell a supervisor. Open Agent Setup, type the name, press Save & Apply — syncs for everyone immediately.</div>
-        </div>
-      </div>
-
-    </div><!-- /guide-body -->
-
+    </div>
     <div class="guide-foot">
       <button class="guide-go-btn" onclick="closeGuide()">Got it, let's go →</button>
     </div>
-
-  </div><!-- /guide-modal -->
-</div><!-- /guide-overlay -->
+  </div>
+</div>
 
 <div class="main">
   <div class="avail-panel" id="avail-panel">
     <div class="avail-title">
-      <div class="avail-title-left">🕐 Available Break Slots <span style="color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px;">— slots where fewer than 2 agents are scheduled (current shift only)</span></div>
+      <div class="avail-title-left">🕐 Available Break Slots <span style="color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px;">— current shift only</span></div>
       <div class="avail-legend">
         <div class="legend-item"><div class="legend-dot" style="background:rgba(34,197,94,0.25);border:1px solid rgba(34,197,94,0.4);"></div><span style="color:var(--done)">Open</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);"></div><span style="color:var(--warning)">1 taken</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);"></div><span style="color:var(--on-break)">Full</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);"></div><span style="color:var(--on-break)">Taken</span></div>
       </div>
     </div>
     <div class="avail-grid" id="avail-grid"></div>
   </div>
-  <div class="overlap-banner" id="overlap-banner">⚠️ <span id="overlap-msg"></span></div>
+
   <div class="setup-panel">
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="setup-title collapsed" id="setup-toggle" style="flex:1;">Agent Setup</div>
@@ -371,6 +302,7 @@
       <div class="setup-actions"><button class="btn" onclick="saveAgents()">Save &amp; Apply</button></div>
     </div>
   </div>
+
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:18px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
     <div style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--muted);">
       <span style="font-size:18px;">🍱</span>
@@ -378,15 +310,17 @@
     </div>
     <div style="width:1px;height:30px;background:var(--border);flex-shrink:0;"></div>
     <div style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--muted);">
-      <span style="font-size:18px;">👥</span>
-      <span><span style="color:var(--text);font-weight:700;letter-spacing:0.3px;">LIMIT:</span> Max 2 agents away at once <span style="color:var(--warning);">(second agent — up to 30 min)</span>. Check the table below!</span>
+      <span style="font-size:18px;">⏱</span>
+      <span><span style="color:var(--text);font-weight:700;letter-spacing:0.3px;">LIMIT:</span> Max 1 agent on break at a time. Check the table below!</span>
     </div>
   </div>
+
   <!-- BREAK TIMER PANEL -->
   <div class="break-timer-panel" id="break-timer-panel">
     <div class="break-timer-title"><span class="break-timer-blink"></span> Currently On Break</div>
     <div class="break-timer-cards" id="break-timer-cards"></div>
   </div>
+
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
     <div class="table-wrap">
       <div class="table-header">Rows 1–5 · Up to 3 break slots · Max 60 min</div>
@@ -397,7 +331,8 @@
       <div id="break-table-right"></div>
     </div>
   </div>
-  <div style="font-size:11px;color:var(--muted);margin-top:8px;">No breaks in last 30 min of shift · Max 2 concurrent · 60 min total per agent</div>
+  <div style="font-size:11px;color:var(--muted);margin-top:8px;">No breaks in last 30 min of shift · 60 min total per agent</div>
+
   <div class="stats" style="margin-top:18px;">
     <div class="stat-card"><div class="stat-label">On Break Now</div><div class="stat-value orange" id="stat-on-break">0</div></div>
     <div class="stat-card"><div class="stat-label">Breaks Finished</div><div class="stat-value green" id="stat-done">0</div></div>
@@ -413,7 +348,7 @@
 </div>
 
 <script>
-var DB_URL = 'https://breaksheetstarspartners-default-rtdb.europe-west1.firebasedatabase.app';
+var DB_URL = 'https://breaksheet-642ee-default-rtdb.europe-west1.firebasedatabase.app';
 
 function fbGet(path){return fetch(DB_URL+path+'.json').then(function(r){return r.json();});}
 function fbSet(path,data){return fetch(DB_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();});}
@@ -472,13 +407,10 @@ function slotDur(s){if(!s.from||!s.to||s.from===s.to)return 0;var d=toMins(s.to)
 function slotStatus(slot){
   if(!slot.from||!slot.to||slot.from===slot.to)return 'idle';
   var now=kyivNowMins(),from=toMins(slot.from),to=toMins(slot.to);
-  // Put everything on a single linear timeline anchored at shift start
-  // Shift start in minutes
   var h=kyivHour();
   var shiftStartM=(h>=7&&h<15)?7*60:(h>=15&&h<23)?15*60:23*60;
   function norm(m){return m>=shiftStartM?m-shiftStartM:m+1440-shiftStartM;}
   var nNow=norm(now),nFrom=norm(from),nTo=norm(to);
-  // If to < from on clock it crosses midnight — to on linear timeline must be > from
   if(nTo<=nFrom)nTo+=1440;
   var inRange=(nNow>=nFrom&&nNow<nTo);
   if(inRange){return slot.started?'break':'upcoming';}
@@ -492,44 +424,20 @@ function countOnBreakNow(){var c=0;rows.forEach(function(row){if(row.agentIdx<0)
 
 var ALL_TIMES=(function(){var t=[];for(var h=7;h<24;h++)for(var m=0;m<60;m+=15)t.push(pad(h)+':'+pad(m));for(var h=0;h<7;h++)for(var m=0;m<60;m+=15)t.push(pad(h)+':'+pad(m));return t;})();
 
-function wouldCauseOverlap(excludeRi,excludeSi,fromM,toM){
-  if(fromM<0||toM<0)return false;
-  if(toM<=fromM)toM+=1440;
-  if(toM===fromM)return false;
+// ── OVERLAP CHECK — any overlap with any existing slot is forbidden ──
+function wouldOverlap(excludeRi,excludeSi,fromM,toM){
+  if(fromM<0||toM<0||toM===fromM)return false;
+  if(toM<fromM)toM+=1440;
   for(var ri=0;ri<rows.length;ri++){
     var row=rows[ri];if(row.agentIdx<0)continue;
     for(var si=0;si<row.slots.length;si++){
       if(ri===excludeRi&&si===excludeSi)continue;
       var s=row.slots[si];if(!s.from||!s.to||s.from===s.to)continue;
-      var sF=toMins(s.from),sT=toMins(s.to);if(sT<=sF)sT+=1440;
-      var oStart=Math.max(fromM,sF),oEnd=Math.min(toM,sT),overlapMins=Math.max(0,oEnd-oStart);
-      if(overlapMins>30)return true;
+      var sF=toMins(s.from),sT=toMins(s.to);if(sT<sF)sT+=1440;
+      if(fromM<sT&&toM>sF)return true;
     }
-  }
-  for(var t=fromM;t<toM;t++){
-    var count=0;
-    for(var ri=0;ri<rows.length;ri++){
-      var row=rows[ri];if(row.agentIdx<0)continue;
-      for(var si=0;si<row.slots.length;si++){
-        if(ri===excludeRi&&si===excludeSi)continue;
-        var s=row.slots[si];if(!s.from||!s.to||s.from===s.to)continue;
-        var sF=toMins(s.from),sT=toMins(s.to);if(sT<=sF)sT+=1440;
-        if(t>=sF&&t<sT)count++;
-      }
-    }
-    if(count>=2)return true;
   }
   return false;
-}
-
-function getBlockedFromTimes(excludeRi,excludeSi){
-  var blocked={};
-  ALL_TIMES.forEach(function(fromT){
-    var fromM=toMins(fromT),anyOk=false;
-    for(var dur=15;dur<=60;dur+=15){if(!wouldCauseOverlap(excludeRi,excludeSi,fromM,fromM+dur)){anyOk=true;break;}}
-    if(!anyOk)blocked[fromT]=true;
-  });
-  return blocked;
 }
 
 function renderAvailableSlots(){
@@ -543,48 +451,54 @@ function renderAvailableSlots(){
   var slots=[];
   if(!overnight){ALL_TIMES.forEach(function(t){if(inShift(toMins(t)))slots.push(t);});}
   else{ALL_TIMES.forEach(function(t){var tM=toMins(t);if(tM>=shiftStart)slots.push(t);});ALL_TIMES.forEach(function(t){var tM=toMins(t);if(tM<shiftEnd)slots.push(t);});}
+
+  // Count how many agents have ANY booking covering each slot
   var slotCounts={};slots.forEach(function(t){slotCounts[t]=0;});
-  // Normalise any time to minutes-since-shift-start for consistent comparison
   function normToShift(tM){return tM>=shiftStart?tM-shiftStart:tM+1440-shiftStart;}
   rows.forEach(function(row){row.slots.forEach(function(s){
     if(!s.from||!s.to||s.from===s.to)return;
     var sFrom=normToShift(toMins(s.from));
     var sTo=normToShift(toMins(s.to));
-    if(sTo<=sFrom)sTo+=1440; // slot itself crosses midnight within the shift
+    if(sTo<=sFrom)sTo+=1440;
     slots.forEach(function(t){
       var tN=normToShift(toMins(t));
       if(tN>=sFrom&&tN<sTo)slotCounts[t]++;
     });
   });});
+
   function isPast(tM){
     var normT=normToShift(tM),normNow=normToShift(nowM);
     return normT<normNow-14;
   }
-  var nowSlot=slots[0];
-  var bestNorm=-1;
+  // Find the current slot (NOW marker)
+  var nowSlot=slots[0],bestNorm=-1;
   slots.forEach(function(t){
-    var n=normToShift(toMins(t));
-    var normNow=normToShift(nowM);
+    var n=normToShift(toMins(t)),normNow=normToShift(nowM);
     if(n<=normNow&&n>bestNorm){bestNorm=n;nowSlot=t;}
   });
+
   grid.innerHTML='';
   slots.forEach(function(t){
-    var tM=toMins(t),count=slotCounts[t]||0,past=isPast(tM),isNow=(t===nowSlot);
+    var tM=toMins(t),past=isPast(tM),isNow=(t===nowSlot);
+    // A slot is "taken" if any existing booking overlaps it (even 1 min)
+    var taken=slotCounts[t]>0;
     var cls='avail-slot ';
-    if(past)cls+='avail-past';
-    else if(count>=2)cls+='avail-full';
-    else if(count===1)cls+='avail-one';
-    else cls+='avail-free';
-    var isClickable=!past&&count<2,isPendingFrom=pendingFrom&&pendingFrom.time===t;
+    if(past) cls+='avail-past';
+    else if(taken) cls+='avail-full';  // red + strikethrough
+    else cls+='avail-free';            // green
+
+    // Only clickable if not past and not overlapping any existing booking
+    var isClickable=!past&&!taken;
+    var isPendingFrom=pendingFrom&&pendingFrom.time===t;
     if(isClickable)cls+=' clickable';
     if(isPendingFrom)cls+=' selected-from';
     if(isNow)cls+=' avail-now-marker';
-    var badge=(!past&&count>0)?'<span class="avail-count">'+count+'/2</span>':'';
+
     var div=document.createElement('div');
     div.className=cls;
-    div.title=isClickable?(pendingFrom?'Click to set end time to '+t:'Click to set break start to '+t):t+' — full';
-    div.innerHTML=t+badge;
-    if(isClickable)div.onclick=function(time){return function(){clickAvailSlot(time);};}(t);
+    div.title=isClickable?(pendingFrom?'Click to set end time to '+t:'Click to set break start to '+t):t;
+    div.innerHTML=t;
+    if(isClickable)div.onclick=(function(time){return function(){clickAvailSlot(time);};})(t);
     grid.appendChild(div);
   });
 }
@@ -607,7 +521,7 @@ function clickAvailSlot(t){
     var dur=toM-fromM;
     var otherMins=rows[ri].slots.reduce(function(a,s,idx){return idx!==si?a+slotDur(s):a;},0);
     var budget=Math.max(0,MAX_BREAK-otherMins);
-    if(dur<=0||dur>budget||wouldCauseOverlap(ri,si,fromM,toM)){
+    if(dur<=0||dur>budget||wouldOverlap(ri,si,fromM,toM)){
       pendingFrom=null;rows[ri].slots[si].from='';
       var fwrap=document.getElementById('fw-'+ri+'-'+si);
       if(fwrap){var segs=fwrap.querySelectorAll('.time-seg');segs[0].value='';segs[1].value='';}
@@ -699,27 +613,31 @@ function render(){
       else if(status==='done')pill='<span class="status-pill pill-done"><span class="dot"></span>DONE '+dur+'m</span>';
       else if(status==='upcoming'&&dur)pill='<span class="status-pill pill-upcoming">'+dur+' min · upcoming</span>';
       else if(dur)pill='<span class="status-pill pill-idle">'+dur+' min</span>';
-      var allBlocked=false;
-      if(!slot.from&&!slot.to){var bf=getBlockedFromTimes(ri,si);allBlocked=ALL_TIMES.every(function(t){return bf[t];});}
+
       var canStart=slot.from&&slot.to&&!slot.started&&status!=='done';
       var isOnBreak=slot.started&&status==='break';
-      var breakFull=onBreakCount>=2&&!isOnBreak;
+      var someoneOnBreak=onBreakCount>=1&&!isOnBreak;
       var actionBtns='';
-      if(isOnBreak){actionBtns='<button class="start-break-btn" style="opacity:0.3;cursor:default;pointer-events:none;">▶ Start</button><button class="stop-break-btn" onclick="stopBreakNow('+ri+','+si+')">■ Stop</button>';}
-      else if(canStart&&!breakFull){actionBtns='<button class="start-break-btn" onclick="startBreakNow('+ri+','+si+')">▶ Start</button>';}
-      else if(canStart&&breakFull){actionBtns='<button class="start-break-btn" style="opacity:0.35;cursor:not-allowed;pointer-events:none;" title="2 agents already on break — wait for one to return">▶ Start</button>';}
+      if(isOnBreak){
+        actionBtns='<button class="start-break-btn" style="opacity:0.3;cursor:default;pointer-events:none;">▶ Start</button><button class="stop-break-btn" onclick="stopBreakNow('+ri+','+si+')">■ Stop</button>';
+      } else if(canStart&&!someoneOnBreak){
+        actionBtns='<button class="start-break-btn" onclick="startBreakNow('+ri+','+si+')">▶ Start</button>';
+      } else if(canStart&&someoneOnBreak){
+        actionBtns='<button class="start-break-btn" style="opacity:0.35;cursor:not-allowed;pointer-events:none;" title="Another agent is on break — wait for them to return">▶ Start</button>';
+      }
+
       var fH=slot.from?slot.from.split(':')[0]:'',fM=slot.from?slot.from.split(':')[1]:'';
       var tH=slot.to?slot.to.split(':')[0]:'',tMM=slot.to?slot.to.split(':')[1]:'';
       var sd=document.createElement('div');sd.className='break-slot';
       sd.innerHTML=
-        '<span class="slot-label" style="'+(allBlocked?'opacity:0.35':'')+'">Break '+(si+1)+'</span>'+
-        '<div class="time-input-wrap'+(allBlocked?' avail-inactive':'')+'" id="fw-'+ri+'-'+si+'" style="'+(allBlocked?'opacity:0.35;pointer-events:none':'')+'">'+
+        '<span class="slot-label">Break '+(si+1)+'</span>'+
+        '<div class="time-input-wrap" id="fw-'+ri+'-'+si+'">'+
           '<input class="time-seg" type="text" maxlength="2" placeholder="--" value="'+fH+'" oninput="autoTab(this)" onblur="commitTime('+ri+','+si+',\'from\')"/>'+
           '<span class="time-colon">:</span>'+
           '<input class="time-seg" type="text" maxlength="2" placeholder="--" value="'+fM+'" onblur="commitTime('+ri+','+si+',\'from\')"/>'+
         '</div>'+
         '<span class="sep">→</span>'+
-        '<div class="time-input-wrap'+(allBlocked?' avail-inactive':'')+'" id="tw-'+ri+'-'+si+'" style="'+(allBlocked?'opacity:0.35;pointer-events:none':'')+'">'+
+        '<div class="time-input-wrap" id="tw-'+ri+'-'+si+'">'+
           '<input class="time-seg" type="text" maxlength="2" placeholder="--" value="'+tH+'" oninput="autoTab(this)" onblur="commitTime('+ri+','+si+',\'to\')"/>'+
           '<span class="time-colon">:</span>'+
           '<input class="time-seg" type="text" maxlength="2" placeholder="--" value="'+tMM+'" onblur="commitTime('+ri+','+si+',\'to\')"/>'+
@@ -729,7 +647,7 @@ function render(){
       slotsDiv.appendChild(sd);
     });
   });
-  updateStats(onBreakCount);checkOverlap(onBreakCount);renderAvailableSlots();
+  updateStats(onBreakCount);renderAvailableSlots();
 }
 
 function autoTab(el){
@@ -752,6 +670,7 @@ function commitTime(ri,si,field){
   var val=pad(hN)+':'+pad(mN);
   var cutoffM=toMins(shiftCutoff()),valM=toMins(val),kyivH=kyivHour(),shiftEndM;
   if(kyivH>=7&&kyivH<15)shiftEndM=15*60;else if(kyivH>=15&&kyivH<23)shiftEndM=23*60;else shiftEndM=7*60;
+  // Cutoff check only — no concurrent checks
   if(field==='from'&&valM>=cutoffM&&valM<shiftEndM){wrap.classList.add('invalid');segs[0].value='';segs[1].value='';setTimeout(function(){wrap.classList.remove('invalid');},1500);return;}
   if(field==='to'&&valM>cutoffM&&valM<=shiftEndM){wrap.classList.add('invalid');segs[0].value='';segs[1].value='';setTimeout(function(){wrap.classList.remove('invalid');},1500);return;}
   rows[ri].slots[si][field]=val;
@@ -761,7 +680,8 @@ function commitTime(ri,si,field){
     var dur=tM2-fM;
     var otherMins=rows[ri].slots.reduce(function(a,s,idx){return idx!==si?a+slotDur(s):a;},0);
     var budget=Math.max(0,MAX_BREAK-otherMins);
-    if(dur>budget||fM===tM2||wouldCauseOverlap(ri,si,fM,tM2)){rows[ri].slots[si][field]='';segs[0].value='';segs[1].value='';wrap.classList.add('invalid');setTimeout(function(){wrap.classList.remove('invalid');},1500);return;}
+    // Only reject if over personal budget or zero duration
+    if(dur>budget||fM===tM2||wouldOverlap(ri,si,fM,tM2)){rows[ri].slots[si][field]='';segs[0].value='';segs[1].value='';wrap.classList.add('invalid');setTimeout(function(){wrap.classList.remove('invalid');},1500);return;}
   }
   if(field==='from'&&rows[ri].slots[si].to){
     var otherMins=rows[ri].slots.reduce(function(a,s,idx){return idx!==si?a+slotDur(s):a;},0);
@@ -774,7 +694,7 @@ function commitTime(ri,si,field){
 
 function startBreakNow(ri,si){
   var slot=rows[ri].slots[si];if(!slot.from||!slot.to)return;
-  if(countOnBreakNow()>=2)return; // hard block — 2 already on break
+  if(countOnBreakNow()>=1)return; // hard block — someone already on break
   var dur=toMins(slot.to)-toMins(slot.from);if(dur<0)dur+=1440;
   var nowM=kyivNowMins(),nowH=Math.floor(nowM/60),nowMin=Math.floor(nowM%60);
   var newFrom=pad(nowH)+':'+pad(nowMin),newToM=Math.floor(nowM)+dur;
@@ -800,11 +720,6 @@ function updateStats(onBreakCount){
   document.getElementById('stat-planned').textContent=rows.filter(function(r){return r.agentIdx>=0&&r.slots.some(function(s){return s.from&&s.to;});}).length;
   document.getElementById('stat-total').textContent=agents.filter(function(a){return a.trim();}).length;
 }
-function checkOverlap(onBreakCount){
-  var b=document.getElementById('overlap-banner');
-  if(onBreakCount>=2){document.getElementById('overlap-msg').textContent=onBreakCount+' agents currently on break — max 2 allowed simultaneously.';b.classList.add('visible');}
-  else b.classList.remove('visible');
-}
 
 function renderSetup(){
   var grid=document.getElementById('agents-grid');if(!grid)return;grid.innerHTML='';
@@ -824,7 +739,6 @@ document.getElementById('setup-toggle').addEventListener('click',function(){
   this.classList.toggle('collapsed');document.getElementById('setup-content').classList.toggle('hidden');
 });
 
-/* ── GUIDE ── */
 function openGuide(){document.getElementById('guide-overlay').className='guide-overlay open';}
 function closeGuide(){document.getElementById('guide-overlay').className='guide-overlay closed';}
 
@@ -839,8 +753,7 @@ function renderBreakTimers(){
     row.slots.forEach(function(slot){
       if(!slot.started||slotStatus(slot)!=='break')return;
       var toM=toMins(slot.to);
-      var minsLeft=toM-nowM;
-      if(minsLeft<0)minsLeft+=1440;
+      var minsLeft=toM-nowM;if(minsLeft<0)minsLeft+=1440;
       var totalDur=slotDur(slot);
       active.push({name:agents[row.agentIdx],minsLeft:minsLeft,totalDur:totalDur});
     });
