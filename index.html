@@ -175,9 +175,33 @@
   .pill-o{background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.4);border-radius:5px;padding:1px 8px;font-size:12px;color:#ff6b35;font-weight:700;}
   .flow{display:inline-flex;align-items:center;gap:6px;background:#232635;border:1px solid #2a2d3a;border-radius:8px;padding:6px 12px;font-size:13px;color:#c8ccd8;margin-top:8px;}
   .flow-arrow{color:#6c63ff;font-weight:700;}
+
+  /* ── NICKNAME MODAL ── */
+  .nick-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
+  .nick-overlay.hidden{display:none;}
+  .nick-modal{background:#1a1d27;border:1px solid #2a2d3a;border-radius:18px;max-width:420px;width:100%;padding:32px 32px 28px;box-shadow:0 24px 60px rgba(0,0,0,0.7);display:flex;flex-direction:column;gap:20px;}
+  .nick-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,#4f7cff,#7c5cfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .nick-sub{font-size:13px;color:#6b7080;margin-top:-12px;line-height:1.6;}
+  .nick-input{width:100%;background:#0e0f13;border:1.5px solid #2a2d3a;border-radius:9px;color:#e8eaf0;font-family:'Syne',sans-serif;font-size:16px;font-weight:600;padding:12px 14px;outline:none;transition:border-color 0.2s;}
+  .nick-input:focus{border-color:#4f7cff;}
+  .nick-input.shake{animation:shake 0.35s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .nick-btn{background:linear-gradient(135deg,#4f7cff,#7c5cfc);border:none;border-radius:9px;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;padding:12px;transition:opacity 0.2s;width:100%;}
+  .nick-btn:hover{opacity:0.85;}
+  .nick-who{display:flex;align-items:center;gap:7px;background:rgba(79,124,255,0.10);border:1px solid rgba(79,124,255,0.3);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;color:#a5b4fc;white-space:nowrap;}
 </style>
 </head>
 <body>
+
+<!-- NICKNAME MODAL — blocks all interaction until name is set -->
+<div class="nick-overlay" id="nick-overlay">
+  <div class="nick-modal">
+    <div class="nick-title">👋 Welcome to Break Sheet</div>
+    <div class="nick-sub">Enter a nickname so your actions are logged. This is stored only on your browser — no account needed.</div>
+    <input class="nick-input" id="nick-input" type="text" maxlength="30" placeholder="Your nickname..." autocomplete="off"/>
+    <button class="nick-btn" onclick="saveNickname()">Let's go →</button>
+  </div>
+</div>
 
 <header>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -350,6 +374,32 @@
 <script>
 var DB_URL = 'https://breaksheetstarspartners-default-rtdb.europe-west1.firebasedatabase.app/';
 
+// ── NICKNAME ──
+var currentNickname = '';
+function initNickname(){
+  document.getElementById('nick-overlay').classList.remove('hidden');
+  setTimeout(function(){ document.getElementById('nick-input').focus(); }, 100);
+}
+function saveNickname(){
+  var val = document.getElementById('nick-input').value.trim();
+  if(!val){
+    var inp = document.getElementById('nick-input');
+    inp.classList.add('shake');
+    setTimeout(function(){ inp.classList.remove('shake'); }, 400);
+    return;
+  }
+  currentNickname = val;
+  document.getElementById('nick-overlay').classList.add('hidden');
+  writeLog('SESSION_START', val + ' joined the session');
+}
+function setupNicknameInput(){
+  var inp = document.getElementById('nick-input');
+  if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter') saveNickname(); });
+  initNickname();
+}
+
+
+
 function fbGet(path){return fetch(DB_URL+path+'.json').then(function(r){return r.json();});}
 function fbSet(path,data){return fetch(DB_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();});}
 
@@ -395,6 +445,15 @@ function initApp(){
 
 function pushRows(){setSyncStatus('syncing');fbSet('/rows',rows).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});}
 function pushAgents(){setSyncStatus('syncing');fbSet('/agents',agents).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});}
+
+function writeLog(event,detail){
+  var now=new Date();
+  var kyivStr=now.toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'2-digit',year:'numeric',hour12:false});
+  var ts=now.getTime();
+  var who=currentNickname||'Unknown';
+  var entry={ts:ts,kyiv:kyivStr,event:event,detail:detail,who:who};
+  fetch(DB_URL+'/logs/'+ts+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)}).catch(function(){});
+}
 
 function pad(n){return String(n).padStart(2,'0');}
 function kyivNowMins(){var s=new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});var p=s.split(':').map(Number);return p[0]*60+p[1]+p[2]/60;}
@@ -530,6 +589,9 @@ function clickAvailSlot(t){
     rows[ri].slots[si].to=t;
     var twrap=document.getElementById('tw-'+ri+'-'+si);
     if(twrap){var segs=twrap.querySelectorAll('.time-seg');var parts=t.split(':');if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
+    var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
+    var bDur=dur;
+    writeLog('BREAK_BOOKED',agentName+' — Break '+(si+1)+' booked via grid: '+rows[ri].slots[si].from+' → '+t+' ('+bDur+' min)');
     pendingFrom=null;pushRows();render();return;
   }
   var ri=activeRow,targetSi=-1;
@@ -564,11 +626,16 @@ function filterDropdown(ri,query){
   list.querySelectorAll('.agent-dropdown-item').forEach(function(item){if(!q||item.textContent.toLowerCase().includes(q)){item.classList.remove('hidden');}else{item.classList.add('hidden');}});
 }
 function selectAgent(ri,idx){
+  var prevIdx=rows[ri].agentIdx;
   rows[ri].agentIdx=parseInt(idx);
   var label=document.getElementById('dd-label-'+ri);
   if(label){label.textContent=idx>=0&&agents[idx]?agents[idx]:'— select agent —';}
   var menu=document.getElementById('dd-menu-'+ri);if(menu)menu.classList.remove('open');
   if(parseInt(idx)>=0){activeRow=ri;pendingFrom=null;}
+  var agentName=idx>=0&&agents[idx]?agents[idx]:'—';
+  var prevName=prevIdx>=0&&agents[prevIdx]?agents[prevIdx]:'—';
+  if(parseInt(idx)<0) writeLog('AGENT_CLEARED','Row '+(ri+1)+' cleared (was: '+prevName+')');
+  else writeLog('AGENT_SELECTED','Row '+(ri+1)+': '+agentName+(prevIdx>=0&&prevIdx!==parseInt(idx)?' (replaced: '+prevName+')':''));
   pushRows();render();
 }
 document.addEventListener('click',function(e){if(!e.target.closest('.agent-dropdown')){document.querySelectorAll('.agent-dropdown-menu.open').forEach(function(m){m.classList.remove('open');});}});
@@ -689,6 +756,13 @@ function commitTime(ri,si,field){
     var dur=toMins(rows[ri].slots[si].to)-toMins(val);if(dur<0)dur+=1440;
     if(dur>budget||dur<=0)rows[ri].slots[si].to='';
   }
+  // Log completed booking
+  var finalSlot=rows[ri].slots[si];
+  if(finalSlot.from&&finalSlot.to){
+    var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
+    var bDur=toMins(finalSlot.to)-toMins(finalSlot.from);if(bDur<0)bDur+=1440;
+    writeLog('BREAK_BOOKED',agentName+' — Break '+(si+1)+' booked: '+finalSlot.from+' → '+finalSlot.to+' ('+bDur+' min)');
+  }
   pushRows();render();
 }
 
@@ -700,19 +774,38 @@ function startBreakNow(ri,si){
   var newFrom=pad(nowH)+':'+pad(nowMin),newToM=Math.floor(nowM)+dur;
   var newToH=Math.floor(newToM/60)%24,newToMin=Math.floor(newToM%60);
   rows[ri].slots[si].from=newFrom;rows[ri].slots[si].to=pad(newToH)+':'+pad(newToMin);rows[ri].slots[si].started=true;
+  var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
+  writeLog('BREAK_STARTED',agentName+' — Break '+(si+1)+' started at '+newFrom+', ends '+pad(newToH)+':'+pad(newToMin)+' ('+dur+' min)');
   pushRows();render();
 }
 function stopBreakNow(ri,si){
   var nowM=kyivNowMins(),nowH=Math.floor(nowM/60),nowMin=Math.floor(nowM%60);
-  rows[ri].slots[si].to=pad(nowH)+':'+pad(nowMin);rows[ri].slots[si].started=false;
+  var stopTime=pad(nowH)+':'+pad(nowMin);
+  var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
+  var startedAt=rows[ri].slots[si].from||'?';
+  var actualDur=toMins(stopTime)-toMins(startedAt);if(actualDur<0)actualDur+=1440;
+  rows[ri].slots[si].to=stopTime;rows[ri].slots[si].started=false;
+  writeLog('BREAK_STOPPED',agentName+' — Break '+(si+1)+' stopped at '+stopTime+' (started '+startedAt+', actual '+actualDur+' min)');
   pushRows();render();
 }
-function clearSlot(ri,si){rows[ri].slots[si]={from:'',to:'',started:false};pushRows();render();}
+function clearSlot(ri,si){
+  var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
+  var s=rows[ri].slots[si];
+  var detail=agentName+' — Break '+(si+1)+' cleared';
+  if(s.from||s.to)detail+=' (was '+( s.from||'?')+' → '+(s.to||'?')+')';
+  writeLog('SLOT_CLEARED',detail);
+  rows[ri].slots[si]={from:'',to:'',started:false};pushRows();render();
+}
 function clearAll(){
+  writeLog('ALL_CLEARED','All rows cleared by supervisor');
   for(var i=0;i<rows.length;i++){rows[i].agentIdx=-1;rows[i].slots=[{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}];}
   pushRows();render();
 }
-function clearRow(ri){rows[ri].agentIdx=-1;rows[ri].slots=[{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}];pushRows();render();}
+function clearRow(ri){
+  var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'—';
+  writeLog('ROW_CLEARED','Row '+(ri+1)+' fully cleared (agent was: '+agentName+')');
+  rows[ri].agentIdx=-1;rows[ri].slots=[{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}];pushRows();render();
+}
 
 function updateStats(onBreakCount){
   document.getElementById('stat-on-break').textContent=onBreakCount;
@@ -730,7 +823,15 @@ function renderSetup(){
   }
 }
 function saveAgents(){
-  document.querySelectorAll('#agents-grid input').forEach(function(inp){agents[parseInt(inp.dataset.idx)]=inp.value.trim();});
+  var changes=[];
+  document.querySelectorAll('#agents-grid input').forEach(function(inp){
+    var idx=parseInt(inp.dataset.idx);
+    var oldVal=(agents[idx]||'').trim();
+    var newVal=inp.value.trim();
+    if(oldVal!==newVal)changes.push('#'+(idx+1)+': "'+oldVal+'" → "'+newVal+'"');
+    agents[idx]=newVal;
+  });
+  if(changes.length>0)writeLog('AGENTS_UPDATED','Agent names changed: '+changes.join(', '));
   pushAgents();
   rows.forEach(function(row){if(row.agentIdx>=0&&!agents[row.agentIdx])row.agentIdx=-1;});
   pushRows();render();alert('Agents saved & synced!');
@@ -788,6 +889,7 @@ function updateClock(){
 setInterval(updateClock,1000);
 setInterval(render,10000);
 updateClock();
+setupNicknameInput();
 initApp();
 </script>
 </body>
