@@ -10,6 +10,7 @@
     --bg:#0e0f13; --surface:#16181f; --surface2:#1e2029; --border:#2a2d3a;
     --text:#e8eaf0; --muted:#6b7080; --accent:#4f7cff; --accent2:#7c5cfc;
     --on-break:#ff6b35; --on-break-bg:rgba(255,107,53,0.10); --on-break-border:rgba(255,107,53,0.32);
+    --on-break-amber:#f59e0b; --on-break-amber-bg:rgba(245,158,11,0.10); --on-break-amber-border:rgba(245,158,11,0.32);
     --done:#22c55e; --done-bg:rgba(34,197,94,0.07); --warning:#f59e0b; --kyiv:#38bdf8;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,6 +120,8 @@
   .avail-slot.clickable:hover{transform:scale(1.08);filter:brightness(1.3);}
   .avail-slot.selected-from{outline:2px solid var(--accent);outline-offset:2px;}
   .avail-free{background:rgba(34,197,94,0.13);border-color:rgba(34,197,94,0.28);color:var(--done);}
+  /* 1/2 = amber, 2/2 = red */
+  .avail-half{background:rgba(245,158,11,0.13);border-color:rgba(245,158,11,0.38);color:#f59e0b;}
   .avail-full{background:rgba(255,107,53,0.10);border-color:rgba(255,107,53,0.22);color:rgba(255,107,53,0.6);text-decoration:line-through;}
   .avail-past{background:rgba(107,112,128,0.07);border-color:rgba(107,112,128,0.15);color:rgba(107,112,128,0.4);}
   .avail-now-marker{position:relative;}
@@ -269,12 +272,27 @@
   .wm-rn{font-family:'Fredoka One',cursive;font-size:clamp(1.3rem,3.5vw,2rem);color:#ffd84d;text-shadow:0 0 10px rgba(255,216,77,.35);word-break:break-word;}
   .wm-rs{font-size:.8rem;color:#9b7ec8;font-weight:700;}
   .wm-hw h4{font-family:'Fredoka One',cursive;font-size:.88rem;color:#9b7ec8;margin-bottom:.4rem;margin-top:.85rem;}
-  .wm-hl-scroll{max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2a1650 transparent;}
-  .wm-hl{list-style:none;display:flex;flex-direction:column;gap:.25rem;}
-  .wm-hl li{font-size:.82rem;font-weight:700;color:#9b7ec8;padding:.28rem .5rem;background:#2a1650;border-radius:6px;display:flex;align-items:center;gap:.4rem;}
+  .wm-hl-scroll{max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2a1650 transparent;}
+  .wm-hl{list-style:none;display:flex;flex-direction:column;gap:.3rem;}
+  .wm-hl li{font-size:.82rem;font-weight:700;color:#9b7ec8;padding:.32rem .6rem;background:#2a1650;border-radius:6px;display:flex;align-items:center;gap:.4rem;position:relative;cursor:default;}
+  .wm-hl li:hover{background:#341a6a;}
   .wm-hl li::before{content:'🎯';font-size:.72rem;flex-shrink:0;}
-  .wm-pick-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .wm-pick-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f0e6ff;}
+  .wm-pick-spunby{font-size:.7rem;color:#a78bfa;opacity:.85;font-weight:700;white-space:nowrap;flex-shrink:0;}
   .wm-pick-ts{font-size:.7rem;color:#00e5ff;opacity:.8;font-weight:700;white-space:nowrap;flex-shrink:0;letter-spacing:.02em;}
+  /* Tooltip for participants on hover */
+  .wm-pick-tooltip{
+    display:none;position:absolute;bottom:calc(100% + 6px);left:0;z-index:100;
+    background:#1a0f35;border:1px solid rgba(255,216,77,0.35);border-radius:8px;
+    padding:8px 12px;min-width:160px;max-width:260px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.6);
+    font-family:'Nunito',sans-serif;font-size:.78rem;color:#c8b4f0;
+    pointer-events:none;
+  }
+  .wm-hl li:hover .wm-pick-tooltip{display:block;}
+  .wm-pick-tooltip-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#ffd84d;margin-bottom:5px;}
+  .wm-pick-tooltip-names{display:flex;flex-wrap:wrap;gap:3px;}
+  .wm-pick-tooltip-tag{background:#2a1650;border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:2px 7px;font-size:.75rem;color:#e0d0ff;font-weight:700;}
   .wm-btn{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;border:none;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;transition:transform .12s,box-shadow .12s,opacity .2s;}
   .wm-btn:disabled{opacity:.4;cursor:not-allowed;transform:none !important;}
   .wm-btn:not(:disabled):active{transform:scale(.96);}
@@ -294,7 +312,8 @@
   .wm-me{font-size:2.8rem;margin-bottom:.3rem;animation:wm-bou 1s ease infinite;}
   @keyframes wm-bou{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
   .wm-ml{color:#9b7ec8;font-weight:700;font-size:.88rem;margin-bottom:.2rem;font-family:'Nunito',sans-serif;}
-  .wm-mn{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,6vw,2.4rem);color:#ffd84d;text-shadow:0 0 14px rgba(255,216,77,.45);margin-bottom:1.1rem;word-break:break-word;}
+  .wm-mn{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,6vw,2.4rem);color:#ffd84d;text-shadow:0 0 14px rgba(255,216,77,.45);margin-bottom:.3rem;word-break:break-word;}
+  .wm-mspunby{font-family:'Nunito',sans-serif;font-size:.82rem;color:#a78bfa;font-weight:700;margin-bottom:1rem;}
   .wm-cf{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;pointer-events:none;}
   .wm-cf span{position:absolute;width:8px;height:8px;border-radius:2px;animation:wm-cff 1.1s ease-out forwards;}
   @keyframes wm-cff{0%{transform:translate(0,0) rotate(0deg);opacity:1}100%{transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:0}}
@@ -302,6 +321,10 @@
   .wm-torture-wrap{position:relative;display:inline-block;}
   .wm-torture-label{position:absolute;top:-1.15em;left:55%;transform:translateX(-50%) rotate(-9deg);font-size:0.27em;white-space:nowrap;font-family:'Arial Black','Impact',sans-serif;font-weight:900;letter-spacing:.09em;color:#cc0000;text-shadow:0 0 10px #ff0000,1px 1px 0 #5a0000,2px 2px 0 #5a0000,3px 3px 4px rgba(0,0,0,0.6);filter:drop-shadow(0 3px 5px rgba(160,0,0,0.8));z-index:10;pointer-events:none;line-height:1;}
   .wm-torture-label svg{position:absolute;top:100%;left:0;width:100%;overflow:visible;pointer-events:none;}
+
+  /* min-shift notice */
+  .min-shift-notice{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:8px 14px;font-size:13px;color:#f59e0b;margin-bottom:12px;display:none;}
+  .min-shift-notice.visible{display:flex;align-items:center;gap:7px;}
 </style>
 </head>
 <body>
@@ -322,7 +345,6 @@
     <div class="live-dot"><span class="dot"></span> LIVE</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
-    <!-- 🎡 SPIN THE WHEEL BUTTON — left of Kyiv clock -->
     <button class="spin-wheel-btn" onclick="openWheelModal()">🎡 Spin the Wheel</button>
     <div class="kyiv-clock">
       <span style="font-size:15px;">🇺🇦</span>
@@ -334,9 +356,7 @@
   <div class="shift-indicator">Shift: <span id="shift-label">--</span> &nbsp;·&nbsp; Cutoff: <span id="cutoff-label">--</span></div>
 </header>
 
-<!-- ══════════════════════════════════════════════════════════
-     WHEEL MODAL
-     ══════════════════════════════════════════════════════════ -->
+<!-- WHEEL MODAL -->
 <div class="wheel-overlay closed" id="wheel-overlay" onclick="if(event.target===this)closeWheelModal()">
   <div class="wheel-modal" id="wheel-modal">
     <button class="wheel-modal-close" onclick="closeWheelModal()">✕</button>
@@ -398,7 +418,7 @@
         </div>
         <button class="wm-btn wm-bg2" id="wm-saB" style="display:none;width:100%;margin-bottom:.5rem">🔄 Spin again</button>
         <div class="wm-hw">
-          <h4>Recent picks</h4>
+          <h4>Recent picks <span style="font-size:.72rem;color:#6b5a8a;font-family:'Nunito',sans-serif;font-weight:700;">(hover for participants)</span></h4>
           <div class="wm-hl-scroll"><ol class="wm-hl" id="wm-hl" reversed></ol></div>
         </div>
       </section>
@@ -411,6 +431,7 @@
         <p class="wm-me">🎉</p>
         <p class="wm-ml">The wheel chose…</p>
         <p class="wm-mn" id="wm-mn"></p>
+        <p class="wm-mspunby" id="wm-mspunby"></p>
         <button class="wm-btn wm-bs" id="wm-mcB" style="font-size:.92rem;padding:.65rem 1.6rem;animation:none">Awesome!</button>
       </div>
     </div>
@@ -437,7 +458,7 @@
       </div>
       <div class="guide-section">
         <div class="guide-section-label">🖥 What You're Looking At</div>
-        <div class="guide-text">The <strong>top bar</strong> shows the Kyiv clock and your current shift + cutoff time.<br><br>Below that is the <strong>Available Break Slots grid</strong> — 🟢 <strong>Green</strong> = open slot, 🔴 <strong>Red / crossed out</strong> = already has someone booked there, <strong>Grey</strong> = time already passed.<br><br>The <strong>main table</strong> is split into two columns — Rows 1–5 on the left, Rows 6–10 on the right.</div>
+        <div class="guide-text">The <strong>top bar</strong> shows the Kyiv clock and your current shift + cutoff time.<br><br>Below that is the <strong>Available Break Slots grid</strong> — 🟢 <strong>Green</strong> = open slot, 🟡 <strong>Amber</strong> = 1 person already booked (one more can overlap max 30 min), 🔴 <strong>Red / crossed out</strong> = full (2 already booked), <strong>Grey</strong> = time already passed.<br><br>The <strong>main table</strong> is split into two columns — Rows 1–5 on the left, Rows 6–10 on the right.</div>
       </div>
       <div class="guide-section">
         <div class="guide-section-label">① Select Your Name</div>
@@ -466,7 +487,7 @@
       <div class="guide-rules-box">
         <div class="guide-rules-label">⚠️ Rules</div>
         <div class="guide-rules-list">
-          <div>👤 <strong>Max 1 agent on break at the same time.</strong></div>
+          <div>👥 <strong>Max 2 agents on break at the same time</strong> — but only when there are 6+ agents on shift. Their breaks may overlap by max 30 minutes.</div>
           <div>🍱 <strong>No breaks in the last 30 minutes of any shift.</strong> Blocked times: 14:30–15:00, 22:30–23:00, 06:30–07:00.</div>
           <div>🕐 <strong>Max 60 minutes total</strong> per agent per shift, across all 3 slots combined.</div>
         </div>
@@ -482,9 +503,11 @@
       <div class="avail-title-left">🕐 Available Break Slots <span style="color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px;">— current shift only</span></div>
       <div class="avail-legend">
         <div class="legend-item"><div class="legend-dot" style="background:rgba(34,197,94,0.25);border:1px solid rgba(34,197,94,0.4);"></div><span style="color:var(--done)">Open</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);"></div><span style="color:var(--on-break)">Taken</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);"></div><span style="color:#f59e0b">1/2</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);"></div><span style="color:var(--on-break)">Full</span></div>
       </div>
     </div>
+    <div class="min-shift-notice" id="min-shift-notice">⚠️ Simultaneous breaks require 6+ agents on shift. Currently only <span id="min-shift-count">0</span> agents assigned.</div>
     <div class="avail-grid" id="avail-grid"></div>
   </div>
 
@@ -508,7 +531,7 @@
     <div style="width:1px;height:30px;background:var(--border);flex-shrink:0;"></div>
     <div style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--muted);">
       <span style="font-size:18px;">⏱</span>
-      <span><span style="color:var(--text);font-weight:700;letter-spacing:0.3px;">LIMIT:</span> Max 1 agent on break at a time. Check the table below!</span>
+      <span><span style="color:var(--text);font-weight:700;letter-spacing:0.3px;">LIMIT:</span> Max 2 agents on break at a time (6+ agents on shift required). Max 30 min overlap. Check the table below!</span>
     </div>
   </div>
 
@@ -527,7 +550,7 @@
       <div id="break-table-right"></div>
     </div>
   </div>
-  <div style="font-size:11px;color:var(--muted);margin-top:8px;">No breaks in last 30 min of shift · 60 min total per agent</div>
+  <div style="font-size:11px;color:var(--muted);margin-top:8px;">No breaks in last 30 min of shift · 60 min total per agent · Max 2 simultaneous (6+ agents, ≤30 min overlap)</div>
 
   <div class="stats" style="margin-top:18px;">
     <div class="stat-card"><div class="stat-label">On Break Now</div><div class="stat-value orange" id="stat-on-break">0</div></div>
@@ -545,9 +568,11 @@
 
 <script>
 /* ══════════════════════════════════════════════════════════
-   BREAKSHEET — YOUR FIREBASE (untouched)
+   BREAKSHEET — FIREBASE
    ══════════════════════════════════════════════════════════ */
 var DB_URL = 'https://breaksheetstarspartners-default-rtdb.europe-west1.firebasedatabase.app/';
+var MIN_AGENTS_FOR_DUAL = 6;   // minimum agents on shift for 2 simultaneous breaks
+var MAX_OVERLAP_MINS = 30;     // max overlap between 2 concurrent breaks
 
 var currentNickname = '';
 function initNickname(){
@@ -574,8 +599,9 @@ function setupNicknameInput(){
 
 function fbGet(path){return fetch(DB_URL+path+'.json').then(function(r){return r.json();});}
 function fbSet(path,data){return fetch(DB_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();});}
+function fbPush(path,data){return fetch(DB_URL+path+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();});}
 
-var rowsSSE=null,agentsSSE=null;
+var rowsSSE=null,agentsSSE=null,wheelSSE=null;
 function startSSE(){
   if(rowsSSE)rowsSSE.close();
   rowsSSE=new EventSource(DB_URL+'/rows.json?accept=text/event-stream');
@@ -584,6 +610,11 @@ function startSSE(){
   if(agentsSSE)agentsSSE.close();
   agentsSSE=new EventSource(DB_URL+'/agents.json?accept=text/event-stream');
   agentsSSE.addEventListener('put',function(e){try{var d=JSON.parse(e.data);if(d&&d.data&&Array.isArray(d.data)){agents=d.data;while(agents.length<40)agents.push('');renderSetup();render();}}catch(err){}});
+  // SSE for wheel history
+  if(wheelSSE)wheelSSE.close();
+  wheelSSE=new EventSource(DB_URL+'/wheelHistory.json?accept=text/event-stream');
+  wheelSSE.addEventListener('put',function(e){try{var d=JSON.parse(e.data);if(d&&d.data){wmSetHistFromFB(d.data);}}catch(err){}});
+  wheelSSE.addEventListener('patch',function(e){try{var d=JSON.parse(e.data);if(d&&d.data){wmSetHistFromFB(d.data);}}catch(err){}});
 }
 function setSyncStatus(state){
   var dot=document.getElementById('sync-dot'),lbl=document.getElementById('sync-label');
@@ -605,11 +636,16 @@ var agents=DEFAULT_AGENTS.slice();while(agents.length<40)agents.push('');
 function initRows(){return Array.from({length:NUM_ROWS},function(_,i){return{id:i,agentIdx:-1,slots:Array.from({length:MAX_SLOTS},function(){return{from:'',to:'',started:false};})};});}
 var rows=initRows();
 
+function countActiveAgents(){
+  return rows.filter(function(r){return r.agentIdx>=0;}).length;
+}
+
 function initApp(){
   setSyncStatus('syncing');
-  Promise.all([fbGet('/rows'),fbGet('/agents')]).then(function(res){
+  Promise.all([fbGet('/rows'),fbGet('/agents'),fbGet('/wheelHistory')]).then(function(res){
     if(res[0]&&Array.isArray(res[0]))rows=res[0];
     if(res[1]&&Array.isArray(res[1])){agents=res[1];while(agents.length<40)agents.push('');}
+    if(res[2])wmSetHistFromFB(res[2]);
     renderSetup();render();setSyncStatus('ok');startSSE();
   }).catch(function(e){console.error(e);setSyncStatus('err');renderSetup();render();});
 }
@@ -649,22 +685,76 @@ function rowDoneMins(row){return row.slots.reduce(function(a,s){return slotStatu
 function rowFinished(row){return rowDoneMins(row)>=MAX_BREAK;}
 function countOnBreakNow(){var c=0;rows.forEach(function(row){if(row.agentIdx<0)return;row.slots.forEach(function(s){if(slotStatus(s)==='break')c++;});});return c;}
 
-var ALL_TIMES=(function(){var t=[];for(var h=7;h<24;h++)for(var m=0;m<60;m+=15)t.push(pad(h)+':'+pad(m));for(var h=0;h<7;h++)for(var m=0;m<60;m+=15)t.push(pad(h)+':'+pad(m));return t;})();
+/* ── Overlap helpers ──
+   Returns how many minutes two intervals [a1,a2) and [b1,b2) overlap.
+   All minutes are normalized (absolute, may cross midnight via +1440). */
+function overlapMins(a1,a2,b1,b2){
+  var start=Math.max(a1,b1),end=Math.min(a2,b2);
+  return start<end?end-start:0;
+}
 
-function wouldOverlap(excludeRi,excludeSi,fromM,toM){
-  if(fromM<0||toM<0||toM===fromM)return false;
+/* Count how many EXISTING booked slots overlap with [fromM,toM).
+   excludeRi/Si = the slot we're editing (don't count itself). */
+function countOverlapsFor(excludeRi,excludeSi,fromM,toM){
+  if(fromM<0||toM<0||toM===fromM)return 0;
   if(toM<fromM)toM+=1440;
+  var count=0;
   for(var ri=0;ri<rows.length;ri++){
     var row=rows[ri];if(row.agentIdx<0)continue;
     for(var si=0;si<row.slots.length;si++){
       if(ri===excludeRi&&si===excludeSi)continue;
       var s=row.slots[si];if(!s.from||!s.to||s.from===s.to)continue;
       var sF=toMins(s.from),sT=toMins(s.to);if(sT<sF)sT+=1440;
-      if(fromM<sT&&toM>sF)return true;
+      if(overlapMins(fromM,toM,sF,sT)>0)count++;
     }
+  }
+  return count;
+}
+
+/* Enforce new rules:
+   - At most 2 people may have overlapping breaks
+   - The overlapping window may not exceed 30 minutes
+   - Dual breaks only when 6+ active agents
+   Returns true if booking is INVALID. */
+function wouldViolateOverlapRules(excludeRi,excludeSi,fromM,toM){
+  if(fromM<0||toM<0||toM===fromM)return false;
+  if(toM<fromM)toM+=1440;
+  var activeAgents=countActiveAgents();
+
+  // Gather all existing booked slots (excluding the one we're editing)
+  var existing=[];
+  for(var ri=0;ri<rows.length;ri++){
+    var row=rows[ri];if(row.agentIdx<0)continue;
+    for(var si=0;si<row.slots.length;si++){
+      if(ri===excludeRi&&si===excludeSi)continue;
+      var s=row.slots[si];if(!s.from||!s.to||s.from===s.to)continue;
+      var sF=toMins(s.from),sT=toMins(s.to);if(sT<sF)sT+=1440;
+      existing.push({from:sF,to:sT});
+    }
+  }
+
+  // Count how many existing slots overlap with the new slot
+  var overlapping=existing.filter(function(e){
+    return overlapMins(fromM,toM,e.from,e.to)>0;
+  });
+
+  if(overlapping.length===0)return false; // no overlap at all — fine
+
+  // There's at least one overlap
+  if(overlapping.length>=2)return true; // already 2 breaks, can't add a 3rd concurrent
+
+  // Exactly 1 overlap — check dual-break conditions
+  if(activeAgents<MIN_AGENTS_FOR_DUAL)return true; // not enough agents for dual
+
+  // Check that all overlapping windows are ≤ MAX_OVERLAP_MINS
+  for(var i=0;i<overlapping.length;i++){
+    var ov=overlapMins(fromM,toM,overlapping[i].from,overlapping[i].to);
+    if(ov>MAX_OVERLAP_MINS)return true;
   }
   return false;
 }
+
+var ALL_TIMES=(function(){var t=[];for(var h=7;h<24;h++)for(var m=0;m<60;m+=15)t.push(pad(h)+':'+pad(m));for(var h=0;h<7;h++)for(var m=0;m<60;m+=15)t.push(pad(h)+':'+pad(m));return t;})();
 
 function renderAvailableSlots(){
   var grid=document.getElementById('avail-grid');if(!grid)return;
@@ -677,6 +767,8 @@ function renderAvailableSlots(){
   var slots=[];
   if(!overnight){ALL_TIMES.forEach(function(t){if(inShift(toMins(t)))slots.push(t);});}
   else{ALL_TIMES.forEach(function(t){var tM=toMins(t);if(tM>=shiftStart)slots.push(t);});ALL_TIMES.forEach(function(t){var tM=toMins(t);if(tM<shiftEnd)slots.push(t);});}
+
+  // Count occupancy per 15-min slot
   var slotCounts={};slots.forEach(function(t){slotCounts[t]=0;});
   function normToShift(tM){return tM>=shiftStart?tM-shiftStart:tM+1440-shiftStart;}
   rows.forEach(function(row){row.slots.forEach(function(s){
@@ -685,18 +777,38 @@ function renderAvailableSlots(){
     if(sTo<=sFrom)sTo+=1440;
     slots.forEach(function(t){var tN=normToShift(toMins(t));if(tN>=sFrom&&tN<sTo)slotCounts[t]++;});
   });});
+
   function isPast(tM){var normT=normToShift(tM),normNow=normToShift(nowM);return normT<normNow-14;}
   var nowSlot=slots[0],bestNorm=-1;
   slots.forEach(function(t){var n=normToShift(toMins(t)),normNow=normToShift(nowM);if(n<=normNow&&n>bestNorm){bestNorm=n;nowSlot=t;}});
+
+  var activeAgents=countActiveAgents();
+  var notice=document.getElementById('min-shift-notice');
+  var minCount=document.getElementById('min-shift-count');
+  if(notice&&minCount){
+    minCount.textContent=activeAgents;
+    notice.classList.toggle('visible',activeAgents<MIN_AGENTS_FOR_DUAL&&activeAgents>0);
+  }
+
   grid.innerHTML='';
   slots.forEach(function(t){
-    var tM=toMins(t),past=isPast(tM),isNow=(t===nowSlot),taken=slotCounts[t]>0;
+    var tM=toMins(t),past=isPast(tM),isNow=(t===nowSlot),count=slotCounts[t];
     var cls='avail-slot ';
-    if(past)cls+='avail-past';else if(taken)cls+='avail-full';else cls+='avail-free';
-    var isClickable=!past&&!taken;
+    var isClickable=false;
+    if(past){cls+='avail-past';}
+    else if(count>=2){cls+='avail-full';}  // 2/2 red
+    else if(count===1){
+      cls+='avail-half'; // 1/2 amber
+      // Only clickable if dual breaks allowed
+      if(activeAgents>=MIN_AGENTS_FOR_DUAL)isClickable=true;
+    }
+    else{cls+='avail-free';isClickable=true;}
+
     var isPendingFrom=pendingFrom&&pendingFrom.time===t;
     if(isClickable)cls+=' clickable';if(isPendingFrom)cls+=' selected-from';if(isNow)cls+=' avail-now-marker';
-    var div=document.createElement('div');div.className=cls;div.title=t;div.innerHTML=t;
+    var countLabel=count>0?' '+count+'/2':'';
+    var div=document.createElement('div');div.className=cls;div.title=t+(count===1?' (1/2 — one break already booked)':count>=2?' (Full)':'');
+    div.innerHTML=t+(count>0?'<span style="font-size:10px;opacity:0.8;margin-left:2px;">'+count+'/2</span>':'');
     if(isClickable)div.onclick=(function(time){return function(){clickAvailSlot(time);};})(t);
     grid.appendChild(div);
   });
@@ -712,7 +824,12 @@ function clickAvailSlot(t){
     var dur=toM-fromM;
     var otherMins=rows[ri].slots.reduce(function(a,s,idx){return idx!==si?a+slotDur(s):a;},0);
     var budget=Math.max(0,MAX_BREAK-otherMins);
-    if(dur<=0||dur>budget||wouldOverlap(ri,si,fromM,toM)){pendingFrom=null;rows[ri].slots[si].from='';var fwrap=document.getElementById('fw-'+ri+'-'+si);if(fwrap){var segs=fwrap.querySelectorAll('.time-seg');segs[0].value='';segs[1].value='';}pushRows();render();renderAvailableSlots();return;}
+    if(dur<=0||dur>budget||wouldViolateOverlapRules(ri,si,fromM,toM)){
+      pendingFrom=null;rows[ri].slots[si].from='';
+      var fwrap=document.getElementById('fw-'+ri+'-'+si);
+      if(fwrap){var segs=fwrap.querySelectorAll('.time-seg');segs[0].value='';segs[1].value='';}
+      pushRows();render();renderAvailableSlots();return;
+    }
     rows[ri].slots[si].to=t;
     var twrap=document.getElementById('tw-'+ri+'-'+si);if(twrap){var segs=twrap.querySelectorAll('.time-seg');var parts=t.split(':');if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
     var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
@@ -764,6 +881,7 @@ function render(){
   var left=document.getElementById('break-table-left'),right=document.getElementById('break-table-right');
   if(!left||!right)return;left.innerHTML='';right.innerHTML='';
   var onBreakCount=countOnBreakNow();
+  var activeAgents=countActiveAgents();
   rows.forEach(function(row,ri){
     var used=rowUsedMins(row),pct=Math.min(100,(used/MAX_BREAK)*100),barCls=used>=MAX_BREAK?'full':'';
     var anyBreak=row.agentIdx>=0&&row.slots.some(function(s){return slotStatus(s)==='break';});
@@ -800,11 +918,26 @@ function render(){
       else if(dur)pill='<span class="status-pill pill-idle">'+dur+' min</span>';
       var canStart=slot.from&&slot.to&&!slot.started&&status!=='done';
       var isOnBreak=slot.started&&status==='break';
-      var someoneOnBreak=onBreakCount>=1&&!isOnBreak;
+      // Allow start if <2 on break, and if 2nd person: enough agents + won't violate overlap
+      var canStartNow=false;
+      if(canStart&&!isOnBreak){
+        if(onBreakCount===0)canStartNow=true;
+        else if(onBreakCount===1&&activeAgents>=MIN_AGENTS_FOR_DUAL){
+          // Check overlap would be ≤30 min
+          var nowM2=kyivNowMins(),h2=Math.floor(nowM2/60),min2=Math.floor(nowM2%60);
+          var newFrom2=h2*60+min2;
+          var slotDur2=slotDur(slot);
+          var newTo2=newFrom2+slotDur2;
+          if(!wouldViolateOverlapRules(ri,si,newFrom2,newTo2))canStartNow=true;
+        }
+      }
       var actionBtns='';
       if(isOnBreak){actionBtns='<button class="start-break-btn" style="opacity:0.3;cursor:default;pointer-events:none;">▶ Start</button><button class="stop-break-btn" onclick="stopBreakNow('+ri+','+si+')">■ Stop</button>';}
-      else if(canStart&&!someoneOnBreak){actionBtns='<button class="start-break-btn" onclick="startBreakNow('+ri+','+si+')">▶ Start</button>';}
-      else if(canStart&&someoneOnBreak){actionBtns='<button class="start-break-btn" style="opacity:0.35;cursor:not-allowed;pointer-events:none;" title="Another agent is on break">▶ Start</button>';}
+      else if(canStart&&canStartNow){actionBtns='<button class="start-break-btn" onclick="startBreakNow('+ri+','+si+')">▶ Start</button>';}
+      else if(canStart){
+        var reason=onBreakCount>=2?'Max 2 on break':(activeAgents<MIN_AGENTS_FOR_DUAL?'Need 6+ agents':'Overlap >30 min');
+        actionBtns='<button class="start-break-btn" style="opacity:0.35;cursor:not-allowed;pointer-events:none;" title="'+reason+'">▶ Start</button>';
+      }
       var fH=slot.from?slot.from.split(':')[0]:'',fM=slot.from?slot.from.split(':')[1]:'';
       var tH=slot.to?slot.to.split(':')[0]:'',tMM=slot.to?slot.to.split(':')[1]:'';
       var sd=document.createElement('div');sd.className='break-slot';
@@ -852,7 +985,7 @@ function commitTime(ri,si,field){
     var dur=tM2-fM2;
     var otherMins=rows[ri].slots.reduce(function(a,s,idx){return idx!==si?a+slotDur(s):a;},0);
     var budget=Math.max(0,MAX_BREAK-otherMins);
-    if(dur>budget||fM2===tM2||wouldOverlap(ri,si,fM2,tM2)){rows[ri].slots[si][field]='';segs[0].value='';segs[1].value='';wrap.classList.add('invalid');setTimeout(function(){wrap.classList.remove('invalid');},1500);return;}
+    if(dur>budget||fM2===tM2||wouldViolateOverlapRules(ri,si,fM2,tM2)){rows[ri].slots[si][field]='';segs[0].value='';segs[1].value='';wrap.classList.add('invalid');setTimeout(function(){wrap.classList.remove('invalid');},1500);return;}
   }
   if(field==='from'&&rows[ri].slots[si].to){
     var otherMins2=rows[ri].slots.reduce(function(a,s,idx){return idx!==si?a+slotDur(s):a;},0);
@@ -870,10 +1003,18 @@ function commitTime(ri,si,field){
 }
 function startBreakNow(ri,si){
   var slot=rows[ri].slots[si];if(!slot.from||!slot.to)return;
-  if(countOnBreakNow()>=1)return;
+  var onBreakCount=countOnBreakNow();
+  if(onBreakCount>=2)return;
+  var activeAgents=countActiveAgents();
   var dur=toMins(slot.to)-toMins(slot.from);if(dur<0)dur+=1440;
   var nowM=kyivNowMins(),nowH=Math.floor(nowM/60),nowMin=Math.floor(nowM%60);
-  var newFrom=pad(nowH)+':'+pad(nowMin),newToM=Math.floor(nowM)+dur;
+  var newFromM=nowH*60+nowMin,newToM=newFromM+dur;
+  // Check overlap rules with actual start-now time
+  if(onBreakCount===1){
+    if(activeAgents<MIN_AGENTS_FOR_DUAL)return;
+    if(wouldViolateOverlapRules(ri,si,newFromM,newToM))return;
+  }
+  var newFrom=pad(nowH)+':'+pad(nowMin);
   var newToH=Math.floor(newToM/60)%24,newToMin=Math.floor(newToM%60);
   rows[ri].slots[si].from=newFrom;rows[ri].slots[si].to=pad(newToH)+':'+pad(newToMin);rows[ri].slots[si].started=true;
   var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
@@ -962,8 +1103,7 @@ setupNicknameInput();
 initApp();
 
 /* ══════════════════════════════════════════════════════════
-   WHEEL MODAL JS
-   (uses localStorage only — no Firebase, no conflicts)
+   WHEEL MODAL JS — Firebase-synced history
    ══════════════════════════════════════════════════════════ */
 function openWheelModal(){
   document.getElementById('wheel-overlay').className='wheel-overlay open';
@@ -979,25 +1119,58 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// ── Wheel clock (separate from break sheet clock) ──
+// Wheel clock
 function wmKyivTimeStr(){return new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
 setInterval(function(){var el=document.getElementById('wm-kyivClock');if(el)el.textContent=wmKyivTimeStr();},1000);
 
-// ── Constants ──
 var WM_COLORS=['#ff4757','#ff6b35','#ffd84d','#7bed9f','#2ed573','#1e90ff','#5352ed','#ff4fa3','#eccc68','#00e5ff'];
 var WM_DEFAULTS=['Alice','Bob','Charlie','Diana','Eve'];
-var WM_LS_N='sw_names',WM_LS_H='sw_hist';
-var WM_SPIN_DUR=3000,WM_MAX_HIST=5,WM_CANVAS_SIZE=800;
+var WM_SPIN_DUR=3000,WM_MAX_HIST=20,WM_CANVAS_SIZE=800;
 var wmNames=[],wmHistory=[],wmSpinning=false,wmAngle=0;
 
 var wmCan=document.getElementById('wm-canvas');
 var wmCtx=wmCan.getContext('2d');
 wmCan.width=WM_CANVAS_SIZE;wmCan.height=WM_CANVAS_SIZE;
 
-// ── Name management ──
-function wmAddName(){var v=document.getElementById('wm-ni').value.trim();if(!v)return;wmNames.push(v);document.getElementById('wm-ni').value='';document.getElementById('wm-ni').focus();wmSave();wmRenderList();wmDraw();}
-function wmRemoveName(i){wmNames.splice(i,1);wmSave();wmRenderList();wmDraw();}
-function wmClearNames(){if(!wmNames.length)return;wmNames=[];wmSave();wmRenderList();wmDraw();wmResetRes();}
+/* ── Load from localStorage for local name list only ── */
+var WM_LS_N='sw_names';
+(function wmInitLocal(){
+  var sn=localStorage.getItem(WM_LS_N);
+  wmNames=sn?JSON.parse(sn):[].concat(WM_DEFAULTS);
+  wmRenderList();wmDraw();
+})();
+
+/* ── Firebase history helpers ── */
+function wmSetHistFromFB(data){
+  // data is object {key: {winner,spunBy,names,ts,kyivTs}}
+  var arr=[];
+  Object.keys(data).forEach(function(k){arr.push(data[k]);});
+  arr.sort(function(a,b){return b.ts-a.ts;});
+  wmHistory=arr.slice(0,WM_MAX_HIST);
+  wmRenderHist();
+}
+function wmPushHistToFB(entry){
+  // entry: {winner, spunBy, names:[], ts, kyivTs}
+  fbPush('/wheelHistory',entry).catch(function(e){console.error('wheel hist push failed',e);});
+}
+
+/* ── Name management ── */
+function wmAddName(){
+  var v=document.getElementById('wm-ni').value.trim();if(!v)return;
+  wmNames.push(v);document.getElementById('wm-ni').value='';document.getElementById('wm-ni').focus();
+  localStorage.setItem(WM_LS_N,JSON.stringify(wmNames));
+  wmRenderList();wmDraw();
+}
+function wmRemoveName(i){
+  wmNames.splice(i,1);
+  localStorage.setItem(WM_LS_N,JSON.stringify(wmNames));
+  wmRenderList();wmDraw();
+}
+function wmClearNames(){
+  if(!wmNames.length)return;wmNames=[];
+  localStorage.setItem(WM_LS_N,JSON.stringify(wmNames));
+  wmRenderList();wmDraw();wmResetRes();
+}
 function wmRenderList(){
   var nl=document.getElementById('wm-nl');nl.innerHTML='';
   wmNames.forEach(function(name,i){
@@ -1011,24 +1184,51 @@ function wmRenderList(){
   document.getElementById('wm-sl').textContent=wmNames.length<2?'Add 2+ names':'SPIN!';
 }
 
-// ── History ──
-function wmSave(){localStorage.setItem(WM_LS_N,JSON.stringify(wmNames));localStorage.setItem(WM_LS_H,JSON.stringify(wmHistory));}
-function wmAddHist(name){wmHistory.unshift({name:name,ts:Date.now()});if(wmHistory.length>WM_MAX_HIST)wmHistory.length=WM_MAX_HIST;wmSave();wmRenderHist();}
+/* ── History render ── */
 function wmRenderHist(){
   var hl=document.getElementById('wm-hl');hl.innerHTML='';
   wmHistory.forEach(function(entry){
     var li=document.createElement('li');
-    var ns=document.createElement('span');ns.className='wm-pick-name';ns.textContent=entry.name;
-    var ts=document.createElement('span');ts.className='wm-pick-ts';ts.textContent=entry.ts?wmKyivTimeStr():'';
-    li.append(ns,ts);hl.appendChild(li);
+    // Name of winner
+    var ns=document.createElement('span');ns.className='wm-pick-name';ns.textContent=entry.winner||entry.name||'?';
+    // Spun-by
+    var sb=document.createElement('span');sb.className='wm-pick-spunby';
+    sb.textContent=entry.spunBy?'· spun by '+entry.spunBy:'';
+    // Timestamp — exact Kyiv time when spun
+    var ts=document.createElement('span');ts.className='wm-pick-ts';
+    ts.textContent=entry.kyivTs||'';
+    // Tooltip with participants
+    var tooltip=document.createElement('div');tooltip.className='wm-pick-tooltip';
+    var namesArr=entry.names||[];
+    var tooltipHtml='<div class="wm-pick-tooltip-title">👥 Participants ('+namesArr.length+')</div><div class="wm-pick-tooltip-names">';
+    namesArr.forEach(function(n){
+      var isWinner=n===(entry.winner||entry.name);
+      tooltipHtml+='<span class="wm-pick-tooltip-tag" style="'+(isWinner?'background:#3a2800;border-color:#ffd84d;color:#ffd84d;':'')+'">'+(isWinner?'🏆 ':'')+n+'</span>';
+    });
+    tooltipHtml+='</div>';
+    tooltip.innerHTML=tooltipHtml;
+    li.append(ns,sb,ts,tooltip);
+    hl.appendChild(li);
   });
 }
 
-// ── Result display ──
-function wmShowRes(name){document.getElementById('wm-rn').textContent=name;document.getElementById('wm-rs').textContent='🎉 Congratulations!';document.getElementById('wm-rb').className='wm-rb wm-rb-w';document.getElementById('wm-saB').style.display='';}
-function wmResetRes(){document.getElementById('wm-rn').textContent='—';document.getElementById('wm-rs').textContent='Spin to reveal a winner!';document.getElementById('wm-rb').className='wm-rb wm-rb-e';document.getElementById('wm-saB').style.display='none';}
+/* ── Result display ── */
+function wmShowRes(name,spunBy){
+  document.getElementById('wm-rn').textContent=name;
+  var subTxt='🎉 Congratulations!';
+  if(spunBy)subTxt+=' (spun by '+spunBy+')';
+  document.getElementById('wm-rs').textContent=subTxt;
+  document.getElementById('wm-rb').className='wm-rb wm-rb-w';
+  document.getElementById('wm-saB').style.display='';
+}
+function wmResetRes(){
+  document.getElementById('wm-rn').textContent='—';
+  document.getElementById('wm-rs').textContent='Spin to reveal a winner!';
+  document.getElementById('wm-rb').className='wm-rb wm-rb-e';
+  document.getElementById('wm-saB').style.display='none';
+}
 
-// ── Canvas draw ──
+/* ── Canvas draw ── */
 function wmDraw(){
   var S=WM_CANVAS_SIZE,cx=S/2,cy=S/2,r=cx-4;
   wmCtx.clearRect(0,0,S,S);
@@ -1060,14 +1260,19 @@ function wmDraw(){
   wmCtx.beginPath();wmCtx.arc(cx,cy,hub,0,Math.PI*2);wmCtx.fillStyle=g;wmCtx.shadowColor='rgba(0,0,0,.5)';wmCtx.shadowBlur=14;wmCtx.fill();wmCtx.shadowBlur=0;wmCtx.strokeStyle='rgba(0,0,0,.25)';wmCtx.lineWidth=3;wmCtx.stroke();
 }
 
-// ── Winner detection ──
+/* ── Winner detection ── */
 function wmWinnerIdx(){var seg=(Math.PI*2)/wmNames.length,pa=Math.PI*1.5,a=((pa-wmAngle)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);return Math.floor(a/seg)%wmNames.length;}
 
-// ── Spin ──
+/* ── Spin ── */
 function wmSpin(){
   if(wmSpinning||wmNames.length<2)return;
   wmSpinning=true;document.getElementById('wm-spinB').disabled=true;document.body.classList.add('wm-spinning');
   var totalRot=(6+Math.random()*4)*Math.PI*2,startAngle=wmAngle,t0=performance.now();
+  // Capture spin time & names snapshot NOW (at spin start)
+  var spinKyivTs=wmKyivTimeStr();
+  var spinTimestamp=Date.now();
+  var spinNamesSnapshot=wmNames.slice();
+  var spinBy=currentNickname||'Unknown';
   function ease(t){return 1-Math.pow(1-t,3);}
   function frame(now){
     var elapsed=now-t0,progress=Math.min(elapsed/WM_SPIN_DUR,1);
@@ -1076,16 +1281,28 @@ function wmSpin(){
     else{
       wmSpinning=false;document.body.classList.remove('wm-spinning');
       var wn=wmNames[wmWinnerIdx()];
-      wmShowRes(wn);wmAddHist(wn);wmShowWinnerModal(wn);
+      wmShowRes(wn,spinBy);
+      // Push to Firebase with exact timestamp and all metadata
+      var entry={
+        winner:wn,
+        spunBy:spinBy,
+        names:spinNamesSnapshot,
+        ts:spinTimestamp,
+        kyivTs:spinKyivTs
+      };
+      wmPushHistToFB(entry);
+      wmShowWinnerModal(wn,spinBy);
       document.getElementById('wm-spinB').disabled=false;
     }
   }
   requestAnimationFrame(frame);
 }
 
-// ── Winner sub-modal ──
-function wmShowWinnerModal(name){
+/* ── Winner sub-modal ── */
+function wmShowWinnerModal(name,spunBy){
   document.getElementById('wm-mn').textContent=name;
+  var spunByEl=document.getElementById('wm-mspunby');
+  if(spunByEl)spunByEl.textContent=spunBy?'Spun by '+spunBy:'';
   document.getElementById('wm-winner-modal').classList.remove('hidden');
   var cf=document.getElementById('wm-cf');cf.innerHTML='';
   var cols=['#ffd84d','#ff4f9a','#00e5ff','#7bed9f','#ff6b35','#5352ed'];
@@ -1098,21 +1315,13 @@ function wmShowWinnerModal(name){
 }
 function wmHideWinnerModal(){document.getElementById('wm-winner-modal').classList.add('hidden');document.getElementById('wm-cf').innerHTML='';}
 
-// ── Wire up wheel buttons ──
+/* ── Wire up wheel buttons ── */
 document.getElementById('wm-addB').onclick=wmAddName;
 document.getElementById('wm-ni').addEventListener('keydown',function(e){if(e.key==='Enter')wmAddName();});
 document.getElementById('wm-clrB').onclick=wmClearNames;
 document.getElementById('wm-spinB').onclick=wmSpin;
 document.getElementById('wm-saB').onclick=wmSpin;
 document.getElementById('wm-mcB').onclick=wmHideWinnerModal;
-
-// ── Boot wheel from localStorage ──
-(function wmInit(){
-  var sn=localStorage.getItem(WM_LS_N),sh=localStorage.getItem(WM_LS_H);
-  wmNames=sn?JSON.parse(sn):[].concat(WM_DEFAULTS);
-  if(sh){var raw=JSON.parse(sh);wmHistory=raw.map(function(e){return typeof e==='string'?{name:e,ts:null}:e;}).slice(0,WM_MAX_HIST);}
-  wmRenderList();wmRenderHist();wmDraw();
-})();
 </script>
 </body>
 </html>
