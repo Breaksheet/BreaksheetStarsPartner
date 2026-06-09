@@ -1,5 +1,3 @@
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -331,6 +329,7 @@
 </head>
 <body>
 
+<!-- NICKNAME MODAL -->
 <div class="nick-overlay" id="nick-overlay">
   <div class="nick-modal">
     <div class="nick-title">👋 Welcome to Break Sheet</div>
@@ -357,6 +356,7 @@
   <div class="shift-indicator">Shift: <span id="shift-label">--</span> &nbsp;·&nbsp; Cutoff: <span id="cutoff-label">--</span></div>
 </header>
 
+<!-- WHEEL MODAL -->
 <div class="wheel-overlay closed" id="wheel-overlay" onclick="if(event.target===this)closeWheelModal()">
   <div class="wheel-modal" id="wheel-modal">
     <button class="wheel-modal-close" onclick="closeWheelModal()">✕</button>
@@ -386,6 +386,7 @@
     </div>
 
     <div class="wm-main">
+      <!-- LEFT: Name entry -->
       <section class="wm-panel wm-pi">
         <h3>Add Names</h3>
         <div class="wm-irow">
@@ -399,6 +400,7 @@
         </div>
       </section>
 
+      <!-- CENTRE: Wheel canvas -->
       <section class="wm-panel wm-pw">
         <div class="wm-ptr" id="wm-ptr">▼</div>
         <div class="wm-ww">
@@ -407,6 +409,7 @@
         <button class="wm-btn wm-bs" id="wm-spinB"><span id="wm-sl">SPIN!</span></button>
       </section>
 
+      <!-- RIGHT: Result + History -->
       <section class="wm-panel wm-pr">
         <h3>Result</h3>
         <div class="wm-rb wm-rb-e" id="wm-rb">
@@ -421,6 +424,7 @@
       </section>
     </div>
 
+    <!-- Winner sub-modal -->
     <div class="wm-winner-modal hidden" id="wm-winner-modal">
       <div class="wm-mc">
         <div class="wm-cf" id="wm-cf"></div>
@@ -434,6 +438,7 @@
   </div>
 </div>
 
+<!-- GUIDE MODAL -->
 <div class="guide-overlay closed" id="guide-overlay" onclick="if(event.target===this)closeGuide()">
   <div class="guide-modal">
     <div class="guide-head">
@@ -453,7 +458,7 @@
       </div>
       <div class="guide-section">
         <div class="guide-section-label">🖥 What You're Looking At</div>
-        <div class="guide-text">The <strong>top bar</strong> shows the Kyiv clock and your current shift + cutoff time.<br><br>Below that is the <strong>Available Break Slots grid</strong> — 🟢 <strong>Green</strong> = open slot, 🟡 <strong>Amber</strong> = 1 person already booked (one more can overlap max 60 min), 🔴 <strong>Red / crossed out</strong> = full (2 already booked), <strong>Grey</strong> = time already passed.<br><br>The <strong>main table</strong> is split into two columns — Rows 1–5 on the left, Rows 6–10 on the right.</div>
+        <div class="guide-text">The <strong>top bar</strong> shows the Kyiv clock and your current shift + cutoff time.<br><br>Below that is the <strong>Available Break Slots grid</strong> — 🟢 <strong>Green</strong> = open slot, 🟡 <strong>Amber</strong> = 1 person already booked (one more can overlap max 30 min), 🔴 <strong>Red / crossed out</strong> = full (2 already booked), <strong>Grey</strong> = time already passed.<br><br>The <strong>main table</strong> is split into two columns — Rows 1–5 on the left, Rows 6–10 on the right.</div>
       </div>
       <div class="guide-section">
         <div class="guide-section-label">① Select Your Name</div>
@@ -476,12 +481,13 @@
         <div class="guide-other-list">
           <div><strong>Slot Clear</strong> — removes just that one break slot.</div>
           <div><strong>Row Clear</strong> — wipes the agent name and all 3 slots for that row.</div>
+          <div><strong>Clear All Rows</strong> — resets every row. <strong>Supervisors only.</strong></div>
         </div>
       </div>
       <div class="guide-rules-box">
         <div class="guide-rules-label">⚠️ Rules</div>
         <div class="guide-rules-list">
-          <div>👥 <strong>Max 2 agents on break at the same time</strong> — but only when there are 6+ agents on shift. Their breaks may overlap by max 60 minutes.</div>
+          <div>👥 <strong>Max 2 agents on break at the same time</strong> — but only when there are 6+ agents on shift. Their breaks may overlap by max 30 minutes.</div>
           <div>🍱 <strong>No breaks in the last 30 minutes of any shift.</strong> Blocked times: 14:30–15:00, 22:30–23:00, 06:30–07:00.</div>
           <div>🕐 <strong>Max 60 minutes total</strong> per agent per shift, across all 3 slots combined.</div>
         </div>
@@ -508,6 +514,7 @@
   <div class="setup-panel">
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="setup-title collapsed" id="setup-toggle" style="flex:1;">Agent Setup</div>
+      <button onclick="clearAll()" style="border:1px solid rgba(255,107,53,0.4);border-radius:7px;background:rgba(255,107,53,0.08);color:var(--on-break);cursor:pointer;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;padding:6px 16px;transition:all 0.18s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,107,53,0.18)'" onmouseout="this.style.background='rgba(255,107,53,0.08)'">⚠ Clear All Rows</button>
     </div>
     <div class="setup-content hidden" id="setup-content">
       <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Edit agent names here. Changes sync live for everyone.</p>
@@ -524,7 +531,7 @@
     <div style="width:1px;height:30px;background:var(--border);flex-shrink:0;"></div>
     <div style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--muted);">
       <span style="font-size:18px;">⏱</span>
-      <span><span style="color:var(--text);font-weight:700;letter-spacing:0.3px;">LIMIT:</span> Max 2 agents on break at a time (6+ agents on shift required). Max 60 min overlap. Check the table below!</span>
+      <span><span style="color:var(--text);font-weight:700;letter-spacing:0.3px;">LIMIT:</span> Max 2 agents on break at a time (6+ agents on shift required). Max 30 min overlap. Check the table below!</span>
     </div>
   </div>
 
@@ -543,7 +550,7 @@
       <div id="break-table-right"></div>
     </div>
   </div>
-  <div style="font-size:11px;color:var(--muted);margin-top:8px;">No breaks in last 30 min of shift · 60 min total per agent · Max 2 simultaneous (6+ agents, ≤60 min overlap)</div>
+  <div style="font-size:11px;color:var(--muted);margin-top:8px;">No breaks in last 30 min of shift · 60 min total per agent · Max 2 simultaneous (6+ agents, ≤30 min overlap)</div>
 
   <div class="stats" style="margin-top:18px;">
     <div class="stat-card"><div class="stat-label">On Break Now</div><div class="stat-value orange" id="stat-on-break">0</div></div>
@@ -565,7 +572,7 @@
    ══════════════════════════════════════════════════════════ */
 var DB_URL = 'https://breaksheetstarspartners-default-rtdb.europe-west1.firebasedatabase.app/';
 var MIN_AGENTS_FOR_DUAL = 6;   // minimum agents on shift for 2 simultaneous breaks
-var MAX_OVERLAP_MINS = 60;     // max overlap between 2 concurrent breaks
+var MAX_OVERLAP_MINS = 30;     // max overlap between 2 concurrent breaks
 
 var currentNickname = '';
 function initNickname(){
@@ -593,69 +600,22 @@ function setupNicknameInput(){
 function fbGet(path){return fetch(DB_URL+path+'.json').then(function(r){return r.json();});}
 function fbSet(path,data){return fetch(DB_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();});}
 function fbPush(path,data){return fetch(DB_URL+path+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();});}
-function fbPatch(path,data){return fetch(DB_URL+path+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();});}
 
 var rowsSSE=null,agentsSSE=null,wheelSSE=null;
 function startSSE(){
   if(rowsSSE)rowsSSE.close();
   rowsSSE=new EventSource(DB_URL+'/rows.json?accept=text/event-stream');
-  function handleRows(e) {
-    try {
-      var d = JSON.parse(e.data);
-      if (d && d.path !== undefined) {
-        if (d.path === '/') {
-          if (d.data === null) return;
-          if (Array.isArray(d.data)) { rows = d.data; }
-          else if (typeof d.data === 'object') {
-            Object.keys(d.data).forEach(function(k) { rows[k] = d.data[k]; });
-          }
-        } else {
-          var parts = d.path.split('/').filter(Boolean);
-          var ri = parts[0];
-          if (parts.length === 1) { rows[ri] = d.data; }
-          else if (parts.length === 2 && parts[1] === 'agentIdx') { rows[ri].agentIdx = d.data; }
-          else if (parts.length === 3 && parts[1] === 'slots') { rows[ri].slots[parts[2]] = d.data; }
-          else { initApp(); return; } // fallback
-        }
-        render(); renderAvailableSlots();
-      }
-    } catch(err) {}
-    setSyncStatus('ok');
-  }
-  rowsSSE.addEventListener('put', handleRows);
-  rowsSSE.addEventListener('patch', handleRows);
+  rowsSSE.addEventListener('put',function(e){try{var d=JSON.parse(e.data);if(d&&d.data&&Array.isArray(d.data)){rows=d.data;render();}}catch(err){}setSyncStatus('ok');});
   rowsSSE.onerror=function(){setSyncStatus('err');};
-
   if(agentsSSE)agentsSSE.close();
   agentsSSE=new EventSource(DB_URL+'/agents.json?accept=text/event-stream');
-  function handleAgents(e) {
-    try {
-      var d = JSON.parse(e.data);
-      if (d && d.path !== undefined) {
-        if (d.path === '/') {
-          if (d.data === null) return;
-          if (Array.isArray(d.data)) { agents = d.data; }
-          else if (typeof d.data === 'object') {
-            Object.keys(d.data).forEach(function(k) { agents[k] = d.data[k]; });
-          }
-        } else {
-          var parts = d.path.split('/').filter(Boolean);
-          if (parts.length === 1) { agents[parts[0]] = d.data; }
-        }
-        while(agents.length < 40) agents.push('');
-        renderSetup(); render();
-      }
-    } catch(err) {}
-  }
-  agentsSSE.addEventListener('put', handleAgents);
-  agentsSSE.addEventListener('patch', handleAgents);
-
+  agentsSSE.addEventListener('put',function(e){try{var d=JSON.parse(e.data);if(d&&d.data&&Array.isArray(d.data)){agents=d.data;while(agents.length<40)agents.push('');renderSetup();render();}}catch(err){}});
+  // SSE for wheel history
   if(wheelSSE)wheelSSE.close();
   wheelSSE=new EventSource(DB_URL+'/wheelHistory.json?accept=text/event-stream');
   wheelSSE.addEventListener('put',function(e){try{var d=JSON.parse(e.data);if(d&&d.data){wmSetHistFromFB(d.data);}}catch(err){}});
   wheelSSE.addEventListener('patch',function(e){try{var d=JSON.parse(e.data);if(d&&d.data){wmSetHistFromFB(d.data);}}catch(err){}});
 }
-
 function setSyncStatus(state){
   var dot=document.getElementById('sync-dot'),lbl=document.getElementById('sync-label');
   if(state==='syncing'){dot.className='sync-dot syncing';lbl.textContent='Syncing...';}
@@ -683,32 +643,14 @@ function countActiveAgents(){
 function initApp(){
   setSyncStatus('syncing');
   Promise.all([fbGet('/rows'),fbGet('/agents'),fbGet('/wheelHistory')]).then(function(res){
-    if(res[0]){
-       if(Array.isArray(res[0])) rows=res[0];
-       else if(typeof res[0]==='object') Object.keys(res[0]).forEach(function(k){ rows[k]=res[0][k]; });
-    }
-    if(res[1]){
-       if(Array.isArray(res[1])) agents=res[1];
-       else if(typeof res[1]==='object') Object.keys(res[1]).forEach(function(k){ agents[k]=res[1][k]; });
-       while(agents.length<40)agents.push('');
-    }
+    if(res[0]&&Array.isArray(res[0]))rows=res[0];
+    if(res[1]&&Array.isArray(res[1])){agents=res[1];while(agents.length<40)agents.push('');}
     if(res[2])wmSetHistFromFB(res[2]);
     renderSetup();render();setSyncStatus('ok');startSSE();
   }).catch(function(e){console.error(e);setSyncStatus('err');renderSetup();render();});
 }
-
-function pushRow(ri){
-  setSyncStatus('syncing');
-  fbPatch('/rows/'+ri, rows[ri]).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});
-}
-
-function pushAgents(){
-  setSyncStatus('syncing');
-  var agentsObj = {};
-  agents.forEach(function(a, i) { agentsObj[i] = a; });
-  fbPatch('/agents', agentsObj).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});
-}
-
+function pushRows(){setSyncStatus('syncing');fbSet('/rows',rows).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});}
+function pushAgents(){setSyncStatus('syncing');fbSet('/agents',agents).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});}
 function writeLog(event,detail){
   var now=new Date();
   var kyivStr=now.toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'2-digit',year:'numeric',hour12:false});
@@ -718,12 +660,12 @@ function writeLog(event,detail){
 }
 
 function pad(n){return String(n).padStart(2,'0');}
-function kyivNowMins(){var s=new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});var p=s.split(/[:.]/).map(Number);return p[0]*60+p[1]+p[2]/60;}
-function kyivTimeStr(){return new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).replace(/\./g, ':');}
+function kyivNowMins(){var s=new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});var p=s.split(':').map(Number);return p[0]*60+p[1]+p[2]/60;}
+function kyivTimeStr(){return new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
 function kyivHour(){return Math.floor(kyivNowMins()/60);}
 function currentShift(){var h=kyivHour();if(h>=7&&h<15)return '07:00–15:00';if(h>=15&&h<23)return '15:00–23:00';return '23:00–07:00';}
 function shiftCutoff(){var h=kyivHour();if(h>=7&&h<15)return '14:30';if(h>=15&&h<23)return '22:30';return '06:30';}
-function toMins(t){if(!t)return -1;var p=t.split(/[:.]/).map(Number);return p[0]*60+p[1];}
+function toMins(t){if(!t)return -1;var p=t.split(':').map(Number);return p[0]*60+p[1];}
 function slotDur(s){if(!s.from||!s.to||s.from===s.to)return 0;var d=toMins(s.to)-toMins(s.from);if(d<0)d+=1440;return d;}
 function slotStatus(slot){
   if(!slot.from||!slot.to||slot.from===slot.to)return 'idle';
@@ -743,11 +685,16 @@ function rowDoneMins(row){return row.slots.reduce(function(a,s){return slotStatu
 function rowFinished(row){return rowDoneMins(row)>=MAX_BREAK;}
 function countOnBreakNow(){var c=0;rows.forEach(function(row){if(row.agentIdx<0)return;row.slots.forEach(function(s){if(slotStatus(s)==='break')c++;});});return c;}
 
+/* ── Overlap helpers ──
+   Returns how many minutes two intervals [a1,a2) and [b1,b2) overlap.
+   All minutes are normalized (absolute, may cross midnight via +1440). */
 function overlapMins(a1,a2,b1,b2){
   var start=Math.max(a1,b1),end=Math.min(a2,b2);
   return start<end?end-start:0;
 }
 
+/* Count how many EXISTING booked slots overlap with [fromM,toM).
+   excludeRi/Si = the slot we're editing (don't count itself). */
 function countOverlapsFor(excludeRi,excludeSi,fromM,toM){
   if(fromM<0||toM<0||toM===fromM)return 0;
   if(toM<fromM)toM+=1440;
@@ -764,10 +711,17 @@ function countOverlapsFor(excludeRi,excludeSi,fromM,toM){
   return count;
 }
 
+/* Enforce new rules:
+   - At most 2 people may have overlapping breaks
+   - The overlapping window may not exceed 30 minutes
+   - Dual breaks only when 6+ active agents
+   Returns true if booking is INVALID. */
 function wouldViolateOverlapRules(excludeRi,excludeSi,fromM,toM){
   if(fromM<0||toM<0||toM===fromM)return false;
   if(toM<fromM)toM+=1440;
   var activeAgents=countActiveAgents();
+
+  // Gather all existing booked slots (excluding the one we're editing)
   var existing=[];
   for(var ri=0;ri<rows.length;ri++){
     var row=rows[ri];if(row.agentIdx<0)continue;
@@ -778,12 +732,21 @@ function wouldViolateOverlapRules(excludeRi,excludeSi,fromM,toM){
       existing.push({from:sF,to:sT});
     }
   }
+
+  // Count how many existing slots overlap with the new slot
   var overlapping=existing.filter(function(e){
     return overlapMins(fromM,toM,e.from,e.to)>0;
   });
-  if(overlapping.length===0)return false; 
-  if(overlapping.length>=2)return true; 
-  if(activeAgents<MIN_AGENTS_FOR_DUAL)return true; 
+
+  if(overlapping.length===0)return false; // no overlap at all — fine
+
+  // There's at least one overlap
+  if(overlapping.length>=2)return true; // already 2 breaks, can't add a 3rd concurrent
+
+  // Exactly 1 overlap — check dual-break conditions
+  if(activeAgents<MIN_AGENTS_FOR_DUAL)return true; // not enough agents for dual
+
+  // Check that all overlapping windows are ≤ MAX_OVERLAP_MINS
   for(var i=0;i<overlapping.length;i++){
     var ov=overlapMins(fromM,toM,overlapping[i].from,overlapping[i].to);
     if(ov>MAX_OVERLAP_MINS)return true;
@@ -805,6 +768,7 @@ function renderAvailableSlots(){
   if(!overnight){ALL_TIMES.forEach(function(t){if(inShift(toMins(t)))slots.push(t);});}
   else{ALL_TIMES.forEach(function(t){var tM=toMins(t);if(tM>=shiftStart)slots.push(t);});ALL_TIMES.forEach(function(t){var tM=toMins(t);if(tM<shiftEnd)slots.push(t);});}
 
+  // Count occupancy per 15-min slot
   var slotCounts={};slots.forEach(function(t){slotCounts[t]=0;});
   function normToShift(tM){return tM>=shiftStart?tM-shiftStart:tM+1440-shiftStart;}
   rows.forEach(function(row){row.slots.forEach(function(s){
@@ -832,9 +796,10 @@ function renderAvailableSlots(){
     var cls='avail-slot ';
     var isClickable=false;
     if(past){cls+='avail-past';}
-    else if(count>=2){cls+='avail-full';}  
+    else if(count>=2){cls+='avail-full';}  // 2/2 red
     else if(count===1){
-      cls+='avail-half'; 
+      cls+='avail-half'; // 1/2 amber
+      // Only clickable if dual breaks allowed
       if(activeAgents>=MIN_AGENTS_FOR_DUAL)isClickable=true;
     }
     else{cls+='avail-free';isClickable=true;}
@@ -863,21 +828,21 @@ function clickAvailSlot(t){
       pendingFrom=null;rows[ri].slots[si].from='';
       var fwrap=document.getElementById('fw-'+ri+'-'+si);
       if(fwrap){var segs=fwrap.querySelectorAll('.time-seg');segs[0].value='';segs[1].value='';}
-      pushRow(ri);render();renderAvailableSlots();return;
+      pushRows();render();renderAvailableSlots();return;
     }
     rows[ri].slots[si].to=t;
-    var twrap=document.getElementById('tw-'+ri+'-'+si);if(twrap){var segs=twrap.querySelectorAll('.time-seg');var parts=t.split(/[:.]/);if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
+    var twrap=document.getElementById('tw-'+ri+'-'+si);if(twrap){var segs=twrap.querySelectorAll('.time-seg');var parts=t.split(':');if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
     var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
     writeLog('BREAK_BOOKED',agentName+' — Break '+(si+1)+' booked via grid: '+rows[ri].slots[si].from+' → '+t+' ('+dur+' min)');
-    pendingFrom=null;pushRow(ri);render();return;
+    pendingFrom=null;pushRows();render();return;
   }
   var ri=activeRow,targetSi=-1;
   for(var si=0;si<rows[ri].slots.length;si++){if(!rows[ri].slots[si].from&&!rows[ri].slots[si].to){targetSi=si;break;}}
   if(targetSi<0)return;
   rows[ri].slots[targetSi].from=t;rows[ri].slots[targetSi].to='';
-  var fwrap=document.getElementById('fw-'+ri+'-'+targetSi);if(fwrap){var segs=fwrap.querySelectorAll('.time-seg');var parts=t.split(/[:.]/);if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
+  var fwrap=document.getElementById('fw-'+ri+'-'+targetSi);if(fwrap){var segs=fwrap.querySelectorAll('.time-seg');var parts=t.split(':');if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
   var twrap=document.getElementById('tw-'+ri+'-'+targetSi);if(twrap){var segs=twrap.querySelectorAll('.time-seg');segs[0].value='';segs[1].value='';}
-  pendingFrom={ri:ri,si:targetSi,time:t};pushRow(ri);render();renderAvailableSlots();
+  pendingFrom={ri:ri,si:targetSi,time:t};pushRows();render();renderAvailableSlots();
 }
 
 function buildDropdownItems(ri,selIdx){
@@ -908,7 +873,7 @@ function selectAgent(ri,idx){
   var agentName=idx>=0&&agents[idx]?agents[idx]:'—';var prevName=prevIdx>=0&&agents[prevIdx]?agents[prevIdx]:'—';
   if(parseInt(idx)<0)writeLog('AGENT_CLEARED','Row '+(ri+1)+' cleared (was: '+prevName+')');
   else writeLog('AGENT_SELECTED','Row '+(ri+1)+': '+agentName+(prevIdx>=0&&prevIdx!==parseInt(idx)?' (replaced: '+prevName+')':''));
-  pushRow(ri);render();
+  pushRows();render();
 }
 document.addEventListener('click',function(e){if(!e.target.closest('.agent-dropdown')){document.querySelectorAll('.agent-dropdown-menu.open').forEach(function(m){m.classList.remove('open');});}});
 
@@ -953,10 +918,12 @@ function render(){
       else if(dur)pill='<span class="status-pill pill-idle">'+dur+' min</span>';
       var canStart=slot.from&&slot.to&&!slot.started&&status!=='done';
       var isOnBreak=slot.started&&status==='break';
+      // Allow start if <2 on break, and if 2nd person: enough agents + won't violate overlap
       var canStartNow=false;
       if(canStart&&!isOnBreak){
         if(onBreakCount===0)canStartNow=true;
         else if(onBreakCount===1&&activeAgents>=MIN_AGENTS_FOR_DUAL){
+          // Check overlap would be ≤30 min
           var nowM2=kyivNowMins(),h2=Math.floor(nowM2/60),min2=Math.floor(nowM2%60);
           var newFrom2=h2*60+min2;
           var slotDur2=slotDur(slot);
@@ -968,11 +935,11 @@ function render(){
       if(isOnBreak){actionBtns='<button class="start-break-btn" style="opacity:0.3;cursor:default;pointer-events:none;">▶ Start</button><button class="stop-break-btn" onclick="stopBreakNow('+ri+','+si+')">■ Stop</button>';}
       else if(canStart&&canStartNow){actionBtns='<button class="start-break-btn" onclick="startBreakNow('+ri+','+si+')">▶ Start</button>';}
       else if(canStart){
-        var reason=onBreakCount>=2?'Max 2 on break':(activeAgents<MIN_AGENTS_FOR_DUAL?'Need 6+ agents':'Overlap >60 min');
+        var reason=onBreakCount>=2?'Max 2 on break':(activeAgents<MIN_AGENTS_FOR_DUAL?'Need 6+ agents':'Overlap >30 min');
         actionBtns='<button class="start-break-btn" style="opacity:0.35;cursor:not-allowed;pointer-events:none;" title="'+reason+'">▶ Start</button>';
       }
-      var fH=slot.from?slot.from.split(/[:.]/)[0]:'',fM=slot.from?slot.from.split(/[:.]/)[1]:'';
-      var tH=slot.to?slot.to.split(/[:.]/)[0]:'',tMM=slot.to?slot.to.split(/[:.]/)[1]:'';
+      var fH=slot.from?slot.from.split(':')[0]:'',fM=slot.from?slot.from.split(':')[1]:'';
+      var tH=slot.to?slot.to.split(':')[0]:'',tMM=slot.to?slot.to.split(':')[1]:'';
       var sd=document.createElement('div');sd.className='break-slot';
       sd.innerHTML=
         '<span class="slot-label">Break '+(si+1)+'</span>'+
@@ -1001,7 +968,7 @@ function commitTime(ri,si,field){
   var wrap=document.getElementById(prefix+ri+'-'+si);if(!wrap)return;
   var segs=wrap.querySelectorAll('.time-seg');
   var h=segs[0].value.trim(),m=segs[1].value.trim();
-  if(!h&&!m){rows[ri].slots[si][field]='';pushRow(ri);render();return;}
+  if(!h&&!m){rows[ri].slots[si][field]='';pushRows();render();return;}
   if(!h||!m){wrap.classList.add('invalid');return;}
   var hN=parseInt(h),mN=parseInt(m);
   if(isNaN(hN)||hN<0||hN>23||isNaN(mN)||mN<0||mN>59){wrap.classList.add('invalid');segs[0].value='';segs[1].value='';return;}
@@ -1032,7 +999,7 @@ function commitTime(ri,si,field){
     var bDur=toMins(finalSlot.to)-toMins(finalSlot.from);if(bDur<0)bDur+=1440;
     writeLog('BREAK_BOOKED',agentName+' — Break '+(si+1)+' booked: '+finalSlot.from+' → '+finalSlot.to+' ('+bDur+' min)');
   }
-  pushRow(ri);render();
+  pushRows();render();
 }
 function startBreakNow(ri,si){
   var slot=rows[ri].slots[si];if(!slot.from||!slot.to)return;
@@ -1042,6 +1009,7 @@ function startBreakNow(ri,si){
   var dur=toMins(slot.to)-toMins(slot.from);if(dur<0)dur+=1440;
   var nowM=kyivNowMins(),nowH=Math.floor(nowM/60),nowMin=Math.floor(nowM%60);
   var newFromM=nowH*60+nowMin,newToM=newFromM+dur;
+  // Check overlap rules with actual start-now time
   if(onBreakCount===1){
     if(activeAgents<MIN_AGENTS_FOR_DUAL)return;
     if(wouldViolateOverlapRules(ri,si,newFromM,newToM))return;
@@ -1051,7 +1019,7 @@ function startBreakNow(ri,si){
   rows[ri].slots[si].from=newFrom;rows[ri].slots[si].to=pad(newToH)+':'+pad(newToMin);rows[ri].slots[si].started=true;
   var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
   writeLog('BREAK_STARTED',agentName+' — Break '+(si+1)+' started at '+newFrom+', ends '+pad(newToH)+':'+pad(newToMin)+' ('+dur+' min)');
-  pushRow(ri);render();
+  pushRows();render();
 }
 function stopBreakNow(ri,si){
   var nowM=kyivNowMins(),nowH=Math.floor(nowM/60),nowMin=Math.floor(nowM%60);
@@ -1061,19 +1029,24 @@ function stopBreakNow(ri,si){
   var actualDur=toMins(stopTime)-toMins(startedAt);if(actualDur<0)actualDur+=1440;
   rows[ri].slots[si].to=stopTime;rows[ri].slots[si].started=false;
   writeLog('BREAK_STOPPED',agentName+' — Break '+(si+1)+' stopped at '+stopTime+' (started '+startedAt+', actual '+actualDur+' min)');
-  pushRow(ri);render();
+  pushRows();render();
 }
 function clearSlot(ri,si){
   var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
   var s=rows[ri].slots[si];var detail=agentName+' — Break '+(si+1)+' cleared';
   if(s.from||s.to)detail+=' (was '+(s.from||'?')+' → '+(s.to||'?')+')';
   writeLog('SLOT_CLEARED',detail);
-  rows[ri].slots[si]={from:'',to:'',started:false};pushRow(ri);render();
+  rows[ri].slots[si]={from:'',to:'',started:false};pushRows();render();
+}
+function clearAll(){
+  writeLog('ALL_CLEARED','All rows cleared by supervisor');
+  for(var i=0;i<rows.length;i++){rows[i].agentIdx=-1;rows[i].slots=[{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}];}
+  pushRows();render();
 }
 function clearRow(ri){
   var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'—';
   writeLog('ROW_CLEARED','Row '+(ri+1)+' fully cleared (agent was: '+agentName+')');
-  rows[ri].agentIdx=-1;rows[ri].slots=[{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}];pushRow(ri);render();
+  rows[ri].agentIdx=-1;rows[ri].slots=[{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}];pushRows();render();
 }
 function updateStats(onBreakCount){
   document.getElementById('stat-on-break').textContent=onBreakCount;
@@ -1097,22 +1070,7 @@ function saveAgents(){
     agents[idx]=newVal;
   });
   if(changes.length>0)writeLog('AGENTS_UPDATED','Agent names changed: '+changes.join(', '));
-  pushAgents();
-  var rowUpdates = {};
-  var rowsChanged = false;
-  rows.forEach(function(row, ri){
-    if(row.agentIdx>=0&&!agents[row.agentIdx]){
-      row.agentIdx=-1;
-      rowUpdates[ri] = row;
-      rowsChanged = true;
-    }
-  });
-  if(rowsChanged) {
-    setSyncStatus('syncing');
-    fbPatch('/rows', rowUpdates).then(function(){setSyncStatus('ok');});
-  }
-  render();
-  alert('Agents saved & synced!');
+  pushAgents();rows.forEach(function(row){if(row.agentIdx>=0&&!agents[row.agentIdx])row.agentIdx=-1;});pushRows();render();alert('Agents saved & synced!');
 }
 document.getElementById('setup-toggle').addEventListener('click',function(){this.classList.toggle('collapsed');document.getElementById('setup-content').classList.toggle('hidden');});
 function openGuide(){document.getElementById('guide-overlay').className='guide-overlay open';}
@@ -1162,7 +1120,7 @@ document.addEventListener('keydown',function(e){
 });
 
 // Wheel clock
-function wmKyivTimeStr(){return new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).replace(/\./g, ':');}
+function wmKyivTimeStr(){return new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
 setInterval(function(){var el=document.getElementById('wm-kyivClock');if(el)el.textContent=wmKyivTimeStr();},1000);
 
 var WM_COLORS=['#ff4757','#ff6b35','#ffd84d','#7bed9f','#2ed573','#1e90ff','#5352ed','#ff4fa3','#eccc68','#00e5ff'];
@@ -1367,5 +1325,3 @@ document.getElementById('wm-mcB').onclick=wmHideWinnerModal;
 </script>
 </body>
 </html>
-
-```
