@@ -1,3 +1,5 @@
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -716,12 +718,12 @@ function writeLog(event,detail){
 }
 
 function pad(n){return String(n).padStart(2,'0');}
-function kyivNowMins(){var s=new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});var p=s.split(':').map(Number);return p[0]*60+p[1]+p[2]/60;}
-function kyivTimeStr(){return new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
+function kyivNowMins(){var s=new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});var p=s.split(/[:.]/).map(Number);return p[0]*60+p[1]+p[2]/60;}
+function kyivTimeStr(){return new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).replace(/\./g, ':');}
 function kyivHour(){return Math.floor(kyivNowMins()/60);}
 function currentShift(){var h=kyivHour();if(h>=7&&h<15)return '07:00–15:00';if(h>=15&&h<23)return '15:00–23:00';return '23:00–07:00';}
 function shiftCutoff(){var h=kyivHour();if(h>=7&&h<15)return '14:30';if(h>=15&&h<23)return '22:30';return '06:30';}
-function toMins(t){if(!t)return -1;var p=t.split(':').map(Number);return p[0]*60+p[1];}
+function toMins(t){if(!t)return -1;var p=t.split(/[:.]/).map(Number);return p[0]*60+p[1];}
 function slotDur(s){if(!s.from||!s.to||s.from===s.to)return 0;var d=toMins(s.to)-toMins(s.from);if(d<0)d+=1440;return d;}
 function slotStatus(slot){
   if(!slot.from||!slot.to||slot.from===slot.to)return 'idle';
@@ -864,7 +866,7 @@ function clickAvailSlot(t){
       pushRow(ri);render();renderAvailableSlots();return;
     }
     rows[ri].slots[si].to=t;
-    var twrap=document.getElementById('tw-'+ri+'-'+si);if(twrap){var segs=twrap.querySelectorAll('.time-seg');var parts=t.split(':');if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
+    var twrap=document.getElementById('tw-'+ri+'-'+si);if(twrap){var segs=twrap.querySelectorAll('.time-seg');var parts=t.split(/[:.]/);if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
     var agentName=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
     writeLog('BREAK_BOOKED',agentName+' — Break '+(si+1)+' booked via grid: '+rows[ri].slots[si].from+' → '+t+' ('+dur+' min)');
     pendingFrom=null;pushRow(ri);render();return;
@@ -873,7 +875,7 @@ function clickAvailSlot(t){
   for(var si=0;si<rows[ri].slots.length;si++){if(!rows[ri].slots[si].from&&!rows[ri].slots[si].to){targetSi=si;break;}}
   if(targetSi<0)return;
   rows[ri].slots[targetSi].from=t;rows[ri].slots[targetSi].to='';
-  var fwrap=document.getElementById('fw-'+ri+'-targetSi);if(fwrap){var segs=fwrap.querySelectorAll('.time-seg');var parts=t.split(':');if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
+  var fwrap=document.getElementById('fw-'+ri+'-'+targetSi);if(fwrap){var segs=fwrap.querySelectorAll('.time-seg');var parts=t.split(/[:.]/);if(segs[0])segs[0].value=parts[0];if(segs[1])segs[1].value=parts[1];}
   var twrap=document.getElementById('tw-'+ri+'-'+targetSi);if(twrap){var segs=twrap.querySelectorAll('.time-seg');segs[0].value='';segs[1].value='';}
   pendingFrom={ri:ri,si:targetSi,time:t};pushRow(ri);render();renderAvailableSlots();
 }
@@ -969,8 +971,8 @@ function render(){
         var reason=onBreakCount>=2?'Max 2 on break':(activeAgents<MIN_AGENTS_FOR_DUAL?'Need 6+ agents':'Overlap >60 min');
         actionBtns='<button class="start-break-btn" style="opacity:0.35;cursor:not-allowed;pointer-events:none;" title="'+reason+'">▶ Start</button>';
       }
-      var fH=slot.from?slot.from.split(':')[0]:'',fM=slot.from?slot.from.split(':')[1]:'';
-      var tH=slot.to?slot.to.split(':')[0]:'',tMM=slot.to?slot.to.split(':')[1]:'';
+      var fH=slot.from?slot.from.split(/[:.]/)[0]:'',fM=slot.from?slot.from.split(/[:.]/)[1]:'';
+      var tH=slot.to?slot.to.split(/[:.]/)[0]:'',tMM=slot.to?slot.to.split(/[:.]/)[1]:'';
       var sd=document.createElement('div');sd.className='break-slot';
       sd.innerHTML=
         '<span class="slot-label">Break '+(si+1)+'</span>'+
@@ -1160,7 +1162,7 @@ document.addEventListener('keydown',function(e){
 });
 
 // Wheel clock
-function wmKyivTimeStr(){return new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
+function wmKyivTimeStr(){return new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).replace(/\./g, ':');}
 setInterval(function(){var el=document.getElementById('wm-kyivClock');if(el)el.textContent=wmKyivTimeStr();},1000);
 
 var WM_COLORS=['#ff4757','#ff6b35','#ffd84d','#7bed9f','#2ed573','#1e90ff','#5352ed','#ff4fa3','#eccc68','#00e5ff'];
