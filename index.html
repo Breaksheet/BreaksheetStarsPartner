@@ -878,41 +878,45 @@ function loadSchedule(manual){
         }
       }
       /* Build entries from today's column, plus yesterday's overnight shifts */
+            /* Build entries using today's AND yesterday's columns.
+         isOnShiftNow() handles all overnight logic correctly —
+         e.g. 19-03 started June 16 is still active at 01:00 June 17. */
       var entries=[];
       var seenNicks={};
-      function addEntry(nick, code){
-        if(!nick) return;
-        if(shiftCodePattern.test(nick)) return;
-        if(/^\d+$/.test(nick)) return;
-        if(!seenNicks[nick.toLowerCase()]){
-          seenNicks[nick.toLowerCase()]=true;
-          entries.push({nickname:nick, code:code});
+
+      /* Find yesterday's column if between 00:00-07:00 */
+      var yesterdayCol = -1;
+      var _kyivH = Math.floor(kyivNowMins()/60);
+      if(_kyivH < 7){
+        var _yDay = String(parseInt(today)-1);
+        var _yDayPad = _yDay.length===1?'0'+_yDay:_yDay;
+        for(var c=2;c<dayRow.length;c++){
+          var _cell=dayRow[c].trim();
+          if(_cell===_yDay||_cell===_yDayPad){ yesterdayCol=c; break; }
         }
       }
-      /* Today's column first */
+
       for(var r=4;r<rows_csv.length;r++){
         var row=rows_csv[r];
         var nick=(row[nameCol]||'').trim();
-        var code=(row[codeCol]||'').trim();
-        addEntry(nick, code);
-      }
-      /* Yesterday's column — only add overnight codes not already covered */
-      if(yesterdayCol>=0){
-        for(var r=4;r<rows_csv.length;r++){
-          var row=rows_csv[r];
-          var nick=(row[nameCol]||'').trim();
-          var ycode=(row[yesterdayCol]||'').trim();
-          if(!ycode) continue;
-          var p=parseCode(ycode);
-          /* Only include if it's a genuine overnight shift still active now */
-          if(p && p.endH < p.startH && isOnShiftNow(ycode)){
-            /* Override today's entry with yesterday's overnight code */
-            seenNicks[nick.toLowerCase()]=false; /* allow override */
-            addEntry(nick, ycode);
-          }
+        if(!nick||shiftCodePattern.test(nick)||/^\d+$/.test(nick)) continue;
+        var nickLow=nick.toLowerCase();
+        if(seenNicks[nickLow]) continue;
+        seenNicks[nickLow]=true;
+
+        var todayCode=(row[codeCol]||'').trim();
+        var yCode=yesterdayCol>=0?(row[yesterdayCol]||'').trim():'';
+
+        /* Use yesterday's code if it's an overnight shift still active now */
+        var useCode=todayCode;
+        if(yCode && isOnShiftNow(yCode)){
+          var _yp=parseCode(yCode);
+          if(_yp && _yp.endH < _yp.startH) useCode=yCode;
         }
+
+        entries.push({nickname:nick, code:useCode});
       }
-      scheduleCache=entries;
+            scheduleCache=entries;
       console.log('[Schedule] Loaded '+foundMonth+'_BB_RB. Today='+today+' col='+todayCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
       if(manual) writeLog('SCHEDULE_REFRESH','Manual refresh — loaded '+(result.tabName||foundMonth+'_BB_RB'));
       applyScheduleToRows();
