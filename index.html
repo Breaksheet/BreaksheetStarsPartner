@@ -613,10 +613,16 @@ function fetchScheduleWithFallback(){
       if(!r.ok) throw new Error('HTTP ' + r.status);
       return r.text().then(function(csv){
         if(csv.length < 100 || csv.indexOf(',') < 0) throw new Error('Empty or invalid CSV');
-        /* Reject VIP/iGate/wrong tabs: valid schedule must have "Days" in row[2][1] */
+        /* Reject VIP/iGate/wrong tabs: valid schedule must have "Days" somewhere in first 4 rows */
         var _chkRows = csv.split('\n');
-        var _chkRow2 = (_chkRows[2]||'').split(',');
-        if((_chkRow2[1]||'').trim().toLowerCase() !== 'days') throw new Error('Wrong tab structure — not a support schedule tab');
+        var _hasDays = false;
+        for(var _ri=0; _ri<Math.min(_chkRows.length,5); _ri++){
+          if((_chkRows[_ri]||'').toLowerCase().indexOf(',days,') >= 0 ||
+             (_chkRows[_ri]||'').toLowerCase().indexOf(',days') === 1){
+            _hasDays = true; break;
+          }
+        }
+        if(!_hasDays) throw new Error('Wrong tab — no Days row found (VIP/iGate rejected)');
         var tabName = a.name + a.variant;
         console.log('[Schedule] Found: ' + tabName);
         return {url:a.url, csv:csv, month:a.name, tabName:tabName};
@@ -862,12 +868,15 @@ function loadSchedule(manual){
       }
       if(col1CodeCount > col1Total/2){ nameCol=2; console.log('[Schedule] Name col auto-detected: 2'); }
 
+      /* When nameCol=2, agent rows have an extra leading column vs the date row,
+         so shift codes are at todayCol+1 relative to the date row index */
+      var codeCol = (nameCol === 2) ? todayCol + 1 : todayCol;
       /* Rows 4+ are agents */
       var entries=[];
       for(var r=4;r<rows_csv.length;r++){
         var row=rows_csv[r];
         var nick=(row[nameCol]||'').trim();
-        var code=(row[todayCol]||'').trim();
+        var code=(row[codeCol]||'').trim();
         if(nick && !shiftCodePattern.test(nick) && !/^\d+$/.test(nick)) entries.push({nickname:nick, code:code});
       }
       scheduleCache=entries;
