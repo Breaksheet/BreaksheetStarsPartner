@@ -663,9 +663,8 @@ function startSSE(){
       var d=JSON.parse(e.data);
       if(d&&d.data&&Array.isArray(d.data)){
         rows=resolveRows(d.data);
-        /* Re-apply schedule — live shift membership always wins */
-        if(scheduleCache) applyScheduleToRows();
-        else render();
+        /* Just render on SSE updates — applyScheduleToRows runs on its own timer */
+        render();
       }
     }catch(err){}
     setSyncStatus('ok');
@@ -866,24 +865,8 @@ function loadSchedule(manual){
       console.log('[Schedule] nameCol='+nameCol+' scores='+JSON.stringify(colScores)+', codeCol='+todayCol);
       var codeCol = todayCol;
 
-      /* Build entries using today's AND yesterday's columns.
-         isOnShiftNow() handles all overnight logic correctly —
-         e.g. 19-03 started June 16 is still active at 01:00 June 17. */
-            /* Build entries:
-         - Always use today's column as the primary shift code
-         - Between 00:00-07:00, ALSO check yesterday's column
-           for overnight shifts (e.g. 19-03 from June 16 still
-           active at 01:00 June 17). We use yesterday's code INSTEAD
-           of today's code only if yesterday's code is an active
-           overnight shift right now.
-         - Today's code is NOT used for isOnShiftNow if it would
-           create a false positive (e.g. 19-03 on June 17 at 01:09
-           means shift starts TONIGHT at 19:00, not yesterday) */
-            /* Build entries:
-         Between 00:00-07:00, check YESTERDAY's column for overnight
-         shifts still active. For TODAY's column, skip overnight codes
-         whose startH > 7 (they start tonight, not last night). */
-      var entries=[];
+      /* Build entries: check today + yesterday columns for overnight shifts */
+            var entries=[];
       var seenNicks={};
       var yesterdayCol=-1;
       var _kyivH=Math.floor(kyivNowMins()/60);
@@ -905,23 +888,23 @@ function loadSchedule(manual){
 
         var todayCode=(row[codeCol]||'').trim();
         var yCode=yesterdayCol>=0?(row[yesterdayCol]||'').trim():'';
-
         var useCode=todayCode;
 
         if(_kyivH<7){
-          /* Check yesterday's code — if it's an active overnight shift, use it */
-          if(yCode){
-            var _yp=parseCode(yCode);
-            if(_yp&&_yp.endH<_yp.startH&&isOnShiftNow(yCode)){
-              useCode=yCode;
-            }
-          }
-          /* Today's overnight codes (e.g. 19-03, 23-07) start TONIGHT —
-             don't treat them as active now */
-          if(useCode===todayCode){
+          /* Step 1: check if yesterday's code is an active overnight shift */
+          var _yp=yCode?parseCode(yCode):null;
+          var yIsActiveOvernight=_yp&&_yp.endH<_yp.startH&&isOnShiftNow(yCode);
+
+          if(yIsActiveOvernight){
+            /* Yesterday's overnight shift still running — use it */
+            useCode=yCode;
+          } else {
+            /* No active overnight from yesterday.
+               For today's code: if it's an overnight that starts TONIGHT
+               (startH > current hour), don't count it as active yet */
             var _tp=parseCode(todayCode);
-            if(_tp&&_tp.endH<_tp.startH&&_tp.startH>7){
-              useCode=''; /* shift starts tonight, skip */
+            if(_tp&&_tp.endH<_tp.startH&&_tp.startH>_kyivH){
+              useCode=''; /* e.g. 19-03 at 01:26 starts tonight */
             }
           }
         }
@@ -929,13 +912,12 @@ function loadSchedule(manual){
         entries.push({nickname:nick,code:useCode});
       }
       scheduleCache=entries;
-      console.log('[Schedule] Loaded '+foundMonth+'_BB_RB. Today='+today+' col='+todayCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
-      if(manual) writeLog('SCHEDULE_REFRESH','Manual refresh — loaded '+(result.tabName||foundMonth+'_BB_RB'));
+      console.log('[Schedule] Loaded. Today='+today+' nameCol='+nameCol+' codeCol='+codeCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
+      if(manual) writeLog('SCHEDULE_REFRESH','Manual refresh — loaded '+(result.tabName||'SP Schedule'));
       applyScheduleToRows();
       var onShiftCount=rows.filter(function(r){ return r.agentIdx>=0; }).length;
   setTimeout(checkBreakReminder,500);
-      var suffix='';
-      schedStatus('ok','<strong>'+(result.tabName||foundMonth+'_BB_RB')+'</strong> loaded · '+onShiftCount+' agent'+(onShiftCount!==1?'s':'')+' on shift now · next check in ~60s'+suffix);
+      schedStatus('ok','<strong>Schedule</strong> loaded · '+onShiftCount+' agent'+(onShiftCount!==1?'s':'')+' on shift now · next check in ~60s');
     })
     .catch(function(err){
       console.error('[Schedule] All months failed:',err);
@@ -944,8 +926,12 @@ function loadSchedule(manual){
 }
 
 
+var _applyingSchedule=false, _lastApply=0, _lastOnShiftNames='';
 function applyScheduleToRows(){
   if(!scheduleCache) return;
+  var now=Date.now();
+  if(_applyingSchedule||now-_lastApply<5000) return;
+  _applyingSchedule=true; _lastApply=now;
 
   /* Build set of agent indexes on shift RIGHT NOW
      agents[] is managed manually via Agent Setup + saved to Firebase.
@@ -998,8 +984,13 @@ function applyScheduleToRows(){
   var h=kyivHour();
   schedStatus('ok','<strong>Schedule live</strong> · '+onShiftCount+' agent'+(onShiftCount!==1?'s':'')+' on shift now · next check in ~60s');
 
-  if(changed){ pushRows(); render(); }
-  else { render(); } /* still re-render to refresh statuses */
+  _applyingSchedule=false;
+  if(changed){
+    /* Only push if the actual set of on-shift agents changed */
+    var newNames=rows.filter(function(r){return r.agentIdx>=0;}).map(function(r){return agents[r.agentIdx];}).sort().join(',');
+    if(newNames!==_lastOnShiftNames){ _lastOnShiftNames=newNames; pushRows(); }
+    render();
+  } else { render(); }
 }
 
 /* ── Time helpers ── */
