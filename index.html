@@ -716,8 +716,9 @@ function initApp(){
       res[2].forEach(function(name,i){ if(i<agents.length) agents[i]=name||''; });
       console.log('[Agents] Loaded from Firebase');
     }
-    renderSetup(); setSyncStatus('ok'); startSSE();
+    renderSetup(); setSyncStatus('ok');
     loadSchedule(false);
+    setTimeout(startSSE, 2000); /* Start SSE after schedule loads */
   }).catch(function(e){ console.error(e); setSyncStatus('err'); renderSetup(); render(); loadSchedule(false); });
 }
 
