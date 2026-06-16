@@ -849,6 +849,11 @@ function loadSchedule(manual){
         'damon','elisabeth','charlie','jaime','beatrice','kate','vincent',
         'jesse','suzzi','carl','dmytro'
       ];
+      /* Debug: log raw CSV rows 4-8 to see actual structure */
+      console.log('[Schedule] RAW rows 4-8:');
+      for(var _dbg=4;_dbg<Math.min(9,rows_csv.length);_dbg++){
+        console.log('  row['+_dbg+']: '+rows_csv[_dbg].slice(0,6).join(' | '));
+      }
       var colScores = [0,0,0,0,0];
       for(var _r=4;_r<rows_csv.length;_r++){
         for(var _c=1;_c<=4;_c++){
