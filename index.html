@@ -564,20 +564,30 @@ var DB_URL  = 'https://breaksheetstarspartners-default-rtdb.europe-west1.firebas
    to the sheet, the app picks it up automatically.
    ───────────────────────────────────────────────────────────── */
 var SCHEDULE_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpTkls_JxMpJsz1Y4qaHmRLd0r-2RwzbRRF8jFD5yIsbCp8PpwOJdwBpuVxWkdEnRtFqAEyFKUTTCi/pub?single=true&output=csv&sheet=';
+var SCHEDULE_BASE_GID = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpTkls_JxMpJsz1Y4qaHmRLd0r-2RwzbRRF8jFD5yIsbCp8PpwOJdwBpuVxWkdEnRtFqAEyFKUTTCi/pub?single=true&output=csv&gid=';
 var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-/* All known SP tab name variants (case handled by trying each).
-   Order matters — try most recent naming convention first. */
+/* Known gids for SP tabs — add new months here when published.
+   gid is permanent and never changes, so this is the most reliable method. */
+var SP_GIDS = {
+  6: '1497706552'   /* June_SP */
+  /* 7: 'PASTE_JULY_SP_GID',  July_SP  */
+};
+
+/* SP tab name variants as fallback when gid not known */
 var SP_VARIANTS = [
   '_SP', '_Stars', '_stars', '_SP_', '_sp', '_STARS', '_Stars_Partners'
 ];
 
-/* Build URLs for a given month index — returns array of URLs to try */
+/* Build URLs for a given month index — gid first, then name variants */
 function scheduleURLsForMonth(monthIdx){
+  var urls = [];
+  /* Try gid URL first (most reliable) */
+  if(SP_GIDS[monthIdx]) urls.push(SCHEDULE_BASE_GID + SP_GIDS[monthIdx]);
+  /* Then try name variants as fallback */
   var month = MONTH_NAMES[monthIdx];
-  return SP_VARIANTS.map(function(suffix){
-    return SCHEDULE_BASE + month + suffix;
-  });
+  SP_VARIANTS.forEach(function(suffix){ urls.push(SCHEDULE_BASE + month + suffix); });
+  return urls;
 }
 
 /* Get current Kyiv month index (0-based) */
@@ -870,7 +880,7 @@ function loadSchedule(manual){
 
       /* When nameCol=2, agent rows have an extra leading column vs the date row,
          so shift codes are at todayCol+1 relative to the date row index */
-      var codeCol = (nameCol === 2) ? todayCol + 1 : todayCol;
+      var codeCol = todayCol; /* SP and BB_RB both align correctly with todayCol */
       /* Rows 4+ are agents */
       var entries=[];
       for(var r=4;r<rows_csv.length;r++){
