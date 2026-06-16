@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Break Sheet · LIVE</title>
+<title>Break Sheet SP · LIVE</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:#0e0f13; --surface:#16181f; --surface2:#1e2029; --border:#2a2d3a;
     --text:#e8eaf0; --muted:#6b7080; --accent:#4f7cff; --accent2:#7c5cfc;
     --on-break:#ff6b35; --on-break-bg:rgba(255,107,53,0.10); --on-break-border:rgba(255,107,53,0.32);
-    --on-break-amber:#f59e0b; --on-break-amber-bg:rgba(245,158,11,0.10); --on-break-amber-border:rgba(245,158,11,0.32);
     --done:#22c55e; --done-bg:rgba(34,197,94,0.07); --warning:#f59e0b; --kyiv:#38bdf8;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -50,25 +49,13 @@
   .agent-row:last-child{border-bottom:none;}
   .agent-row.any-on-break{background:var(--on-break-bg);border-bottom-color:var(--on-break-border);animation:pulse-row 2s ease-in-out infinite;}
   .agent-row.full-done{background:var(--done-bg);}
+  .agent-row.active-row{box-shadow:0 0 0 2px var(--accent) inset;}
   @keyframes pulse-row{0%,100%{background:var(--on-break-bg);}50%{background:rgba(255,107,53,0.18);}}
   .agent-header{display:flex;align-items:center;gap:10px;padding:10px 16px 5px 16px;flex-wrap:wrap;}
   .agent-row-num{font-family:'DM Mono',monospace;font-size:14px;color:var(--muted);min-width:20px;}
-  .agent-dropdown{position:relative;width:170px;user-select:none;}
-  .agent-dropdown-trigger{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;font-weight:600;padding:5px 26px 5px 9px;cursor:pointer;display:flex;align-items:center;gap:6px;width:100%;transition:border-color 0.2s;position:relative;}
-  .agent-row.active-row{box-shadow:0 0 0 2px var(--accent) inset;}
-  .agent-dropdown-trigger::after{content:'';position:absolute;right:9px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--muted);pointer-events:none;}
-  .agent-dropdown-trigger:hover{border-color:var(--accent);}
-  .agent-dropdown-menu{position:absolute;top:calc(100% + 4px);left:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,0.4);overflow:hidden;display:none;}
-  .agent-dropdown-menu.open{display:block;}
-  .agent-dropdown-search{padding:8px;border-bottom:1px solid var(--border);}
-  .agent-dropdown-search input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;padding:6px 10px;outline:none;box-sizing:border-box;}
-  .agent-dropdown-search input:focus{border-color:var(--accent);}
-  .agent-dropdown-list{max-height:200px;overflow-y:auto;}
-  .agent-dropdown-item{padding:7px 12px;font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;transition:background 0.12s;}
-  .agent-dropdown-item:hover{background:var(--surface2);}
-  .agent-dropdown-item.selected{color:var(--accent);}
-  .agent-dropdown-item.placeholder{color:var(--muted);font-weight:400;}
-  .agent-dropdown-item.hidden{display:none;}
+  .agent-name-badge{background:var(--surface2);border:1px solid rgba(56,189,248,0.25);border-radius:6px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;font-weight:600;padding:5px 10px;display:inline-flex;align-items:center;gap:6px;min-width:170px;}
+  .agent-name-badge .sched-icon{font-size:11px;color:var(--kyiv);opacity:0.7;}
+  .agent-name-badge.empty{color:var(--muted);border-color:var(--border);}
   .break-progress-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:140px;}
   .break-bar-bg{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;min-width:60px;}
   .break-bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease;background:linear-gradient(90deg,var(--accent),var(--accent2));}
@@ -100,9 +87,6 @@
   .slot-clear-btn{border:1px solid rgba(255,107,53,0.25);border-radius:5px;background:rgba(255,107,53,0.06);color:rgba(255,107,53,0.7);cursor:pointer;font-size:14px;font-weight:700;font-family:'DM Mono',monospace;padding:4px 8px;transition:all 0.18s;white-space:nowrap;}
   .slot-clear-btn:hover{background:rgba(255,107,53,0.15);color:var(--on-break);border-color:rgba(255,107,53,0.5);}
   .slot-clear-btn:disabled{opacity:0.15;cursor:default;}
-  .row-clear-btn{border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;padding:5px 12px;transition:all 0.18s;white-space:nowrap;}
-  .row-clear-btn:not(:disabled):hover{border-color:var(--on-break);color:var(--on-break);background:rgba(255,107,53,0.08);}
-  .row-clear-btn:disabled{opacity:0.2;cursor:default;}
   .sync-bar{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:14px;font-family:'DM Mono',monospace;color:var(--muted);display:flex;align-items:center;gap:7px;z-index:999;}
   .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--done);}
   .sync-dot.syncing{background:var(--warning);animation:blink 0.6s infinite;}
@@ -159,8 +143,6 @@
   .guide-rules-label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#f59e0b;margin-bottom:12px;font-family:'Syne',sans-serif;}
   .guide-rules-list{display:flex;flex-direction:column;gap:8px;font-size:13px;color:#c8ccd8;}
   .guide-rules-list div strong{color:#fff;}
-  .guide-other-list{display:flex;flex-direction:column;gap:8px;font-size:14px;color:#c8ccd8;}
-  .guide-other-list div strong{color:#fff;}
   .guide-foot{padding:16px 30px;border-top:1px solid #2a2d3a;flex-shrink:0;display:flex;justify-content:flex-end;}
   .guide-go-btn{background:linear-gradient(135deg,#6c63ff,#a78bfa);border:none;border-radius:9px;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;padding:10px 28px;transition:opacity 0.2s;}
   .guide-go-btn:hover{opacity:0.85;}
@@ -267,6 +249,94 @@
   .wm-torture-label svg{position:absolute;top:100%;left:0;width:100%;overflow:visible;pointer-events:none;}
   .min-shift-notice{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:8px 14px;font-size:13px;color:#f59e0b;margin-bottom:12px;display:none;}
   .min-shift-notice.visible{display:flex;align-items:center;gap:7px;}
+  /* Schedule status bar */
+  .sched-bar{background:var(--surface);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:10px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .sched-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+  .sched-dot.ok{background:var(--done);box-shadow:0 0 5px var(--done);}
+  .sched-dot.loading{background:var(--warning);animation:blink 0.6s infinite;}
+  .sched-dot.err{background:var(--on-break);}
+  .sched-text{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;flex:1;}
+  .sched-text strong{color:var(--text);}
+  .sched-refresh-btn{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:7px;color:var(--kyiv);cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:5px 12px;transition:all 0.18s;white-space:nowrap;}
+  .sched-refresh-btn:hover{background:rgba(56,189,248,0.18);}
+  .sched-refresh-btn:disabled{opacity:0.4;cursor:default;}
+
+  /* ══════════════════════════════════════════════════════
+     MOBILE RESPONSIVE
+     ══════════════════════════════════════════════════════ */
+  @media(max-width:768px){
+    header{padding:10px 14px;gap:8px;}
+    .logo{font-size:16px;}
+    .kyiv-time{font-size:16px;}
+    .kyiv-clock{padding:5px 10px;}
+    .kyiv-label{display:none;}
+    .shift-indicator{font-size:11px;padding:4px 10px;}
+    .spin-wheel-btn{font-size:12px;padding:5px 10px;}
+    .main{padding:12px 10px;}
+    /* Stack the two table columns into one */
+    [style*="grid-template-columns:1fr 1fr"]{
+      display:flex !important;
+      flex-direction:column !important;
+      gap:10px !important;
+    }
+    .table-header{font-size:11px;padding:8px 12px;}
+    .agent-header{padding:8px 10px 4px 10px;gap:6px;}
+    .agent-name-badge{min-width:unset;font-size:13px;padding:4px 8px;flex:1;}
+    .break-progress-wrap{min-width:80px;}
+    .break-slots{padding:2px 10px 8px 28px;}
+    .break-slot{flex-wrap:wrap;gap:4px;}
+    .slot-label{min-width:52px;font-size:12px;}
+    .time-input-wrap{width:72px;}
+    .time-seg{font-size:13px !important;}
+    .start-break-btn,.stop-break-btn,.slot-clear-btn{font-size:12px;padding:4px 6px;}
+    .status-pill{font-size:12px;padding:2px 7px;}
+    .avail-grid{gap:3px;}
+    .avail-slot{font-size:12px;padding:3px 5px;}
+    .stats{gap:6px;}
+    .stat-card{padding:10px 12px;min-width:70px;}
+    .stat-value{font-size:22px;}
+    .stat-label{font-size:11px;}
+    .break-timer-card{min-width:unset;flex:1 1 100%;}
+    .sched-bar{flex-direction:column;align-items:flex-start;gap:8px;}
+    .sync-bar{bottom:8px;right:8px;padding:6px 10px;font-size:12px;}
+    /* Reminder banner full width on mobile */
+    .break-reminder-banner{border-radius:10px;font-size:13px;}
+  }
+  @media(max-width:420px){
+    .break-slot{gap:3px;}
+    .time-input-wrap{width:64px;}
+    .agent-row-num{display:none;}
+  }
+
+  /* ══════════════════════════════════════════════════════
+     BREAK REMINDER BANNER
+     ══════════════════════════════════════════════════════ */
+  .break-reminder-banner{
+    display:none;
+    background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(255,107,53,0.12));
+    border:1.5px solid rgba(245,158,11,0.5);
+    border-radius:12px;
+    padding:14px 18px;
+    margin-bottom:18px;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    animation:reminder-pulse 2s ease-in-out infinite;
+  }
+  .break-reminder-banner.visible{display:flex;}
+  @keyframes reminder-pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);}
+    50%{box-shadow:0 0 16px 4px rgba(245,158,11,0.2);}
+  }
+  .reminder-icon{font-size:24px;flex-shrink:0;animation:reminder-bounce 1s ease-in-out infinite;}
+  @keyframes reminder-bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+  .reminder-text{flex:1;min-width:180px;}
+  .reminder-title{font-size:14px;font-weight:800;color:var(--warning);margin-bottom:2px;}
+  .reminder-sub{font-size:12px;color:var(--muted);}
+  .reminder-dismiss{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:7px;color:var(--warning);cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:6px 12px;transition:all 0.18s;white-space:nowrap;}
+  .reminder-dismiss:hover{background:rgba(245,158,11,0.25);}
+
+  /* Sound toggle button */
 </style>
 </head>
 <body>
@@ -274,9 +344,10 @@
 <div class="nick-overlay" id="nick-overlay">
   <div class="nick-modal">
     <div class="nick-title">👋 Welcome to Break Sheet</div>
-    <div class="nick-sub">Enter a nickname so your actions are logged. This is stored only on your browser — no account needed.</div>
+    <div class="nick-sub">Enter a nickname so your actions are logged. Stored only on your browser.</div>
     <input class="nick-input" id="nick-input" type="text" maxlength="30" placeholder="Your nickname..." autocomplete="off"/>
     <button class="nick-btn" onclick="saveNickname()">Let's go →</button>
+    <button onclick="clearNickname()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:'Syne',sans-serif;padding:4px;">forget me (clear saved name)</button>
   </div>
 </div>
 
@@ -292,13 +363,14 @@
       <span class="kyiv-label">Kyiv Time</span>
       <span class="kyiv-time" id="clock">--:--:--</span>
     </div>
-    <button onclick="openGuide()" style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(79,124,255,0.15),rgba(124,92,252,0.15));border:1.5px solid rgba(79,124,255,0.45);border-radius:22px;color:#a5b4fc;cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;padding:7px 16px;transition:all 0.2s;letter-spacing:0.3px;white-space:nowrap;" onmouseover="this.style.background='linear-gradient(135deg,rgba(79,124,255,0.28),rgba(124,92,252,0.28))';this.style.borderColor='rgba(79,124,255,0.8)';this.style.color='#c4b5fd'" onmouseout="this.style.background='linear-gradient(135deg,rgba(79,124,255,0.15),rgba(124,92,252,0.15))';this.style.borderColor='rgba(79,124,255,0.45)';this.style.color='#a5b4fc'">📋 Guide</button>
+    <button onclick="openGuide()" style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(79,124,255,0.15),rgba(124,92,252,0.15));border:1.5px solid rgba(79,124,255,0.45);border-radius:22px;color:#a5b4fc;cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;padding:7px 16px;transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.background='linear-gradient(135deg,rgba(79,124,255,0.28),rgba(124,92,252,0.28))';this.style.borderColor='rgba(79,124,255,0.8)';this.style.color='#c4b5fd'" onmouseout="this.style.background='linear-gradient(135deg,rgba(79,124,255,0.15),rgba(124,92,252,0.15))';this.style.borderColor='rgba(79,124,255,0.45)';this.style.color='#a5b4fc'">📋 Guide</button>
   </div>
   <div class="shift-indicator">Shift: <span id="shift-label">--</span> &nbsp;·&nbsp; Cutoff: <span id="cutoff-label">--</span></div>
 </header>
 
+<!-- WHEEL MODAL -->
 <div class="wheel-overlay closed" id="wheel-overlay" onclick="if(event.target===this)closeWheelModal()">
-  <div class="wheel-modal" id="wheel-modal">
+  <div class="wheel-modal">
     <button class="wheel-modal-close" onclick="closeWheelModal()">✕</button>
     <div class="wm-bg-layer"></div>
     <div class="wm-header">
@@ -347,63 +419,69 @@
   </div>
 </div>
 
+<!-- GUIDE MODAL -->
 <div class="guide-overlay closed" id="guide-overlay" onclick="if(event.target===this)closeGuide()">
   <div class="guide-modal">
     <div class="guide-head">
-      <div><div class="guide-head-title">📋 Break Sheet — How It Works</div><div class="guide-head-sub">Read this before you start. It covers everything.</div></div>
+      <div><div class="guide-head-title">📋 Break Sheet — How It Works</div><div class="guide-head-sub">Read this before you start.</div></div>
       <button class="guide-close-btn" onclick="closeGuide()">✕</button>
     </div>
     <div class="guide-body">
       <div class="guide-section">
-        <div class="guide-section-label">⚡ First — Two Important Things</div>
+        <div class="guide-section-label">⚡ Two Important Things</div>
         <div class="guide-cards">
-          <div class="guide-card"><div class="guide-card-title green">1 · It's fully live</div><div class="guide-card-body">We are all on the same screen. If you book a break — everyone sees it instantly. If you press Start or Stop — everyone sees it instantly. <strong>No saving. No refreshing.</strong> It just syncs automatically.</div></div>
-          <div class="guide-card"><div class="guide-card-title purple">2 · Everything is Kyiv time</div><div class="guide-card-body">Use the Kyiv clock in the <strong>top right corner</strong>. Not your laptop. Not your phone. <strong>The screen clock.</strong></div></div>
+          <div class="guide-card"><div class="guide-card-title green">1 · Fully live</div><div class="guide-card-body">Everyone sees every change instantly. <strong>No saving. No refreshing.</strong></div></div>
+          <div class="guide-card"><div class="guide-card-title purple">2 · Kyiv time only</div><div class="guide-card-body">Use the clock in the top right. <strong>Not your laptop. Not your phone.</strong></div></div>
         </div>
       </div>
       <div class="guide-section">
-        <div class="guide-section-label">🖥 What You're Looking At</div>
-        <div class="guide-text">The <strong>top bar</strong> shows the Kyiv clock and your current shift + cutoff time.<br><br>Below that is the <strong>Available Break Slots grid</strong> — 🟢 <strong>Green</strong> = open slot, 🟡 <strong>Amber</strong> = 1 person already booked (one more can overlap max 30 min), 🔴 <strong>Red / crossed out</strong> = full (2 already booked), <strong>Grey</strong> = time already passed.<br><br>The <strong>main table</strong> is split into two columns — Rows 1–5 on the left, Rows 6–10 on the right.</div>
-      </div>
-      <div class="guide-section">
-        <div class="guide-section-label">① Select Your Name</div>
-        <div class="guide-text">Pick any empty row (1–10). Click the dropdown that says <span class="tag">— select agent —</span>. Start typing your name to filter the list, then click it to select.<br><br><strong>That row is now yours for this session.</strong></div>
+        <div class="guide-section-label">📅 Auto Assignment</div>
+        <div class="guide-text">Rows are filled automatically from the schedule. <strong>You cannot manually change who is in a row.</strong> Agents are added when their shift starts and removed the moment their shift ends — all break data is wiped at that point. The schedule re-checks every minute.</div>
       </div>
       <div class="guide-section">
         <div class="guide-section-label">② Book Your Break</div>
-        <div class="guide-text">You get <strong>60 minutes total</strong> and up to <strong>3 slots</strong>. Split however you want — 60, 30+30, 20+20+20, etc.</div>
-        <div class="guide-cards" style="margin-top:12px;">
-          <div class="guide-card"><div class="guide-card-title green">🟢 Option A — Use the Grid (Fastest)</div><div class="guide-card-body">Make sure your row is active. Then: <strong>1st click = start time, 2nd click = end time.</strong> Done — fills into your next empty slot automatically.</div></div>
-          <div class="guide-card"><div class="guide-card-title purple">⌨️ Option B — Type Manually</div><div class="guide-card-body">Each slot has a start and end time box in <strong>HH:MM</strong> format. Type 2 digits for the hour — it jumps to minutes automatically.</div></div>
+        <div class="guide-text">You get <strong>60 minutes total</strong> across up to <strong>3 slots</strong>.</div>
+        <div class="guide-cards" style="margin-top:10px;">
+          <div class="guide-card"><div class="guide-card-title green">🟢 Grid (fastest)</div><div class="guide-card-body">Click your row to activate it. <strong>1st click = start, 2nd click = end.</strong></div></div>
+          <div class="guide-card"><div class="guide-card-title purple">⌨️ Manual</div><div class="guide-card-body">Type HH:MM — 2 digits for hour, auto-jumps to minutes.</div></div>
         </div>
       </div>
       <div class="guide-section">
-        <div class="guide-section-label">③ Start &amp; Stop Your Break</div>
-        <div class="guide-text"><strong>Booking a slot ≠ being on break.</strong><br><br>Once both times are filled, a <span class="pill-g">▶ Start</span> button appears. Press it when you're <em>actually walking away</em>.<br><br>When you return, press <span class="pill-o">■ Stop</span>. That locks the end time and marks the slot done.</div>
-      </div>
-      <div class="guide-section">
-        <div class="guide-section-label">🗑 Clear Buttons</div>
-        <div class="guide-other-list">
-          <div><strong>Slot Clear</strong> — removes just that one break slot.</div>
-          <div><strong>Row Clear</strong> — wipes the agent name and all 3 slots for that row.</div>
-          <div><strong>Clear All Rows</strong> — resets every row. <strong>Supervisors only.</strong></div>
-        </div>
+        <div class="guide-section-label">③ Start &amp; Stop</div>
+        <div class="guide-text"><strong>Booking ≠ being on break.</strong> Press <span class="pill-g">▶ Start</span> when walking away. Press <span class="pill-o">■ Stop</span> when back.</div>
       </div>
       <div class="guide-rules-box">
         <div class="guide-rules-label">⚠️ Rules</div>
         <div class="guide-rules-list">
-          <div>👥 <strong>Max 2 agents on break at the same time</strong> — but only when there are 6+ agents on shift. Their breaks may overlap by max 30 minutes.</div>
-          <div>🍱 <strong>No breaks in the last 30 minutes of any shift.</strong> Blocked times: 14:30–15:00, 22:30–23:00, 06:30–07:00.</div>
-          <div>🕐 <strong>Max 60 minutes total</strong> per agent per shift, across all 3 slots combined.</div>
+          <div>👥 <strong>Max 2 agents on break at once</strong> — only when 6+ agents are on shift. Max 30 min overlap.</div>
+          <div>🍱 <strong>No breaks in the last 30 min of shift.</strong></div>
+          <div>🕐 <strong>Max 60 min total</strong> per agent per shift.</div>
         </div>
       </div>
     </div>
-    <div class="guide-foot"><button class="guide-go-btn" onclick="closeGuide()">Got it, let's go →</button></div>
+    <div class="guide-foot"><button class="guide-go-btn" onclick="closeGuide()">Got it →</button></div>
   </div>
 </div>
 
 <div class="main">
-  <div class="avail-panel" id="avail-panel">
+  <!-- Schedule status bar -->
+  <div class="sched-bar" id="sched-bar">
+    <div class="sched-dot" id="sched-dot"></div>
+    <div class="sched-text" id="sched-text">Loading schedule…</div>
+    <button class="sched-refresh-btn" id="sched-refresh-btn" onclick="loadSchedule(true)">🔄 Refresh</button>
+  </div>
+
+  <!-- Break Reminder Banner -->
+  <div class="break-reminder-banner" id="break-reminder-banner">
+    <span class="reminder-icon">⏰</span>
+    <div class="reminder-text">
+      <div class="reminder-title" id="reminder-title">Don't forget your break!</div>
+      <div class="reminder-sub" id="reminder-sub">You've been on shift for over 3 hours with no break taken yet.</div>
+    </div>
+    <button class="reminder-dismiss" onclick="dismissReminder()">Got it ✓</button>
+  </div>
+
+  <div class="avail-panel">
     <div class="avail-title">
       <div class="avail-title-left">🕐 Available Break Slots <span style="color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;font-size:10px;">— current shift only</span></div>
       <div class="avail-legend">
@@ -412,32 +490,35 @@
         <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);"></div><span style="color:var(--on-break)">Full</span></div>
       </div>
     </div>
-    <div class="min-shift-notice" id="min-shift-notice">⚠️ Simultaneous breaks require 6+ agents on shift. Currently only <span id="min-shift-count">0</span> agents assigned.</div>
+    <div class="min-shift-notice" id="min-shift-notice">⚠️ Simultaneous breaks require 6+ agents on shift. Currently <span id="min-shift-count">0</span> assigned.</div>
     <div class="avail-grid" id="avail-grid"></div>
   </div>
 
+  <!-- Agent Setup -->
   <div class="setup-panel">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="setup-title collapsed" id="setup-toggle" style="flex:1;">Agent Setup</div>
-      <button onclick="clearAll()" style="border:1px solid rgba(255,107,53,0.4);border-radius:7px;background:rgba(255,107,53,0.08);color:var(--on-break);cursor:pointer;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;padding:6px 16px;transition:all 0.18s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,107,53,0.18)'" onmouseout="this.style.background='rgba(255,107,53,0.08)'">⚠ Clear All Rows</button>
-    </div>
+    <div class="setup-title collapsed" id="setup-toggle">Agent Setup</div>
     <div class="setup-content hidden" id="setup-content">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Edit agent names here. Changes sync live for everyone.</p>
+      <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:13px;font-weight:700;color:var(--kyiv);margin-bottom:3px;">&#128229; Import from Schedule Sheet</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;">Pulls all agent names straight from the Google Sheet. One click keeps the list in sync — no manual typing needed.</div>
+        </div>
+        <button class="btn" onclick="importAgentsFromSchedule()" id="import-sched-btn" style="background:linear-gradient(135deg,var(--kyiv),#4f7cff);white-space:nowrap;">&#128229; Import Names</button>
+      </div>
+      <div id="import-status" style="font-size:12px;margin-bottom:10px;display:none;padding:8px 12px;border-radius:7px;"></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Names here must match the schedule sheet exactly (e.g. <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;">Mike</code>, <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;">Nate</code>). Use Import to sync automatically.</p>
       <div class="agents-grid" id="agents-grid"></div>
-      <div class="setup-actions"><button class="btn" onclick="saveAgents()">Save &amp; Apply</button></div>
+      <div class="setup-actions">
+        <button class="btn" onclick="saveAgents()">Save &amp; Apply</button>
+        <button onclick="clearAgentsList()" style="border:1px solid rgba(255,107,53,0.4);border-radius:8px;background:rgba(255,107,53,0.08);color:var(--on-break);cursor:pointer;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;padding:9px 18px;transition:all 0.18s;" onmouseover="this.style.background='rgba(255,107,53,0.18)'" onmouseout="this.style.background='rgba(255,107,53,0.08)'">Clear All</button>
+      </div>
     </div>
   </div>
 
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:18px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
-    <div style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--muted);">
-      <span style="font-size:18px;">🍱</span>
-      <span><span style="color:var(--text);font-weight:700;letter-spacing:0.3px;">LUNCH POLICY:</span> It's restricted to take a break in the last 30 minutes before the end of the shift.</span>
-    </div>
+    <div style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--muted);"><span style="font-size:18px;">🍱</span><span><span style="color:var(--text);font-weight:700;">LUNCH POLICY:</span> No breaks in the last 30 min of your shift.</span></div>
     <div style="width:1px;height:30px;background:var(--border);flex-shrink:0;"></div>
-    <div style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--muted);">
-      <span style="font-size:18px;">⏱</span>
-      <span><span style="color:var(--text);font-weight:700;letter-spacing:0.3px;">LIMIT:</span> Max 2 agents on break at a time (6+ agents on shift required). Max 30 min overlap. Check the table below!</span>
-    </div>
+    <div style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--muted);"><span style="font-size:18px;">⏱</span><span><span style="color:var(--text);font-weight:700;">LIMIT:</span> Max 2 on break at once (6+ agents required). Max 30 min overlap.</span></div>
   </div>
 
   <div class="break-timer-panel" id="break-timer-panel">
@@ -449,162 +530,412 @@
     <div class="table-wrap"><div class="table-header">Rows 1–5 · Up to 3 break slots · Max 60 min</div><div id="break-table-left"></div></div>
     <div class="table-wrap"><div class="table-header">Rows 6–10 · Up to 3 break slots · Max 60 min</div><div id="break-table-right"></div></div>
   </div>
-  <div style="font-size:11px;color:var(--muted);margin-top:8px;">No breaks in last 30 min of shift · 60 min total per agent · Max 2 simultaneous (6+ agents, ≤30 min overlap)</div>
+  <div style="font-size:11px;color:var(--muted);margin-top:8px;">No breaks in last 30 min of shift · 60 min total · Max 2 simultaneous (6+ agents, ≤30 min overlap)</div>
 
   <div class="stats" style="margin-top:18px;">
     <div class="stat-card"><div class="stat-label">On Break Now</div><div class="stat-value orange" id="stat-on-break">0</div></div>
     <div class="stat-card"><div class="stat-label">Breaks Finished</div><div class="stat-value green" id="stat-done">0</div></div>
     <div class="stat-card"><div class="stat-label">Breaks Planned</div><div class="stat-value" style="color:var(--accent2)" id="stat-planned">0</div></div>
-    <div class="stat-card"><div class="stat-label">Total Agents</div><div class="stat-value plain" id="stat-total">0</div></div>
+    <div class="stat-card"><div class="stat-label">On Shift Now</div><div class="stat-value plain" id="stat-total">0</div></div>
   </div>
-  <div class="info-bar" style="margin-top:12px;">🌐 Real-time sync active — changes made by anyone appear for everyone instantly.</div>
+  <div class="info-bar" style="margin-top:12px;">🌐 Real-time sync active · Schedule checks every 60 seconds · Agents auto-added/removed at shift boundaries</div>
 </div>
 
-<div class="sync-bar" id="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
+<div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
 /* ══════════════════════════════════════════════════════════
-   BREAKSHEET  ·  bug-fixed build
-
-   BUG 1 — SSE agent overwrite race condition
-     Firebase SSE fires an immediate "put" with the current DB
-     value the instant you subscribe. If the user just pressed
-     Save, that first SSE event may still carry the OLD value,
-     overwriting the fresh save.
-     FIX: agentsSavePending flag — set true before the PUT,
-     cleared after it resolves. While pending, SSE agent
-     events are ignored.
-
-   BUG 2 — saveAgents() was calling pushRows()
-     This re-uploaded whatever rows were in local memory at
-     that moment, potentially clobbering break bookings made
-     by other agents since the last SSE sync.
-     FIX: removed pushRows() from saveAgents() entirely.
-     Rows are only pushed when row data itself changes.
-
-   BUG 3 — clearAll() used hard-coded slot literals
-     Made clearing fragile if MAX_SLOTS ever changes.
-     FIX: use initRows() for a consistent, always-correct structure.
-
-   BUG 4 — Wheel SSE "patch" wiped history
-     wmSetHistFromFB(d.data) on a patch event replaced the full
-     history with just the new entry (partial payload).
-     FIX: wmHistoryMap keyed by Firebase push key. "put" events
-     rebuild the map; "patch" events merge into it.
-     wmRebuildHistFromMap() sorts + trims and re-renders.
+   BREAKSHEET — Schedule-aware build
+   Rules:
+   · Rows auto-filled from Google Sheets CSV every 60s
+   · No manual row selection — rows are read-only
+   · No clear buttons — system manages membership
+   · Agent added when shift starts, removed+wiped when shift ends
+   · Shift codes: parse HH from "HH-HH", agent is on shift if
+     current Kyiv time is between shiftStart and shiftEnd
+   · Skip: T* (tickets), OB (onboarding), PTO, OFF, off, sick, out
    ══════════════════════════════════════════════════════════ */
 
-var DB_URL = 'https://breaksheetstarspartners-default-rtdb.europe-west1.firebasedatabase.app/';
+var DB_URL  = 'https://breaksheetstarspartners-default-rtdb.europe-west1.firebasedatabase.app/';
+/* ── SCHEDULE URL ───────────────────────────────────────────────────────────
+   Automatically reads the correct monthly tab from the sheet.
+   Tab naming pattern: January_BB_RB, February_BB_RB, ... December_BB_RB
+   No gids, no manual updates needed. When a new month tab is added
+   to the sheet, the app picks it up automatically.
+   ───────────────────────────────────────────────────────────── */
+var SCHEDULE_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpTkls_JxMpJsz1Y4qaHmRLd0r-2RwzbRRF8jFD5yIsbCp8PpwOJdwBpuVxWkdEnRtFqAEyFKUTTCi/pub?single=true&output=csv&sheet=';
+var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+/* All known SP tab name variants (case handled by trying each).
+   Order matters — try most recent naming convention first. */
+var SP_VARIANTS = [
+  '_SP', '_Stars', '_stars', '_SP_', '_sp', '_STARS', '_Stars_Partners'
+];
+
+/* Build URLs for a given month index — returns array of URLs to try */
+function scheduleURLsForMonth(monthIdx){
+  var month = MONTH_NAMES[monthIdx];
+  return SP_VARIANTS.map(function(suffix){
+    return SCHEDULE_BASE + month + suffix;
+  });
+}
+
+/* Get current Kyiv month index (0-based) */
+function kyivMonthIdx(){
+  return parseInt(new Date().toLocaleDateString('uk-UA',{timeZone:'Europe/Kyiv',month:'numeric'})) - 1;
+}
+
+/* Try current month first (all variants), fall back up to 3 months.
+   For each month, tries all known BB/RB tab name variants.
+   Returns a Promise resolving to {url, csv, month, tabName} or rejects. */
+function fetchScheduleWithFallback(){
+  var base = kyivMonthIdx();
+  /* Build flat list of {monthIdx, name, url} to try in order */
+  var attempts = [];
+  for(var i=0; i<4; i++){
+    var mIdx = ((base - i) % 12 + 12) % 12;
+    var mName = MONTH_NAMES[mIdx];
+    var urls = scheduleURLsForMonth(mIdx);
+    urls.forEach(function(url, vi){
+      attempts.push({monthIdx:mIdx, name:mName, url:url, variant:BB_RB_VARIANTS[vi]});
+    });
+  }
+  function tryNext(i){
+    if(i >= attempts.length) return Promise.reject(new Error('No schedule found — checked all month/variant combinations'));
+    var a = attempts[i];
+    console.log('[Schedule] Trying ' + a.name + a.variant + '...');
+    return fetch(a.url).then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text().then(function(csv){
+        /* Sanity check: make sure it returned actual schedule data, not an error page */
+        if(csv.length < 100 || csv.indexOf(',') < 0) throw new Error('Empty or invalid CSV');
+        var tabName = a.name + a.variant;
+        console.log('[Schedule] Found: ' + tabName);
+        return {url:a.url, csv:csv, month:a.name, tabName:tabName};
+      });
+    }).catch(function(){ return tryNext(i+1); });
+  }
+  return tryNext(0);
+}
 var MIN_AGENTS_FOR_DUAL = 6;
 var MAX_OVERLAP_MINS    = 30;
+var MAX_BREAK=60, MAX_SLOTS=3, NUM_ROWS=10;
+var agentsSavePending = false;
 
-var agentsSavePending = false; /* BUG 1 FIX */
+/* ── Nickname ── */
+var currentNickname='';
 
-var currentNickname = '';
-function initNickname(){ document.getElementById('nick-overlay').classList.remove('hidden'); setTimeout(function(){ document.getElementById('nick-input').focus(); },100); }
 function saveNickname(){
   var val=document.getElementById('nick-input').value.trim();
   if(!val){ var inp=document.getElementById('nick-input'); inp.classList.add('shake'); setTimeout(function(){ inp.classList.remove('shake'); },400); return; }
-  currentNickname=val; document.getElementById('nick-overlay').classList.add('hidden');
-  writeLog('SESSION_START',val+' joined the session');
+  currentNickname=val;
+  try{ localStorage.setItem('bs_nickname', val); }catch(e){}
+  document.getElementById('nick-overlay').classList.add('hidden');
+  writeLog('SESSION_START',val+' joined');
+}
+
+/* Pre-fill input with last used name so agents don't have to retype */
+(function(){
+  try{
+    var last = localStorage.getItem('bs_nickname');
+    if(last){
+      var inp = document.getElementById('nick-input');
+      if(inp) inp.value = last;
+    }
+  }catch(e){}
+})();
+
+function initNickname(){
+  /* Always show the modal on every page load / refresh */
+  document.getElementById('nick-overlay').classList.remove('hidden');
+  setTimeout(function(){ document.getElementById('nick-input').focus(); },100);
+}
+
+function clearNickname(){
+  try{ localStorage.removeItem('bs_nickname'); }catch(e){}
+  currentNickname='';
+  document.getElementById('nick-input').value='';
+  document.getElementById('nick-overlay').classList.remove('hidden');
+  setTimeout(function(){ document.getElementById('nick-input').focus(); },100);
 }
 function setupNicknameInput(){ var inp=document.getElementById('nick-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter') saveNickname(); }); initNickname(); }
 
-function fbGet(path){ return fetch(DB_URL+path+'.json').then(function(r){ return r.json(); }); }
-function fbSet(path,data){ return fetch(DB_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){ return r.json(); }); }
-function fbPush(path,data){ return fetch(DB_URL+path+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){ return r.json(); }); }
+/* ── Firebase ── */
+function fbGet(p){ return fetch(DB_URL+p+'.json').then(function(r){ return r.json(); }); }
+function fbSet(p,d){ return fetch(DB_URL+p+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){ return r.json(); }); }
+function fbPush(p,d){ return fetch(DB_URL+p+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){ return r.json(); }); }
 
 var rowsSSE=null,agentsSSE=null,wheelSSE=null;
-
 function startSSE(){
   if(rowsSSE) rowsSSE.close();
   rowsSSE=new EventSource(DB_URL+'/rows.json?accept=text/event-stream');
   rowsSSE.addEventListener('put',function(e){
-    try{ var d=JSON.parse(e.data); if(d&&d.data&&Array.isArray(d.data)){ rows=d.data; render(); } }catch(err){}
+    try{
+      var d=JSON.parse(e.data);
+      if(d&&d.data&&Array.isArray(d.data)){
+        rows=resolveRows(d.data);
+        /* Re-apply schedule — live shift membership always wins */
+        if(scheduleCache) applyScheduleToRows();
+        else render();
+      }
+    }catch(err){}
     setSyncStatus('ok');
   });
   rowsSSE.onerror=function(){ setSyncStatus('err'); };
-
-  if(agentsSSE) agentsSSE.close();
-  agentsSSE=new EventSource(DB_URL+'/agents.json?accept=text/event-stream');
-  agentsSSE.addEventListener('put',function(e){
-    if(agentsSavePending) return; /* BUG 1 FIX */
-    try{
-      var d=JSON.parse(e.data);
-      if(d&&d.data&&Array.isArray(d.data)){ agents=d.data; while(agents.length<40) agents.push(''); renderSetup(); render(); }
-    }catch(err){}
-  });
-
+  /* No agents SSE — agents are derived from schedule CSV, not Firebase */
   if(wheelSSE) wheelSSE.close();
   wheelSSE=new EventSource(DB_URL+'/wheelHistory.json?accept=text/event-stream');
-  wheelSSE.addEventListener('put',function(e){
-    try{ var d=JSON.parse(e.data); if(d&&d.data){ wmSetHistFromFB(d.data); } }catch(err){}
-  });
-  wheelSSE.addEventListener('patch',function(e){ /* BUG 4 FIX */
-    try{
-      var d=JSON.parse(e.data);
-      if(d&&d.data){ Object.keys(d.data).forEach(function(k){ wmHistoryMap[k]=d.data[k]; }); wmRebuildHistFromMap(); }
-    }catch(err){}
-  });
+  wheelSSE.addEventListener('put',function(e){ try{ var d=JSON.parse(e.data); if(d&&d.data) wmSetHistFromFB(d.data); }catch(err){} });
+  wheelSSE.addEventListener('patch',function(e){ try{ var d=JSON.parse(e.data); if(d&&d.data){ Object.keys(d.data).forEach(function(k){ wmHistoryMap[k]=d.data[k]; }); wmRebuildHistFromMap(); } }catch(err){} });
 }
+function setSyncStatus(s){ var dot=document.getElementById('sync-dot'),lbl=document.getElementById('sync-label'); if(s==='syncing'){ dot.className='sync-dot syncing'; lbl.textContent='Syncing...'; } else if(s==='ok'){ dot.className='sync-dot'; lbl.textContent='Live ✓'; } else{ dot.className='sync-dot err'; lbl.textContent='Offline'; } }
 
-function setSyncStatus(state){
-  var dot=document.getElementById('sync-dot'),lbl=document.getElementById('sync-label');
-  if(state==='syncing'){ dot.className='sync-dot syncing'; lbl.textContent='Syncing...'; }
-  else if(state==='ok'){ dot.className='sync-dot'; lbl.textContent='Live ✓'; }
-  else{ dot.className='sync-dot err'; lbl.textContent='Offline'; }
-}
-
+/* ── Agent / row data ── */
 var DEFAULT_AGENTS=[
-  "Mariam - Adeline","Stacy - Alina","Chloe - Amanda","Mason - Andrew","James - Andrian",
-  "Jacob - Artur","Dmytro - Bruce","Den - Denys","Deren - Dmytro","Mira - Elena",
-  "Grant - Giorgi","Joseph - Ihor","Giorgi - Josh","Arthur - Kostiantyn","Lucas - Levon",
-  "Cooper - Luka","Aaron - Max","Mike - Mykhailo","Nady - Naomi","Dachi - Nate",
-  "Nataly - Natia","Matthew - Samir","Jack - Sergii","Gerald - Tarlan","Lina - Tina",
-  "Iris - Tsira","Emily - Valeria","Lili - Viktoriia","Millie - Yulia"
+  "Den","Nady","Gerald","Lili","Nate",
+  "Lina","Mike","Aaron","Emily","Iris",
+  "Frank","George","Blake","Dean","Noah",
+  "Franklin","Luna","Gabi","Patrick","Eric",
+  "William","Nicole","Toby","Paul","April",
+  "Logan","Grace","Maya"
 ];
-var MAX_BREAK=60,MAX_SLOTS=3,NUM_ROWS=10;
 var agents=DEFAULT_AGENTS.slice(); while(agents.length<40) agents.push('');
+function makeEmptySlots(){ return Array.from({length:MAX_SLOTS},function(){ return{from:'',to:'',started:false}; }); }
+function initRows(){ return Array.from({length:NUM_ROWS},function(_,i){ return{id:i,agentIdx:-1,slots:makeEmptySlots()}; }); }
+var rows=initRows();
+function countActiveAgents(){ return rows.filter(function(r){ return r.agentIdx>=0; }).length; }
 
-function initRows(){
-  return Array.from({length:NUM_ROWS},function(_,i){
-    return{id:i,agentIdx:-1,slots:Array.from({length:MAX_SLOTS},function(){ return{from:'',to:'',started:false}; })};
+/* Convert stored rows (agentNick string) back to local agentIdx.
+   Also handles legacy rows that still have agentIdx numbers. */
+function resolveRows(rawRows){
+  if(!rawRows) return initRows();
+  return rawRows.map(function(row,i){
+    var r={ id:i, agentIdx:-1, slots:makeEmptySlots() };
+    /* Copy slots */
+    if(Array.isArray(row.slots)) r.slots=row.slots;
+    /* Resolve agentNick → agentIdx */
+    if(row.agentNick&&row.agentNick.trim()){
+      for(var ai=0;ai<agents.length;ai++){
+        if((agents[ai]||'').trim().toLowerCase()===row.agentNick.trim().toLowerCase()){
+          r.agentIdx=ai; break;
+        }
+      }
+    } else if(typeof row.agentIdx==='number'&&row.agentIdx>=0&&agents[row.agentIdx]){
+      /* legacy support */
+      r.agentIdx=row.agentIdx;
+    }
+    return r;
   });
 }
-var rows=initRows();
-
-function countActiveAgents(){ return rows.filter(function(r){ return r.agentIdx>=0; }).length; }
 
 function initApp(){
   setSyncStatus('syncing');
-  Promise.all([fbGet('/rows'),fbGet('/agents'),fbGet('/wheelHistory')]).then(function(res){
-    if(res[0]&&Array.isArray(res[0])) rows=res[0];
-    if(res[1]&&Array.isArray(res[1])){ agents=res[1]; while(agents.length<40) agents.push(''); }
-    if(res[2]) wmSetHistFromFB(res[2]);
-    renderSetup(); render(); setSyncStatus('ok'); startSSE();
-  }).catch(function(e){ console.error(e); setSyncStatus('err'); renderSetup(); render(); });
+  /* Agents are NOT stored in Firebase — always derived from schedule CSV.
+     This prevents stale names ("Mike - Mykhailo") from ever coming back. */
+  Promise.all([fbGet('/rows'),fbGet('/wheelHistory')]).then(function(res){
+    if(res[0]&&Array.isArray(res[0])) rows=resolveRows(res[0]);
+    if(res[1]) wmSetHistFromFB(res[1]);
+    renderSetup(); setSyncStatus('ok'); startSSE();
+    loadSchedule(false); /* loadSchedule calls applyScheduleToRows which calls render */
+  }).catch(function(e){ console.error(e); setSyncStatus('err'); renderSetup(); render(); loadSchedule(false); });
 }
 
 function pushRows(){
   setSyncStatus('syncing');
-  fbSet('/rows',rows).then(function(){ setSyncStatus('ok'); }).catch(function(){ setSyncStatus('err'); });
+  /* Store agentNick (string) not agentIdx (volatile number) */
+  var toStore=rows.map(function(row){
+    return {
+      id: row.id,
+      agentNick: row.agentIdx>=0&&agents[row.agentIdx] ? agents[row.agentIdx] : '',
+      slots: row.slots
+    };
+  });
+  fbSet('/rows',toStore).then(function(){ setSyncStatus('ok'); }).catch(function(){ setSyncStatus('err'); });
+}
+function pushAgents(){ /* no-op: agents are schedule-derived, not stored in Firebase */ }
+function writeLog(ev,detail){ var now=new Date(),kyivStr=now.toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'2-digit',year:'numeric',hour12:false}),ts=now.getTime(); fetch(DB_URL+'/logs/'+ts+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({ts:ts,kyiv:kyivStr,event:ev,detail:detail,who:currentNickname||'Unknown'})}).catch(function(){}); }
+
+/* ══════════════════════════════════════════════════════════
+   SCHEDULE LOGIC
+   ══════════════════════════════════════════════════════════ */
+
+/* Codes that mean "skip this person entirely" */
+var SKIP_CODES=['OFF','OB','PTO','SICK','OUT',''];
+
+/* Returns true if code starts with T (tickets) — skip */
+function isTickets(code){ return /^T\d/i.test(code.trim()); }
+
+/* Parse shift code "HH-HH" → {startH, endH} or null if skip */
+function parseCode(code){
+  if(!code) return null;
+  var c=code.trim().toUpperCase();
+  if(SKIP_CODES.indexOf(c)>=0) return null;
+  if(isTickets(c)) return null;
+  /* strip leading T just in case */
+  var raw=c.replace(/^T/,'');
+  var m=raw.match(/^(\d{1,2})-(\d{2})$/);
+  if(!m) return null;
+  return {startH:parseInt(m[1]), endH:parseInt(m[2])};
 }
 
-function pushAgents(){
-  setSyncStatus('syncing');
-  agentsSavePending=true; /* BUG 1 FIX */
-  fbSet('/agents',agents)
-    .then(function(){ setSyncStatus('ok'); agentsSavePending=false; })
-    .catch(function(){ setSyncStatus('err'); agentsSavePending=false; });
+/* Is the person currently on shift given their code?
+   Uses actual Kyiv minutes (fractional) for precision.
+   Handles overnight shifts (e.g. 23-07, 19-03, 17-01). */
+function isOnShiftNow(code){
+  var p=parseCode(code); if(!p) return false;
+  var nowM=kyivNowMins(); /* fractional minutes since midnight */
+  var startM=p.startH*60, endM=p.endH*60;
+  if(endM>startM){
+    /* Same-day shift e.g. 07-15, 09-17, 10-18 */
+    return nowM>=startM && nowM<endM;
+  } else {
+    /* Overnight shift e.g. 23-07, 19-03, 17-01 */
+    return nowM>=startM || nowM<endM;
+  }
 }
 
-function writeLog(event,detail){
-  var now=new Date();
-  var kyivStr=now.toLocaleString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'2-digit',year:'numeric',hour12:false});
-  var ts=now.getTime();
-  fetch(DB_URL+'/logs/'+ts+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({ts:ts,kyiv:kyivStr,event:event,detail:detail,who:currentNickname||'Unknown'})}).catch(function(){});
+/* CSV parser */
+function parseCSV(text){
+  return text.split('\n').map(function(line){
+    var result=[],cur='',inQ=false;
+    for(var i=0;i<line.length;i++){
+      var ch=line[i];
+      if(ch==='"'){ inQ=!inQ; }
+      else if(ch===','&&!inQ){ result.push(cur.trim()); cur=''; }
+      else { cur+=ch; }
+    }
+    result.push(cur.trim());
+    return result;
+  });
 }
 
+/* Today's Kyiv day-of-month as plain number string e.g. "14" */
+function kyivTodayDay(){ return String(parseInt(new Date().toLocaleDateString('uk-UA',{timeZone:'Europe/Kyiv',day:'2-digit'}))); }
+
+/* Cached parsed schedule: array of {nickname, code} for today */
+var scheduleCache=null; /* null = not loaded yet */
+
+function schedStatus(state,msg){
+  var dot=document.getElementById('sched-dot'),txt=document.getElementById('sched-text'),btn=document.getElementById('sched-refresh-btn');
+  dot.className='sched-dot'+(state==='ok'?' ok':state==='loading'?' loading':state==='err'?' err':'');
+  txt.innerHTML=msg;
+  if(btn) btn.disabled=(state==='loading');
+  console.log('[Schedule]',state,msg.replace(/<[^>]+>/g,''));
+}
+
+function loadSchedule(manual){
+  var kyivMonth = MONTH_NAMES[kyivMonthIdx()];
+  schedStatus('loading','Loading schedule — looking for '+kyivMonth+'_SP…');
+
+  fetchScheduleWithFallback()
+    .then(function(result){
+      var csv=result.csv, foundMonth=result.month;
+      var rows_csv=parseCSV(csv);
+      /* Row index 2 has day numbers starting col 2 */
+      var dayRow=rows_csv[2]||[];
+      var today=kyivTodayDay();
+      var todayCol=-1;
+      for(var c=2;c<dayRow.length;c++){ if(dayRow[c].trim()===today){ todayCol=c; break; } }
+      if(todayCol<0){
+        schedStatus('err',"⚠ Today's date not found in "+foundMonth+"_BB_RB sheet");
+        return;
+      }
+      /* Rows 4+ are agents */
+      var entries=[];
+      for(var r=4;r<rows_csv.length;r++){
+        var row=rows_csv[r];
+        var nick=(row[1]||'').trim();
+        var code=(row[todayCol]||'').trim();
+        if(nick) entries.push({nickname:nick, code:code});
+      }
+      scheduleCache=entries;
+      console.log('[Schedule] Loaded '+foundMonth+'_SP. Today='+today+' col='+todayCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
+      if(manual) writeLog('SCHEDULE_REFRESH','Manual refresh — loaded '+(result.tabName||foundMonth+'_SP'));
+      applyScheduleToRows();
+      var onShiftCount=rows.filter(function(r){ return r.agentIdx>=0; }).length;
+  setTimeout(checkBreakReminder,500);
+      var suffix=foundMonth!==kyivMonth?' (fell back from '+kyivMonth+')':'';
+      schedStatus('ok','<strong>'+(result.tabName||foundMonth+'_SP')+'</strong> loaded · '+onShiftCount+' agent'+(onShiftCount!==1?'s':'')+' on shift now · next check in ~60s'+suffix);
+    })
+    .catch(function(err){
+      console.error('[Schedule] All months failed:',err);
+      schedStatus('err','⚠ Could not load any monthly schedule — check connection');
+    });
+}
+
+
+function applyScheduleToRows(){
+  if(!scheduleCache) return;
+
+  /* STEP 1: Merge any new nicknames into agents[] WITHOUT changing existing positions.
+     This is safe to call repeatedly — indexes never shift. */
+  scheduleCache.forEach(function(e){
+    if(!e.nickname) return;
+    var already=false;
+    for(var i=0;i<agents.length;i++){
+      if((agents[i]||'').trim().toLowerCase()===e.nickname.toLowerCase()){ already=true; break; }
+    }
+    if(!already){
+      for(var i=0;i<agents.length;i++){
+        if(!agents[i]||!agents[i].trim()){ agents[i]=e.nickname; break; }
+      }
+    }
+  });
+
+  /* STEP 2: Build set of agent indexes on shift RIGHT NOW */
+  var shouldBeOnShift=[];
+  scheduleCache.forEach(function(entry){
+    if(!isOnShiftNow(entry.code)) return;
+    for(var i=0;i<agents.length;i++){
+      if(!agents[i]) continue;
+      if(agents[i].trim().toLowerCase()===entry.nickname.toLowerCase()){
+        shouldBeOnShift.push(i); break;
+      }
+    }
+  });
+
+  console.log('[Schedule] Applying. shouldBeOnShift indexes:',shouldBeOnShift,'names:',shouldBeOnShift.map(function(i){ return agents[i]; }));
+
+  var changed=false;
+
+  /* Remove agents whose shift has ended */
+  for(var ri=0;ri<rows.length;ri++){
+    var idx=rows[ri].agentIdx;
+    if(idx<0) continue;
+    if(shouldBeOnShift.indexOf(idx)<0){
+      /* Shift ended — wipe row completely */
+      writeLog('AGENT_AUTO_REMOVED',(agents[idx]||'?')+' shift ended, row '+( ri+1)+' cleared');
+      rows[ri].agentIdx=-1;
+      rows[ri].slots=makeEmptySlots();
+      changed=true;
+    }
+  }
+
+  /* Add agents whose shift has started but aren't in a row yet */
+  var currentInRows=rows.map(function(r){ return r.agentIdx; });
+  shouldBeOnShift.forEach(function(idx){
+    if(currentInRows.indexOf(idx)>=0) return; /* already there */
+    /* Find first empty row */
+    var emptyRi=-1;
+    for(var ri=0;ri<rows.length;ri++){ if(rows[ri].agentIdx<0){ emptyRi=ri; break; } }
+    if(emptyRi<0){ console.warn('No empty row for agent',agents[idx]); return; }
+    rows[emptyRi].agentIdx=idx;
+    rows[emptyRi].slots=makeEmptySlots();
+    writeLog('AGENT_AUTO_ADDED',(agents[idx]||'?')+' shift started, placed in row '+(emptyRi+1));
+    currentInRows[emptyRi]=idx; /* update local mirror */
+    changed=true;
+  });
+
+  /* Count matched vs total on shift */
+  var onShiftCount=shouldBeOnShift.length;
+  var h=kyivHour();
+  schedStatus('ok','<strong>Schedule live</strong> · '+onShiftCount+' agent'+(onShiftCount!==1?'s':'')+' on shift now · next check in ~60s');
+
+  if(changed){ pushRows(); render(); }
+  else { render(); } /* still re-render to refresh statuses */
+}
+
+/* ── Time helpers ── */
 function pad(n){ return String(n).padStart(2,'0'); }
 function kyivNowMins(){ var s=new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); var p=s.split(':').map(Number); return p[0]*60+p[1]+p[2]/60; }
 function kyivTimeStr(){ return new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); }
@@ -629,11 +960,10 @@ function rowDoneMins(row){ return row.slots.reduce(function(a,s){ return slotSta
 function rowFinished(row){ return rowDoneMins(row)>=MAX_BREAK; }
 function countOnBreakNow(){ var c=0; rows.forEach(function(r){ if(r.agentIdx<0) return; r.slots.forEach(function(s){ if(slotStatus(s)==='break') c++; }); }); return c; }
 function overlapMins(a1,a2,b1,b2){ var s=Math.max(a1,b1),e=Math.min(a2,b2); return s<e?e-s:0; }
-
 function wouldViolateOverlapRules(excRi,excSi,fromM,toM){
   if(fromM<0||toM<0||toM===fromM) return false;
   if(toM<fromM) toM+=1440;
-  var activeAgents=countActiveAgents(),existing=[];
+  var aa=countActiveAgents(),existing=[];
   for(var ri=0;ri<rows.length;ri++){
     var row=rows[ri]; if(row.agentIdx<0) continue;
     for(var si=0;si<row.slots.length;si++){
@@ -643,21 +973,16 @@ function wouldViolateOverlapRules(excRi,excSi,fromM,toM){
       existing.push({from:sF,to:sT});
     }
   }
-  var overlapping=existing.filter(function(e){ return overlapMins(fromM,toM,e.from,e.to)>0; });
-  if(overlapping.length===0) return false;
-  if(overlapping.length>=2) return true;
-  if(activeAgents<MIN_AGENTS_FOR_DUAL) return true;
-  for(var i=0;i<overlapping.length;i++){ if(overlapMins(fromM,toM,overlapping[i].from,overlapping[i].to)>MAX_OVERLAP_MINS) return true; }
+  var ov=existing.filter(function(e){ return overlapMins(fromM,toM,e.from,e.to)>0; });
+  if(ov.length===0) return false;
+  if(ov.length>=2) return true;
+  if(aa<MIN_AGENTS_FOR_DUAL) return true;
+  for(var i=0;i<ov.length;i++){ if(overlapMins(fromM,toM,ov[i].from,ov[i].to)>MAX_OVERLAP_MINS) return true; }
   return false;
 }
 
-var ALL_TIMES=(function(){
-  var t=[];
-  for(var h=7;h<24;h++) for(var m=0;m<60;m+=15) t.push(pad(h)+':'+pad(m));
-  for(var h=0;h<7;h++) for(var m=0;m<60;m+=15) t.push(pad(h)+':'+pad(m));
-  return t;
-})();
-
+/* ── Available slots grid ── */
+var ALL_TIMES=(function(){ var t=[]; for(var h=7;h<24;h++) for(var m=0;m<60;m+=15) t.push(pad(h)+':'+pad(m)); for(var h=0;h<7;h++) for(var m=0;m<60;m+=15) t.push(pad(h)+':'+pad(m)); return t; })();
 function renderAvailableSlots(){
   var grid=document.getElementById('avail-grid'); if(!grid) return;
   var h=kyivHour(),nowM=kyivNowMins(),shiftStart,shiftEnd,overnight;
@@ -670,29 +995,25 @@ function renderAvailableSlots(){
   else{ ALL_TIMES.forEach(function(t){ if(toMins(t)>=shiftStart) slots.push(t); }); ALL_TIMES.forEach(function(t){ if(toMins(t)<shiftEnd) slots.push(t); }); }
   var slotCounts={}; slots.forEach(function(t){ slotCounts[t]=0; });
   function normToShift(tM){ return tM>=shiftStart?tM-shiftStart:tM+1440-shiftStart; }
-  rows.forEach(function(row){ row.slots.forEach(function(s){
-    if(!s.from||!s.to||s.from===s.to) return;
-    var sF=normToShift(toMins(s.from)),sT=normToShift(toMins(s.to)); if(sT<=sF) sT+=1440;
-    slots.forEach(function(t){ var tN=normToShift(toMins(t)); if(tN>=sF&&tN<sT) slotCounts[t]++; });
-  }); });
+  rows.forEach(function(row){ row.slots.forEach(function(s){ if(!s.from||!s.to||s.from===s.to) return; var sF=normToShift(toMins(s.from)),sT=normToShift(toMins(s.to)); if(sT<=sF) sT+=1440; slots.forEach(function(t){ var tN=normToShift(toMins(t)); if(tN>=sF&&tN<sT) slotCounts[t]++; }); }); });
   function isPast(tM){ return normToShift(tM)<normToShift(nowM)-14; }
   var nowSlot=slots[0],bestNorm=-1;
   slots.forEach(function(t){ var n=normToShift(toMins(t)),nn=normToShift(nowM); if(n<=nn&&n>bestNorm){ bestNorm=n; nowSlot=t; } });
-  var activeAgents=countActiveAgents();
+  var aa=countActiveAgents();
   var notice=document.getElementById('min-shift-notice'),minCount=document.getElementById('min-shift-count');
-  if(notice&&minCount){ minCount.textContent=activeAgents; notice.classList.toggle('visible',activeAgents<MIN_AGENTS_FOR_DUAL&&activeAgents>0); }
+  if(notice&&minCount){ minCount.textContent=aa; notice.classList.toggle('visible',aa<MIN_AGENTS_FOR_DUAL&&aa>0); }
   grid.innerHTML='';
   slots.forEach(function(t){
     var tM=toMins(t),past=isPast(tM),isNow=(t===nowSlot),count=slotCounts[t];
     var cls='avail-slot ',isClickable=false;
     if(past){ cls+='avail-past'; }
     else if(count>=2){ cls+='avail-full'; }
-    else if(count===1){ cls+='avail-half'; if(activeAgents>=MIN_AGENTS_FOR_DUAL) isClickable=true; }
+    else if(count===1){ cls+='avail-half'; if(aa>=MIN_AGENTS_FOR_DUAL) isClickable=true; }
     else{ cls+='avail-free'; isClickable=true; }
     var isPF=pendingFrom&&pendingFrom.time===t;
     if(isClickable) cls+=' clickable'; if(isPF) cls+=' selected-from'; if(isNow) cls+=' avail-now-marker';
     var div=document.createElement('div'); div.className=cls;
-    div.title=t+(count===1?' (1/2 — one break already booked)':count>=2?' (Full)':'');
+    div.title=t+(count===1?' (1/2)':count>=2?' (Full)':'');
     div.innerHTML=t+(count>0?'<span style="font-size:10px;opacity:0.8;margin-left:2px;">'+count+'/2</span>':'');
     if(isClickable) div.onclick=(function(time){ return function(){ clickAvailSlot(time); }; })(t);
     grid.appendChild(div);
@@ -701,7 +1022,6 @@ function renderAvailableSlots(){
 
 var pendingFrom=null,activeRow=-1;
 function setActiveRow(ri){ activeRow=ri; pendingFrom=null; document.querySelectorAll('.agent-row').forEach(function(el,i){ el.classList.toggle('active-row',i===ri); }); renderAvailableSlots(); }
-
 function clickAvailSlot(t){
   if(activeRow<0||rows[activeRow].agentIdx<0){ var g=document.getElementById('avail-grid'); if(g){ g.style.outline='2px solid var(--warning)'; setTimeout(function(){ g.style.outline=''; },800); } return; }
   if(pendingFrom){
@@ -716,7 +1036,7 @@ function clickAvailSlot(t){
     rows[ri].slots[si].to=t;
     var tw=document.getElementById('tw-'+ri+'-'+si); if(tw){ var sg=tw.querySelectorAll('.time-seg'),p=t.split(':'); if(sg[0]) sg[0].value=p[0]; if(sg[1]) sg[1].value=p[1]; }
     var an=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
-    writeLog('BREAK_BOOKED',an+' — Break '+(si+1)+' booked via grid: '+rows[ri].slots[si].from+' → '+t+' ('+dur+' min)');
+    writeLog('BREAK_BOOKED',an+' — Break '+(si+1)+' via grid: '+rows[ri].slots[si].from+' → '+t+' ('+dur+' min)');
     pendingFrom=null; pushRows(); render(); return;
   }
   var ri=activeRow,targetSi=-1;
@@ -728,29 +1048,7 @@ function clickAvailSlot(t){
   pendingFrom={ri:ri,si:targetSi,time:t}; pushRows(); render(); renderAvailableSlots();
 }
 
-function buildDropdownItems(ri,selIdx){
-  var used=new Set(rows.map(function(r){ return r.agentIdx; }).filter(function(i){ return i>=0; }));
-  var html='<div class="agent-dropdown-item placeholder" onclick="selectAgent('+ri+',-1)">— select agent —</div>';
-  agents.forEach(function(name,i){
-    if(!name.trim()) return; if(used.has(i)&&i!==selIdx) return;
-    html+='<div class="agent-dropdown-item'+(i===selIdx?' selected':'')+'" onclick="selectAgent('+ri+','+i+')">'+ name+'</div>';
-  });
-  return html;
-}
-function toggleDropdown(ri){ document.querySelectorAll('.agent-dropdown-menu.open').forEach(function(m){ if(m.id!=='dd-menu-'+ri) m.classList.remove('open'); }); var menu=document.getElementById('dd-menu-'+ri); if(!menu) return; menu.classList.toggle('open'); if(menu.classList.contains('open')){ var inp=document.getElementById('dd-search-'+ri); if(inp){ inp.value=''; filterDropdown(ri,''); setTimeout(function(){ inp.focus(); },50); } } }
-function filterDropdown(ri,query){ var list=document.getElementById('dd-list-'+ri); if(!list) return; var q=query.toLowerCase().trim(); list.querySelectorAll('.agent-dropdown-item').forEach(function(item){ item.classList.toggle('hidden',!!(q&&!item.textContent.toLowerCase().includes(q))); }); }
-function selectAgent(ri,idx){
-  var prevIdx=rows[ri].agentIdx; rows[ri].agentIdx=parseInt(idx);
-  var label=document.getElementById('dd-label-'+ri); if(label){ label.textContent=idx>=0&&agents[idx]?agents[idx]:'— select agent —'; }
-  var menu=document.getElementById('dd-menu-'+ri); if(menu) menu.classList.remove('open');
-  if(parseInt(idx)>=0){ activeRow=ri; pendingFrom=null; }
-  var an=idx>=0&&agents[idx]?agents[idx]:'—',pn=prevIdx>=0&&agents[prevIdx]?agents[prevIdx]:'—';
-  if(parseInt(idx)<0) writeLog('AGENT_CLEARED','Row '+(ri+1)+' cleared (was: '+pn+')');
-  else writeLog('AGENT_SELECTED','Row '+(ri+1)+': '+an+(prevIdx>=0&&prevIdx!==parseInt(idx)?' (replaced: '+pn+')':''));
-  pushRows(); render();
-}
-document.addEventListener('click',function(e){ if(!e.target.closest('.agent-dropdown')){ document.querySelectorAll('.agent-dropdown-menu.open').forEach(function(m){ m.classList.remove('open'); }); } });
-
+/* ── Render ── */
 function render(){
   var left=document.getElementById('break-table-left'),right=document.getElementById('break-table-right');
   if(!left||!right) return; left.innerHTML=''; right.innerHTML='';
@@ -761,17 +1059,14 @@ function render(){
     var allDone=row.agentIdx>=0&&rowFinished(row);
     var wrap=document.createElement('div');
     wrap.className='agent-row'+(anyBreak?' any-on-break':(allDone&&!anyBreak?' full-done':''))+(ri===activeRow?' active-row':'');
+    /* Name — always static badge, no dropdown */
+    var displayName=row.agentIdx>=0&&agents[row.agentIdx]?agents[row.agentIdx]:'';
+    var badgeCls='agent-name-badge'+(displayName?'':' empty');
+    var badgeContent=displayName?('<span class="sched-icon">📅</span>'+displayName):'<span style="color:var(--muted);font-size:13px;">— empty —</span>';
     wrap.innerHTML=
       '<div class="agent-header" onclick="setActiveRow('+ri+')" style="cursor:pointer;">'+
         '<span class="agent-row-num">'+(ri+1)+'</span>'+
-        '<div class="agent-dropdown" id="dd-'+ri+'">'+
-          '<div class="agent-dropdown-trigger" onclick="toggleDropdown('+ri+')"><span id="dd-label-'+ri+'">'+(row.agentIdx>=0&&agents[row.agentIdx]?agents[row.agentIdx]:'— select agent —')+'</span></div>'+
-          '<div class="agent-dropdown-menu" id="dd-menu-'+ri+'">'+
-            '<div class="agent-dropdown-search"><input type="text" placeholder="Search agent..." oninput="filterDropdown('+ri+',this.value)" id="dd-search-'+ri+'"/></div>'+
-            '<div class="agent-dropdown-list" id="dd-list-'+ri+'">'+buildDropdownItems(ri,row.agentIdx)+'</div>'+
-          '</div>'+
-        '</div>'+
-        '<button class="row-clear-btn" onclick="clearRow('+ri+')"'+(row.agentIdx<0?' disabled':'')+'>Clear</button>'+
+        '<div class="'+badgeCls+'">'+badgeContent+'</div>'+
         '<div class="break-progress-wrap"><div class="break-bar-bg"><div class="break-bar-fill '+barCls+'" style="width:'+pct+'%"></div></div><span class="break-mins-label '+barCls+'">'+used+'/'+MAX_BREAK+' min</span></div>'+
       '</div>'+
       '<div class="break-slots" id="slots-'+ri+'"></div>';
@@ -787,10 +1082,7 @@ function render(){
       var canStart=slot.from&&slot.to&&!slot.started&&status!=='done',isOnBreak=slot.started&&status==='break',canStartNow=false;
       if(canStart&&!isOnBreak){
         if(obc===0) canStartNow=true;
-        else if(obc===1&&aa>=MIN_AGENTS_FOR_DUAL){
-          var nm=kyivNowMins(),nh=Math.floor(nm/60),nmi=Math.floor(nm%60),nfM=nh*60+nmi,ntM=nfM+slotDur(slot);
-          if(!wouldViolateOverlapRules(ri,si,nfM,ntM)) canStartNow=true;
-        }
+        else if(obc===1&&aa>=MIN_AGENTS_FOR_DUAL){ var nm=kyivNowMins(),nh=Math.floor(nm/60),nmi=Math.floor(nm%60),nfM=nh*60+nmi,ntM=nfM+slotDur(slot); if(!wouldViolateOverlapRules(ri,si,nfM,ntM)) canStartNow=true; }
       }
       var actionBtns='';
       if(isOnBreak){ actionBtns='<button class="start-break-btn" style="opacity:0.3;cursor:default;pointer-events:none;">▶ Start</button><button class="stop-break-btn" onclick="stopBreakNow('+ri+','+si+')">■ Stop</button>'; }
@@ -813,7 +1105,6 @@ function render(){
 }
 
 function autoTab(el){ if(el.value.length>=2){ var wrap=el.closest('.time-input-wrap'),inputs=wrap.querySelectorAll('input.time-seg'); for(var i=0;i<inputs.length-1;i++){ if(inputs[i]===el){ inputs[i+1].focus(); inputs[i+1].select(); break; } } } }
-
 function commitTime(ri,si,field){
   var prefix=field==='from'?'fw-':'tw-';
   var wrap=document.getElementById(prefix+ri+'-'+si); if(!wrap) return;
@@ -834,15 +1125,11 @@ function commitTime(ri,si,field){
     var dur=tM2-fM2,otherMins=rows[ri].slots.reduce(function(a,s,idx){ return idx!==si?a+slotDur(s):a; },0),budget=Math.max(0,MAX_BREAK-otherMins);
     if(dur>budget||fM2===tM2||wouldViolateOverlapRules(ri,si,fM2,tM2)){ rows[ri].slots[si][field]=''; segs[0].value=''; segs[1].value=''; wrap.classList.add('invalid'); setTimeout(function(){ wrap.classList.remove('invalid'); },1500); return; }
   }
-  if(field==='from'&&rows[ri].slots[si].to){
-    var oM=rows[ri].slots.reduce(function(a,s,idx){ return idx!==si?a+slotDur(s):a; },0),bgt=Math.max(0,MAX_BREAK-oM),d2=toMins(rows[ri].slots[si].to)-toMins(val); if(d2<0) d2+=1440;
-    if(d2>bgt||d2<=0) rows[ri].slots[si].to='';
-  }
+  if(field==='from'&&rows[ri].slots[si].to){ var oM=rows[ri].slots.reduce(function(a,s,idx){ return idx!==si?a+slotDur(s):a; },0),bgt=Math.max(0,MAX_BREAK-oM),d2=toMins(rows[ri].slots[si].to)-toMins(val); if(d2<0) d2+=1440; if(d2>bgt||d2<=0) rows[ri].slots[si].to=''; }
   var fs=rows[ri].slots[si];
-  if(fs.from&&fs.to){ var an=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1),bd=toMins(fs.to)-toMins(fs.from); if(bd<0) bd+=1440; writeLog('BREAK_BOOKED',an+' — Break '+(si+1)+' booked: '+fs.from+' → '+fs.to+' ('+bd+' min)'); }
+  if(fs.from&&fs.to){ var an=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1),bd=toMins(fs.to)-toMins(fs.from); if(bd<0) bd+=1440; writeLog('BREAK_BOOKED',an+' — Break '+(si+1)+': '+fs.from+' → '+fs.to+' ('+bd+' min)'); }
   pushRows(); render();
 }
-
 function startBreakNow(ri,si){
   var slot=rows[ri].slots[si]; if(!slot.from||!slot.to) return;
   var obc=countOnBreakNow(); if(obc>=2) return;
@@ -852,45 +1139,99 @@ function startBreakNow(ri,si){
   var nf=pad(nh)+':'+pad(nmi),nth=Math.floor(ntM/60)%24,ntmin=Math.floor(ntM%60);
   rows[ri].slots[si].from=nf; rows[ri].slots[si].to=pad(nth)+':'+pad(ntmin); rows[ri].slots[si].started=true;
   var an=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1);
-  writeLog('BREAK_STARTED',an+' — Break '+(si+1)+' started at '+nf+', ends '+pad(nth)+':'+pad(ntmin)+' ('+dur+' min)');
+  writeLog('BREAK_STARTED',an+' — Break '+(si+1)+' started '+nf+' ends '+pad(nth)+':'+pad(ntmin)+' ('+dur+' min)');
   pushRows(); render();
 }
-
 function stopBreakNow(ri,si){
   var nm=kyivNowMins(),nh=Math.floor(nm/60),nmi=Math.floor(nm%60),st=pad(nh)+':'+pad(nmi);
   var an=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1),sa=rows[ri].slots[si].from||'?';
   var ad=toMins(st)-toMins(sa); if(ad<0) ad+=1440;
   rows[ri].slots[si].to=st; rows[ri].slots[si].started=false;
-  writeLog('BREAK_STOPPED',an+' — Break '+(si+1)+' stopped at '+st+' (started '+sa+', actual '+ad+' min)');
+  writeLog('BREAK_STOPPED',an+' — Break '+(si+1)+' stopped '+st+' ('+sa+' → '+st+', actual '+ad+' min)');
   pushRows(); render();
 }
-
 function clearSlot(ri,si){
   var an=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'Row '+(ri+1),s=rows[ri].slots[si];
   var detail=an+' — Break '+(si+1)+' cleared'; if(s.from||s.to) detail+=' (was '+(s.from||'?')+' → '+(s.to||'?')+')';
   writeLog('SLOT_CLEARED',detail);
   rows[ri].slots[si]={from:'',to:'',started:false}; pushRows(); render();
 }
-
-function clearAll(){ /* BUG 3 FIX — use initRows() */
-  writeLog('ALL_CLEARED','All rows cleared by supervisor');
-  rows=initRows();
-  pushRows(); render();
-}
-
-function clearRow(ri){
-  var an=rows[ri].agentIdx>=0?agents[rows[ri].agentIdx]:'—';
-  writeLog('ROW_CLEARED','Row '+(ri+1)+' fully cleared (agent was: '+an+')');
-  rows[ri].agentIdx=-1;
-  rows[ri].slots=Array.from({length:MAX_SLOTS},function(){ return{from:'',to:'',started:false}; });
-  pushRows(); render();
-}
-
 function updateStats(obc){
   document.getElementById('stat-on-break').textContent=obc;
   document.getElementById('stat-done').textContent=rows.filter(function(r){ return rowFinished(r); }).length;
   document.getElementById('stat-planned').textContent=rows.filter(function(r){ return r.agentIdx>=0&&r.slots.some(function(s){ return s.from&&s.to; }); }).length;
-  document.getElementById('stat-total').textContent=agents.filter(function(a){ return a.trim(); }).length;
+  document.getElementById('stat-total').textContent=countActiveAgents();
+}
+/* ── Import agents from schedule CSV ── */
+function importAgentsFromSchedule(){
+  var btn=document.getElementById('import-sched-btn');
+  var status=document.getElementById('import-status');
+  if(btn) btn.disabled=true;
+  if(status){ status.style.display='block'; status.style.background='rgba(56,189,248,0.07)'; status.style.border='1px solid rgba(56,189,248,0.2)'; status.style.color='var(--kyiv)'; status.textContent='Fetching schedule…'; }
+
+  fetchScheduleWithFallback()
+    .then(function(result){ var csv=result.csv; return csv; })
+    .then(function(csv){
+      var rows_csv=parseCSV(csv);
+      /* Find unique nicknames from col 1, rows 4+ */
+      var nicknames=[];
+      for(var r=4;r<rows_csv.length;r++){
+        var nick=(rows_csv[r][1]||'').trim();
+        if(nick && nicknames.indexOf(nick)<0) nicknames.push(nick);
+      }
+      nicknames.sort();
+
+      /* For each nickname, check if we already have a matching entry in agents[].
+         If yes — keep it (preserves real names people already typed).
+         If no  — add it as just the nickname so it matches the sheet right away. */
+      var newAgents=[];
+      /* Keep existing entries that match a schedule nickname, add new ones */
+      var usedNicks=new Set();
+      agents.forEach(function(ag){
+        if(!ag||!ag.trim()) return;
+        if(nicknames.indexOf(ag.trim())>=0){
+          newAgents.push(ag.trim());
+          usedNicks.add(ag.trim());
+        }
+      });
+      /* Add any nicknames from sheet not already in list */
+      nicknames.forEach(function(nick){
+        if(!usedNicks.has(nick)) newAgents.push(nick);
+      });
+      /* Pad to 40 */
+      while(newAgents.length<40) newAgents.push('');
+
+      agents=newAgents;
+      renderSetup();
+
+      var added=nicknames.length-usedNicks.size;
+      var kept=usedNicks.size;
+      if(status){
+        status.style.background='rgba(34,197,94,0.07)';
+        status.style.border='1px solid rgba(34,197,94,0.2)';
+        status.style.color='var(--done)';
+        status.textContent='✓ Imported '+nicknames.length+' agents from sheet ('+kept+' existing kept, '+added+' new added). Click Save & Apply to sync.';
+      }
+      if(btn) btn.disabled=false;
+      writeLog('AGENTS_IMPORTED','Imported '+nicknames.length+' nicknames from schedule CSV');
+    })
+    .catch(function(err){
+      console.error('Import failed:',err);
+      if(status){
+        status.style.background='rgba(255,107,53,0.07)';
+        status.style.border='1px solid rgba(255,107,53,0.2)';
+        status.style.color='var(--on-break)';
+        status.textContent='⚠ Could not reach schedule sheet. Check connection.';
+      }
+      if(btn) btn.disabled=false;
+    });
+}
+
+function clearAgentsList(){
+  if(!confirm('Clear the entire agent list? This removes all names but does not affect current break bookings.')) return;
+  agents=Array(40).fill('');
+  renderSetup();
+  writeLog('AGENTS_CLEARED','Agent list wiped by '+currentNickname);
 }
 
 function renderSetup(){
@@ -901,201 +1242,238 @@ function renderSetup(){
     grid.appendChild(w);
   }
 }
-
-function saveAgents(){ /* BUG 2 FIX — no pushRows() here */
-  var changes=[];
+function saveAgents(){
   document.querySelectorAll('#agents-grid input').forEach(function(inp){
-    var idx=parseInt(inp.dataset.idx),oldVal=(agents[idx]||'').trim(),newVal=inp.value.trim();
-    if(oldVal!==newVal) changes.push('#'+(idx+1)+': "'+oldVal+'" → "'+newVal+'"');
-    agents[idx]=newVal;
+    var idx=parseInt(inp.dataset.idx);
+    agents[idx]=inp.value.trim();
   });
-  if(changes.length>0) writeLog('AGENTS_UPDATED','Agent names changed: '+changes.join(', '));
-  rows.forEach(function(row){ if(row.agentIdx>=0&&!agents[row.agentIdx]) row.agentIdx=-1; });
-  pushAgents();
-  render();
-  alert('Agents saved & synced!');
+  /* Re-apply schedule so rows reflect any name changes immediately */
+  if(scheduleCache) applyScheduleToRows();
+  else render();
+  alert('Agent names updated!');
 }
-
 document.getElementById('setup-toggle').addEventListener('click',function(){ this.classList.toggle('collapsed'); document.getElementById('setup-content').classList.toggle('hidden'); });
 function openGuide(){ document.getElementById('guide-overlay').className='guide-overlay open'; }
 function closeGuide(){ document.getElementById('guide-overlay').className='guide-overlay closed'; }
-
 function renderBreakTimers(){
   var panel=document.getElementById('break-timer-panel'),cards=document.getElementById('break-timer-cards'); if(!panel||!cards) return;
   var nowM=kyivNowMins(),active=[];
   rows.forEach(function(row){ if(row.agentIdx<0) return; row.slots.forEach(function(slot){ if(!slot.started||slotStatus(slot)!=='break') return; var toM=toMins(slot.to),ml=toM-nowM; if(ml<0) ml+=1440; active.push({name:agents[row.agentIdx],minsLeft:ml,totalDur:slotDur(slot)}); }); });
   if(active.length===0){ panel.classList.remove('visible'); return; }
   panel.classList.add('visible'); cards.innerHTML='';
-  active.forEach(function(a){
-    var ts=Math.round(a.minsLeft*60),m=Math.floor(ts/60),s=ts%60,isU=a.minsLeft<=5,pct=Math.max(0,Math.min(100,(a.minsLeft/a.totalDur)*100));
-    var card=document.createElement('div'); card.className='break-timer-card';
-    card.innerHTML='<span style="font-size:18px;">☕</span><span class="break-timer-name">'+a.name+'</span><div><div class="break-timer-countdown'+(isU?' urgent':'')+'">'+pad(m)+':'+pad(s)+'</div><div class="break-timer-bar-wrap"><div class="break-timer-bar'+(isU?' urgent':'')+'" style="width:'+pct+'%"></div></div></div>';
-    cards.appendChild(card);
-  });
+  active.forEach(function(a){ var ts=Math.round(a.minsLeft*60),m=Math.floor(ts/60),s=ts%60,isU=a.minsLeft<=5,pct=Math.max(0,Math.min(100,(a.minsLeft/a.totalDur)*100)); var card=document.createElement('div'); card.className='break-timer-card'; card.innerHTML='<span style="font-size:18px;">☕</span><span class="break-timer-name">'+a.name+'</span><div><div class="break-timer-countdown'+(isU?' urgent':'')+'">'+pad(m)+':'+pad(s)+'</div><div class="break-timer-bar-wrap"><div class="break-timer-bar'+(isU?' urgent':'')+'" style="width:'+pct+'%"></div></div></div>'; cards.appendChild(card); });
 }
+var _reminderTick=0,_warnTick=0;
 function updateClock(){
   document.getElementById('clock').textContent=kyivTimeStr();
   document.getElementById('shift-label').textContent=currentShift();
   document.getElementById('cutoff-label').textContent=shiftCutoff();
   renderBreakTimers();
+  _warnTick++; if(_warnTick>=10){ _warnTick=0; checkBreakEndingWarnings(); }
+  _reminderTick++; if(_reminderTick>=60){ _reminderTick=0; checkBreakReminder(); }
 }
 setInterval(updateClock,1000);
 setInterval(render,10000);
+/* Schedule re-check every 60 seconds */
+setInterval(function(){ if(scheduleCache) applyScheduleToRows(); else loadSchedule(false); },60000);
 updateClock();
-setupNicknameInput();
-initApp();
+
+/* ═══════════════════════════════════════════════════════════
+   SOUND — double ping on 2-min break ending warning only
+   ═══════════════════════════════════════════════════════════ */
+
+var audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+/* Two clean identical pings 320ms apart — simple, clear, not annoying */
+function playDoublePing(){
+  try{
+    var ctx=getAudioCtx();
+    [0, 0.32].forEach(function(delay){
+      var t=ctx.currentTime+delay;
+      var osc=ctx.createOscillator(); var gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type='sine'; osc.frequency.value=880;
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(0.4,t+0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.28);
+      osc.start(t); osc.stop(t+0.3);
+    });
+  }catch(e){}
+}
 
 /* ══════════════════════════════════════════════════════════
-   WHEEL MODAL — Firebase-synced history
+   BREAK REMINDER SYSTEM
+   - Checks every minute if the current user's row agent
+     has been on shift 3+ hours with no break taken/booked
+   - Shows banner + plays sound
+   - Dismissed per-session (localStorage key per agent)
+   ══════════════════════════════════════════════════════════ */
+
+var reminderDismissed = false;
+var REMINDER_AFTER_MINS = 180; /* 3 hours */
+
+function checkBreakReminder(){
+  var banner = document.getElementById('break-reminder-banner');
+  if(!banner) return;
+
+  /* Only show reminder to the person whose name is in a row.
+     Find which row has the current user's nickname.
+     We match by currentNickname against agent names. */
+  if(!currentNickname) return;
+
+  var myRowIdx = -1;
+  for(var ri=0; ri<rows.length; ri++){
+    var idx = rows[ri].agentIdx;
+    if(idx < 0) continue;
+    var agName = (agents[idx]||'').trim().toLowerCase();
+    if(agName === currentNickname.toLowerCase()){ myRowIdx = ri; break; }
+  }
+
+  if(myRowIdx < 0){
+    /* Not in a row — hide reminder if shown */
+    banner.classList.remove('visible');
+    return;
+  }
+
+  var row = rows[myRowIdx];
+
+  /* Has the agent booked OR started any break? */
+  var hasAnyBreakActivity = row.slots.some(function(s){
+    return s.from || s.started || slotStatus(s)==='done';
+  });
+
+  if(hasAnyBreakActivity){
+    banner.classList.remove('visible');
+    reminderDismissed = false; /* reset so it can show again if they clear all breaks */
+    return;
+  }
+
+  if(reminderDismissed) return;
+
+  /* Check how long agent has been on shift.
+     Find their shift code from schedule cache. */
+  var shiftStartMins = getAgentShiftStartMins(agents[row.agentIdx]);
+  if(shiftStartMins < 0) return;
+
+  var nowM = kyivNowMins();
+  var elapsed = nowM - shiftStartMins;
+  if(elapsed < 0) elapsed += 1440; /* overnight */
+
+  if(elapsed >= REMINDER_AFTER_MINS){
+    var hoursIn = Math.floor(elapsed/60);
+    var minsIn = Math.floor(elapsed%60);
+    document.getElementById('reminder-title').textContent = "Hey " + currentNickname + ", don't forget your break!";
+    document.getElementById('reminder-sub').textContent =
+      "You've been on shift for " + hoursIn + "h " + minsIn + "m with no break booked yet. Cutoff is " + shiftCutoff() + ".";
+    banner.classList.add('visible');
+  }
+}
+
+function getAgentShiftStartMins(agentName){
+  if(!scheduleCache || !agentName) return -1;
+  var nick = agentName.trim().toLowerCase();
+  for(var i=0; i<scheduleCache.length; i++){
+    if(scheduleCache[i].nickname.toLowerCase() === nick){
+      var p = parseCode(scheduleCache[i].code);
+      if(p) return p.startH * 60;
+    }
+  }
+  return -1;
+}
+
+function dismissReminder(){
+  reminderDismissed = true;
+  var banner = document.getElementById('break-reminder-banner');
+  if(banner) banner.classList.remove('visible');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2-MINUTE BREAK ENDING WARNING
+   - Only fires for the person who pressed Start (local check)
+   - Plays double ping exactly once per break slot
+   - Checks every 10 seconds via updateClock ticker
+   ═══════════════════════════════════════════════════════════ */
+
+var warnedSlots = new Set();
+
+function checkBreakEndingWarnings(){
+  if(!currentNickname) return;
+  var nowM = kyivNowMins();
+  rows.forEach(function(row, ri){
+    if(row.agentIdx < 0) return;
+    /* Only warn the person whose nickname matches this row's agent */
+    var agentName = (agents[row.agentIdx]||'').trim().toLowerCase();
+    if(agentName !== currentNickname.trim().toLowerCase()) return;
+    row.slots.forEach(function(slot, si){
+      if(!slot.started || slotStatus(slot) !== 'break') return;
+      var key = ri+'-'+si;
+      var toM = toMins(slot.to);
+      var minsLeft = toM - nowM;
+      if(minsLeft < 0) minsLeft += 1440;
+      if(minsLeft <= 2 && minsLeft > 0 && !warnedSlots.has(key)){
+        warnedSlots.add(key);
+        playDoublePing();
+      }
+      if(minsLeft <= 0) warnedSlots.delete(key);
+    });
+  });
+}
+
+
+setupNicknameInput();
+initApp();
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ if(document.getElementById('wheel-overlay').classList.contains('open')){ closeWheelModal(); return; } if(document.getElementById('guide-overlay').classList.contains('open')){ closeGuide(); } } });
+
+/* ══════════════════════════════════════════════════════════
+   WHEEL MODAL
    ══════════════════════════════════════════════════════════ */
 function openWheelModal(){ document.getElementById('wheel-overlay').className='wheel-overlay open'; wmDraw(); }
 function closeWheelModal(){ document.getElementById('wheel-overlay').className='wheel-overlay closed'; }
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    if(document.getElementById('wheel-overlay').classList.contains('open')){ closeWheelModal(); return; }
-    if(document.getElementById('guide-overlay').classList.contains('open')){ closeGuide(); }
-  }
-});
-
 function wmKyivTimeStr(){ return new Date().toLocaleTimeString('uk-UA',{timeZone:'Europe/Kyiv',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); }
 setInterval(function(){ var el=document.getElementById('wm-kyivClock'); if(el) el.textContent=wmKyivTimeStr(); },1000);
-
 var WM_COLORS=['#ff4757','#ff6b35','#ffd84d','#7bed9f','#2ed573','#1e90ff','#5352ed','#ff4fa3','#eccc68','#00e5ff'];
-var WM_DEFAULTS=['Alice','Bob','Charlie','Diana','Eve'];
 var WM_SPIN_DUR=3000,WM_MAX_HIST=20,WM_CANVAS_SIZE=800;
-var wmNames=[],wmHistory=[],wmSpinning=false,wmAngle=0;
-
-var wmHistoryMap={}; /* BUG 4 FIX — persistent map keyed by Firebase push key */
-
+var wmNames=[],wmHistory=[],wmSpinning=false,wmAngle=0,wmHistoryMap={};
 var wmCan=document.getElementById('wm-canvas'),wmCtx=wmCan.getContext('2d');
 wmCan.width=WM_CANVAS_SIZE; wmCan.height=WM_CANVAS_SIZE;
-
 var WM_LS_N='sw_names';
-(function(){ var sn=localStorage.getItem(WM_LS_N); wmNames=sn?JSON.parse(sn):[].concat(WM_DEFAULTS); wmRenderList(); wmDraw(); })();
-
-function wmSetHistFromFB(data){
-  wmHistoryMap={};
-  Object.keys(data).forEach(function(k){ wmHistoryMap[k]=data[k]; });
-  wmRebuildHistFromMap();
-}
-
-function wmRebuildHistFromMap(){ /* BUG 4 FIX */
-  var arr=[];
-  Object.keys(wmHistoryMap).forEach(function(k){ arr.push(wmHistoryMap[k]); });
-  arr.sort(function(a,b){ return b.ts-a.ts; });
-  wmHistory=arr.slice(0,WM_MAX_HIST);
-  wmRenderHist();
-}
-
-function wmPushHistToFB(entry){ fbPush('/wheelHistory',entry).catch(function(e){ console.error('wheel hist push failed',e); }); }
-
+(function(){ var sn=localStorage.getItem(WM_LS_N); wmNames=sn?JSON.parse(sn):['Alice','Bob','Charlie','Diana','Eve']; wmRenderList(); wmDraw(); })();
+function wmSetHistFromFB(data){ wmHistoryMap={}; Object.keys(data).forEach(function(k){ wmHistoryMap[k]=data[k]; }); wmRebuildHistFromMap(); }
+function wmRebuildHistFromMap(){ var arr=[]; Object.keys(wmHistoryMap).forEach(function(k){ arr.push(wmHistoryMap[k]); }); arr.sort(function(a,b){ return b.ts-a.ts; }); wmHistory=arr.slice(0,WM_MAX_HIST); wmRenderHist(); }
+function wmPushHistToFB(entry){ fbPush('/wheelHistory',entry).catch(function(e){ console.error(e); }); }
 function wmAddName(){ var v=document.getElementById('wm-ni').value.trim(); if(!v) return; wmNames.push(v); document.getElementById('wm-ni').value=''; document.getElementById('wm-ni').focus(); localStorage.setItem(WM_LS_N,JSON.stringify(wmNames)); wmRenderList(); wmDraw(); }
 function wmRemoveName(i){ wmNames.splice(i,1); localStorage.setItem(WM_LS_N,JSON.stringify(wmNames)); wmRenderList(); wmDraw(); }
 function wmClearNames(){ if(!wmNames.length) return; wmNames=[]; localStorage.setItem(WM_LS_N,JSON.stringify(wmNames)); wmRenderList(); wmDraw(); wmResetRes(); }
-
-function wmRenderList(){
-  var nl=document.getElementById('wm-nl'); nl.innerHTML='';
-  wmNames.forEach(function(name,i){
-    var li=document.createElement('li'),t=document.createElement('span'),b=document.createElement('button');
-    t.textContent=name; b.className='wm-rm'; b.textContent='✕'; b.onclick=function(){ wmRemoveName(i); };
-    li.append(t,b); nl.appendChild(li);
-  });
-  document.getElementById('wm-nc').textContent=wmNames.length+' '+(wmNames.length===1?'name':'names');
-  document.getElementById('wm-spinB').disabled=wmNames.length<2;
-  document.getElementById('wm-sl').textContent=wmNames.length<2?'Add 2+ names':'SPIN!';
-}
-
-function wmRenderHist(){
-  var hl=document.getElementById('wm-hl'); hl.innerHTML='';
-  wmHistory.forEach(function(entry){
-    var li=document.createElement('li');
-    var ns=document.createElement('span'); ns.className='wm-pick-name'; ns.textContent=entry.winner||entry.name||'?';
-    var sb=document.createElement('span'); sb.className='wm-pick-spunby'; sb.textContent=entry.spunBy?'· spun by '+entry.spunBy:'';
-    var ts=document.createElement('span'); ts.className='wm-pick-ts'; ts.textContent=entry.kyivTs||'';
-    var tooltip=document.createElement('div'); tooltip.className='wm-pick-tooltip';
-    var na=entry.names||[],th='<div class="wm-pick-tooltip-title">👥 Participants ('+na.length+')</div><div class="wm-pick-tooltip-names">';
-    na.forEach(function(n){ var iw=n===(entry.winner||entry.name); th+='<span class="wm-pick-tooltip-tag" style="'+(iw?'background:#3a2800;border-color:#ffd84d;color:#ffd84d;':'')+'">'+(iw?'🏆 ':'')+n+'</span>'; });
-    th+='</div>'; tooltip.innerHTML=th;
-    li.append(ns,sb,ts,tooltip); hl.appendChild(li);
-  });
-}
-
-function wmShowRes(name,spunBy){
-  document.getElementById('wm-rn').textContent=name;
-  var sub='🎉 Congratulations!'; if(spunBy) sub+=' (spun by '+spunBy+')';
-  document.getElementById('wm-rs').textContent=sub;
-  document.getElementById('wm-rb').className='wm-rb wm-rb-w';
-  document.getElementById('wm-saB').style.display='';
-}
-function wmResetRes(){
-  document.getElementById('wm-rn').textContent='—'; document.getElementById('wm-rs').textContent='Spin to reveal a winner!';
-  document.getElementById('wm-rb').className='wm-rb wm-rb-e'; document.getElementById('wm-saB').style.display='none';
-}
-
+function wmRenderList(){ var nl=document.getElementById('wm-nl'); nl.innerHTML=''; wmNames.forEach(function(name,i){ var li=document.createElement('li'),t=document.createElement('span'),b=document.createElement('button'); t.textContent=name; b.className='wm-rm'; b.textContent='✕'; b.onclick=function(){ wmRemoveName(i); }; li.append(t,b); nl.appendChild(li); }); document.getElementById('wm-nc').textContent=wmNames.length+' '+(wmNames.length===1?'name':'names'); document.getElementById('wm-spinB').disabled=wmNames.length<2; document.getElementById('wm-sl').textContent=wmNames.length<2?'Add 2+ names':'SPIN!'; }
+function wmRenderHist(){ var hl=document.getElementById('wm-hl'); hl.innerHTML=''; wmHistory.forEach(function(entry){ var li=document.createElement('li'); var ns=document.createElement('span'); ns.className='wm-pick-name'; ns.textContent=entry.winner||entry.name||'?'; var sb=document.createElement('span'); sb.className='wm-pick-spunby'; sb.textContent=entry.spunBy?'· spun by '+entry.spunBy:''; var ts=document.createElement('span'); ts.className='wm-pick-ts'; ts.textContent=entry.kyivTs||''; var tooltip=document.createElement('div'); tooltip.className='wm-pick-tooltip'; var na=entry.names||[],th='<div class="wm-pick-tooltip-title">👥 Participants ('+na.length+')</div><div class="wm-pick-tooltip-names">'; na.forEach(function(n){ var iw=n===(entry.winner||entry.name); th+='<span class="wm-pick-tooltip-tag" style="'+(iw?'background:#3a2800;border-color:#ffd84d;color:#ffd84d;':'')+'">'+(iw?'🏆 ':'')+n+'</span>'; }); th+='</div>'; tooltip.innerHTML=th; li.append(ns,sb,ts,tooltip); hl.appendChild(li); }); }
+function wmShowRes(name,spunBy){ document.getElementById('wm-rn').textContent=name; var sub='🎉 Congratulations!'; if(spunBy) sub+=' (spun by '+spunBy+')'; document.getElementById('wm-rs').textContent=sub; document.getElementById('wm-rb').className='wm-rb wm-rb-w'; document.getElementById('wm-saB').style.display=''; }
+function wmResetRes(){ document.getElementById('wm-rn').textContent='—'; document.getElementById('wm-rs').textContent='Spin to reveal a winner!'; document.getElementById('wm-rb').className='wm-rb wm-rb-e'; document.getElementById('wm-saB').style.display='none'; }
 function wmDraw(){
-  var S=WM_CANVAS_SIZE,cx=S/2,cy=S/2,r=cx-4;
-  wmCtx.clearRect(0,0,S,S);
-  if(!wmNames.length){
-    wmCtx.beginPath(); wmCtx.arc(cx,cy,r,0,Math.PI*2); wmCtx.fillStyle='#1e1133'; wmCtx.fill();
-    wmCtx.strokeStyle='rgba(255,255,255,.08)'; wmCtx.lineWidth=3; wmCtx.stroke();
-    wmCtx.font='bold 26px Nunito,sans-serif'; wmCtx.fillStyle='rgba(255,255,255,.25)';
-    wmCtx.textAlign='center'; wmCtx.textBaseline='middle'; wmCtx.fillText('Add names to get started!',cx,cy); return;
-  }
+  var S=WM_CANVAS_SIZE,cx=S/2,cy=S/2,r=cx-4; wmCtx.clearRect(0,0,S,S);
+  if(!wmNames.length){ wmCtx.beginPath(); wmCtx.arc(cx,cy,r,0,Math.PI*2); wmCtx.fillStyle='#1e1133'; wmCtx.fill(); wmCtx.strokeStyle='rgba(255,255,255,.08)'; wmCtx.lineWidth=3; wmCtx.stroke(); wmCtx.font='bold 26px Nunito,sans-serif'; wmCtx.fillStyle='rgba(255,255,255,.25)'; wmCtx.textAlign='center'; wmCtx.textBaseline='middle'; wmCtx.fillText('Add names to get started!',cx,cy); return; }
   var seg=(Math.PI*2)/wmNames.length;
-  wmNames.forEach(function(name,i){
-    var sa=wmAngle+i*seg,ea=sa+seg;
-    wmCtx.beginPath(); wmCtx.moveTo(cx,cy); wmCtx.arc(cx,cy,r,sa,ea); wmCtx.closePath();
-    wmCtx.fillStyle=WM_COLORS[i%WM_COLORS.length]; wmCtx.fill();
-    wmCtx.strokeStyle='rgba(255,255,255,.55)'; wmCtx.lineWidth=3; wmCtx.stroke();
-    wmCtx.save(); wmCtx.translate(cx,cy); wmCtx.rotate(sa+seg/2);
-    var lr=r*0.68,aw=lr*seg,mc=Math.max(3,Math.floor(aw/18)),lbl=name.length>mc?name.slice(0,mc-1)+'\u2026':name;
-    var fs=wmNames.length<=4?52:wmNames.length<=6?44:wmNames.length<=8?36:wmNames.length<=12?30:24;
-    if(lbl.length>8) fs=Math.round(fs*0.82); if(lbl.length>11) fs=Math.round(fs*0.82);
-    wmCtx.font='900 '+fs+'px Nunito,sans-serif'; wmCtx.fillStyle='#fff'; wmCtx.textBaseline='middle'; wmCtx.textAlign='center';
-    wmCtx.shadowColor='rgba(0,0,0,.75)'; wmCtx.shadowBlur=8; wmCtx.fillText(lbl,lr,0); wmCtx.restore();
-  });
+  wmNames.forEach(function(name,i){ var sa=wmAngle+i*seg,ea=sa+seg; wmCtx.beginPath(); wmCtx.moveTo(cx,cy); wmCtx.arc(cx,cy,r,sa,ea); wmCtx.closePath(); wmCtx.fillStyle=WM_COLORS[i%WM_COLORS.length]; wmCtx.fill(); wmCtx.strokeStyle='rgba(255,255,255,.55)'; wmCtx.lineWidth=3; wmCtx.stroke(); wmCtx.save(); wmCtx.translate(cx,cy); wmCtx.rotate(sa+seg/2); var lr=r*0.68,aw=lr*seg,mc=Math.max(3,Math.floor(aw/18)),lbl=name.length>mc?name.slice(0,mc-1)+'\u2026':name; var fs=wmNames.length<=4?52:wmNames.length<=6?44:wmNames.length<=8?36:wmNames.length<=12?30:24; if(lbl.length>8) fs=Math.round(fs*0.82); if(lbl.length>11) fs=Math.round(fs*0.82); wmCtx.font='900 '+fs+'px Nunito,sans-serif'; wmCtx.fillStyle='#fff'; wmCtx.textBaseline='middle'; wmCtx.textAlign='center'; wmCtx.shadowColor='rgba(0,0,0,.75)'; wmCtx.shadowBlur=8; wmCtx.fillText(lbl,lr,0); wmCtx.restore(); });
   wmCtx.beginPath(); wmCtx.arc(cx,cy,r,0,Math.PI*2); wmCtx.strokeStyle='rgba(255,255,255,.35)'; wmCtx.lineWidth=6; wmCtx.stroke();
-  var hub=38,g=wmCtx.createRadialGradient(cx,cy,0,cx,cy,hub);
-  g.addColorStop(0,'#ffffff'); g.addColorStop(1,'#d0b0ff');
+  var hub=38,g=wmCtx.createRadialGradient(cx,cy,0,cx,cy,hub); g.addColorStop(0,'#ffffff'); g.addColorStop(1,'#d0b0ff');
   wmCtx.beginPath(); wmCtx.arc(cx,cy,hub,0,Math.PI*2); wmCtx.fillStyle=g; wmCtx.shadowColor='rgba(0,0,0,.5)'; wmCtx.shadowBlur=14; wmCtx.fill(); wmCtx.shadowBlur=0; wmCtx.strokeStyle='rgba(0,0,0,.25)'; wmCtx.lineWidth=3; wmCtx.stroke();
 }
-
 function wmWinnerIdx(){ var seg=(Math.PI*2)/wmNames.length,pa=Math.PI*1.5,a=((pa-wmAngle)%(Math.PI*2)+Math.PI*2)%(Math.PI*2); return Math.floor(a/seg)%wmNames.length; }
-
 function wmSpin(){
   if(wmSpinning||wmNames.length<2) return;
   wmSpinning=true; document.getElementById('wm-spinB').disabled=true; document.body.classList.add('wm-spinning');
   var totalRot=(6+Math.random()*4)*Math.PI*2,startAngle=wmAngle,t0=performance.now();
   var spinKyivTs=wmKyivTimeStr(),spinTs=Date.now(),spinNames=wmNames.slice(),spinBy=currentNickname||'Unknown';
   function ease(t){ return 1-Math.pow(1-t,3); }
-  function frame(now){
-    var el=now-t0,prog=Math.min(el/WM_SPIN_DUR,1); wmAngle=startAngle+totalRot*ease(prog); wmDraw();
-    if(prog<1){ requestAnimationFrame(frame); }
-    else{
-      wmSpinning=false; document.body.classList.remove('wm-spinning');
-      var wn=wmNames[wmWinnerIdx()]; wmShowRes(wn,spinBy);
-      wmPushHistToFB({winner:wn,spunBy:spinBy,names:spinNames,ts:spinTs,kyivTs:spinKyivTs});
-      wmShowWinnerModal(wn,spinBy);
-      document.getElementById('wm-spinB').disabled=false;
-    }
-  }
+  function frame(now){ var el=now-t0,prog=Math.min(el/WM_SPIN_DUR,1); wmAngle=startAngle+totalRot*ease(prog); wmDraw(); if(prog<1){ requestAnimationFrame(frame); } else{ wmSpinning=false; document.body.classList.remove('wm-spinning'); var wn=wmNames[wmWinnerIdx()]; wmShowRes(wn,spinBy); wmPushHistToFB({winner:wn,spunBy:spinBy,names:spinNames,ts:spinTs,kyivTs:spinKyivTs}); wmShowWinnerModal(wn,spinBy); document.getElementById('wm-spinB').disabled=false; } }
   requestAnimationFrame(frame);
 }
-
-function wmShowWinnerModal(name,spunBy){
-  document.getElementById('wm-mn').textContent=name;
-  var se=document.getElementById('wm-mspunby'); if(se) se.textContent=spunBy?'Spun by '+spunBy:'';
-  document.getElementById('wm-winner-modal').classList.remove('hidden');
-  var cf=document.getElementById('wm-cf'); cf.innerHTML='';
-  var cols=['#ffd84d','#ff4f9a','#00e5ff','#7bed9f','#ff6b35','#5352ed'];
-  for(var i=0;i<24;i++){
-    var el=document.createElement('span'),ang=(Math.random()*180-90)*Math.PI/180,d=80+Math.random()*110;
-    el.style.cssText='background:'+cols[i%cols.length]+';--tx:'+Math.round(Math.sin(ang)*d)+'px;--ty:'+(-Math.round(Math.cos(ang)*d)-15)+'px;--rot:'+Math.round(Math.random()*720-360)+'deg;animation-delay:'+(Math.random()*.3).toFixed(2)+'s;border-radius:'+(Math.random()>.5?'50%':'2px');
-    cf.appendChild(el);
-  }
-}
+function wmShowWinnerModal(name,spunBy){ document.getElementById('wm-mn').textContent=name; var se=document.getElementById('wm-mspunby'); if(se) se.textContent=spunBy?'Spun by '+spunBy:''; document.getElementById('wm-winner-modal').classList.remove('hidden'); var cf=document.getElementById('wm-cf'); cf.innerHTML=''; var cols=['#ffd84d','#ff4f9a','#00e5ff','#7bed9f','#ff6b35','#5352ed']; for(var i=0;i<24;i++){ var el=document.createElement('span'),ang=(Math.random()*180-90)*Math.PI/180,d=80+Math.random()*110; el.style.cssText='background:'+cols[i%cols.length]+';--tx:'+Math.round(Math.sin(ang)*d)+'px;--ty:'+(-Math.round(Math.cos(ang)*d)-15)+'px;--rot:'+Math.round(Math.random()*720-360)+'deg;animation-delay:'+(Math.random()*.3).toFixed(2)+'s;border-radius:'+(Math.random()>.5?'50%':'2px'); cf.appendChild(el); } }
 function wmHideWinnerModal(){ document.getElementById('wm-winner-modal').classList.add('hidden'); document.getElementById('wm-cf').innerHTML=''; }
-
 document.getElementById('wm-addB').onclick=wmAddName;
 document.getElementById('wm-ni').addEventListener('keydown',function(e){ if(e.key==='Enter') wmAddName(); });
 document.getElementById('wm-clrB').onclick=wmClearNames;
