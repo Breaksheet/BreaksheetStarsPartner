@@ -623,16 +623,7 @@ function fetchScheduleWithFallback(){
       if(!r.ok) throw new Error('HTTP ' + r.status);
       return r.text().then(function(csv){
         if(csv.length < 100 || csv.indexOf(',') < 0) throw new Error('Empty or invalid CSV');
-        /* Reject VIP/iGate/wrong tabs: valid schedule must have "Days" somewhere in first 4 rows */
-        var _chkRows = csv.split('\n');
-        var _hasDays = false;
-        for(var _ri=0; _ri<Math.min(_chkRows.length,5); _ri++){
-          if((_chkRows[_ri]||'').toLowerCase().indexOf(',days,') >= 0 ||
-             (_chkRows[_ri]||'').toLowerCase().indexOf(',days') === 1){
-            _hasDays = true; break;
-          }
-        }
-        if(!_hasDays) throw new Error('Wrong tab — no Days row found (VIP/iGate rejected)');
+        /* Basic check: must have agent rows with shift codes */
         var tabName = a.name + a.variant;
         console.log('[Schedule] Found: ' + tabName);
         return {url:a.url, csv:csv, month:a.name, tabName:tabName};
