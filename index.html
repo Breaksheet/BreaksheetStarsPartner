@@ -692,12 +692,12 @@ function setSyncStatus(s){ var dot=document.getElementById('sync-dot'),lbl=docum
 
 /* ── Agent / row data ── */
 var DEFAULT_AGENTS=[
-  "Den","Nady","Gerald","Lili","Nate",
-  "Lina","Mike","Aaron","Emily","Iris",
-  "Frank","George","Blake","Dean","Noah",
-  "Franklin","Luna","Gabi","Patrick","Eric",
-  "William","Nicole","Toby","Paul","April",
-  "Logan","Grace","Maya"
+  "James","Arthur","Millie","Deren","Elena",
+  "Bruce","Cooper","Joseph","Nataly","Suzzi",
+  "Carl","Kate","Jesse","Bob","Marco",
+  "Dale","Elisabeth","Scarlett","Charlie","Vincent",
+  "Jaime","Melissa","Wyatt","Hazel","Harvey",
+  "Damon","Anita","Beatrice","Bethany","Isabel","Celine"
 ];
 var agents=DEFAULT_AGENTS.slice(); while(agents.length<40) agents.push('');
 function makeEmptySlots(){ return Array.from({length:MAX_SLOTS},function(){ return{from:'',to:'',started:false}; }); }
@@ -840,13 +840,24 @@ function loadSchedule(manual){
         schedStatus('err',"⚠ Today's date not found in "+foundMonth+"_BB_RB sheet");
         return;
       }
+      /* Auto-detect name column — handles sheets where col[1] contains codes not names */
+      var shiftCodePattern = /^\d{1,2}-\d{2}$/;
+      var skipCodes = ['OFF','OB','PTO','SICK','OUT','off','ob','pto'];
+      var nameCol = 1;
+      var col1CodeCount = 0, col1Total = 0;
+      for(var r=4;r<Math.min(rows_csv.length,10);r++){
+        var sv=(rows_csv[r][1]||'').trim();
+        if(sv){ col1Total++; if(shiftCodePattern.test(sv)||skipCodes.indexOf(sv.toUpperCase())>=0||/^\d+$/.test(sv)) col1CodeCount++; }
+      }
+      if(col1CodeCount > col1Total/2){ nameCol=2; console.log('[Schedule] Name col auto-detected: 2'); }
+
       /* Rows 4+ are agents */
       var entries=[];
       for(var r=4;r<rows_csv.length;r++){
         var row=rows_csv[r];
-        var nick=(row[1]||'').trim();
+        var nick=(row[nameCol]||'').trim();
         var code=(row[todayCol]||'').trim();
-        if(nick) entries.push({nickname:nick, code:code});
+        if(nick && !shiftCodePattern.test(nick) && !/^\d+$/.test(nick)) entries.push({nickname:nick, code:code});
       }
       scheduleCache=entries;
       console.log('[Schedule] Loaded '+foundMonth+'_SP. Today='+today+' col='+todayCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
@@ -1174,10 +1185,20 @@ function importAgentsFromSchedule(){
     .then(function(csv){
       var rows_csv=parseCSV(csv);
       /* Find unique nicknames from col 1, rows 4+ */
+      var shiftPat = /^\d{1,2}-\d{2}$/;
+      var skipC = ['OFF','OB','PTO','SICK','OUT','off','ob','pto'];
+      var nCol = 1;
+      var s1c=0, s1t=0;
+      for(var r=4;r<Math.min(rows_csv.length,10);r++){
+        var sv=(rows_csv[r][1]||'').trim();
+        if(sv){ s1t++; if(shiftPat.test(sv)||skipC.indexOf(sv.toUpperCase())>=0||/^\d+$/.test(sv)) s1c++; }
+      }
+      if(s1c > s1t/2) nCol = 2;
+
       var nicknames=[];
       for(var r=4;r<rows_csv.length;r++){
-        var nick=(rows_csv[r][1]||'').trim();
-        if(nick && nicknames.indexOf(nick)<0) nicknames.push(nick);
+        var nick=(rows_csv[r][nCol]||'').trim();
+        if(nick && !shiftPat.test(nick) && !/^\d+$/.test(nick) && nicknames.indexOf(nick)<0) nicknames.push(nick);
       }
       nicknames.sort();
 
