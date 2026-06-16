@@ -681,12 +681,13 @@ function setSyncStatus(s){ var dot=document.getElementById('sync-dot'),lbl=docum
 
 /* ── Agent / row data ── */
 var DEFAULT_AGENTS=[
-  "James","Arthur","Millie","Deren","Elena",
-  "Bruce","Cooper","Joseph","Nataly","Suzzi",
-  "Carl","Kate","Jesse","Bob","Marco",
-  "Dale","Elisabeth","Scarlett","Charlie","Vincent",
-  "Jaime","Melissa","Wyatt","Hazel","Harvey",
-  "Damon","Anita","Beatrice","Bethany","Isabel","Celine"
+  "Bob","Bethany","Scarlett","Celine","Marco",
+  "Deren","Mira","Joseph","Hazel","Wyatt",
+  "Melissa","Cooper","Aaron","Mike","Nady",
+  "Dachi","Nataly","Dale","Harvey","Gerald",
+  "Lina","Iris","Emily","Lili","Millie",
+  "Damon","Elisabeth","Charlie","Jaime","Beatrice",
+  "Kate","Vincent","Jesse","Suzzi","Carl","Dmytro"
 ];
 var agents=DEFAULT_AGENTS.slice(); while(agents.length<40) agents.push('');
 function makeEmptySlots(){ return Array.from({length:MAX_SLOTS},function(){ return{from:'',to:'',started:false}; }); }
@@ -842,10 +843,11 @@ function loadSchedule(manual){
       var shiftCodePattern = /^\d{1,2}-\d{1,2}$/;
       /* Find name column by scanning for known BB_RB agent names */
       var KNOWN_NAMES = [
-        'james','arthur','millie','deren','elena','bruce','cooper','joseph',
-        'nataly','suzzi','carl','kate','jesse','bob','marco','dale','elisabeth',
-        'scarlett','charlie','vincent','jaime','melissa','wyatt','hazel','harvey',
-        'damon','anita','beatrice','bethany','isabel','celine'
+        'bob','bethany','scarlett','celine','marco','deren','mira','joseph',
+        'hazel','wyatt','melissa','cooper','aaron','mike','nady','dachi',
+        'nataly','dale','harvey','gerald','lina','iris','emily','lili','millie',
+        'damon','elisabeth','charlie','jaime','beatrice','kate','vincent',
+        'jesse','suzzi','carl','dmytro'
       ];
       var colScores = [0,0,0,0,0];
       for(var _r=4;_r<rows_csv.length;_r++){
