@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Break Sheet · LIVE</title>
-<!-- SP-v202606170308 -->
+<!-- SP-v202606170316 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -541,7 +541,7 @@
 <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
-/* VERSION: SP-v202606170308 */
+/* VERSION: SP-v202606170316 */
 /* ══════════════════════════════════════════════════════════
    BREAKSHEET — Schedule-aware build
    Rules:
@@ -555,21 +555,11 @@
    ══════════════════════════════════════════════════════════ */
 
 var DB_URL  = 'https://breaksheetstarspartners-default-rtdb.europe-west1.firebasedatabase.app/';
-/* ── SCHEDULE URL ───────────────────────────────────────────────────────────
-   Automatically reads the correct monthly tab from the sheet.
-   Tab naming pattern: January_BB_RB, February_BB_RB, ... December_BB_RB
-   No gids, no manual updates needed. When a new month tab is added
-   to the sheet, the app picks it up automatically.
-   ───────────────────────────────────────────────────────────── */
-/* ── DIRECT SCHEDULE URL ─────────────────────────────────────────
-   Updated by admin when new schedule is published.
-   To update: replace the URL below with the new published CSV link.
-   ──────────────────────────────────────────────────────────────── */
-/* ── SCHEDULE URLs ───────────────────────────────────────────────
+/* ── SCHEDULE URLs ─────────────────────────────────────────────
    Add new months here as they become available.
    startDate: first day that month's schedule should be used (Kyiv time).
    The app picks the LAST entry whose startDate has passed.
-   ──────────────────────────────────────────────────────────────── */
+   ──────────────────────────────────────────────────────────── */
 var SCHEDULES_SP = [
   { startDate: '2026-06-01', url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpTkls_JxMpJsz1Y4qaHmRLd0r-2RwzbRRF8jFD5yIsbCp8PpwOJdwBpuVxWkdEnRtFqAEyFKUTTCi/pub?gid=1497706552&single=true&output=csv' },
   /* { startDate: '2026-07-01', url: 'PASTE_JULY_SP_CSV_URL_HERE' }, */
@@ -592,7 +582,8 @@ function fetchScheduleWithFallback(){
   var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
   var timeoutId = controller ? setTimeout(function(){ controller.abort(); }, 10000) : null;
   var fetchOpts = controller ? {signal: controller.signal} : {};
-  return fetch(url, fetchOpts).then(function(r){
+  var cacheBust = url + (url.indexOf('?')>=0?'&':'?') + '_cb='+Date.now();
+  return fetch(cacheBust, fetchOpts).then(function(r){
     if(timeoutId) clearTimeout(timeoutId);
     if(!r.ok) throw new Error('HTTP '+r.status);
     return r.text().then(function(csv){
@@ -820,7 +811,11 @@ function schedStatus(state,msg){
   console.log('[Schedule]',state,msg.replace(/<[^>]+>/g,''));
 }
 
+var _loadingSchedule=false, _lastLoad=0;
 function loadSchedule(manual){
+  var now=Date.now();
+  if(_loadingSchedule||(now-_lastLoad<30000&&!manual)) return;
+  _loadingSchedule=true; _lastLoad=now;
   schedStatus('loading','Loading schedule…');
 
   fetchScheduleWithFallback()
@@ -844,8 +839,8 @@ function loadSchedule(manual){
          Sample col[1] and col[2] from agent rows and count alphabetic values.
          Whichever column has more purely-alphabetic values = name column. */
       var shiftCodePattern = /^\d{1,2}-\d{1,2}$/;
-      /* Find name column by scanning for known BB_RB agent names */
-      /* SP KNOWN_NAMES — exact names from SP schedule sheet col[2] */
+      /* Find name column by scanning for known SP agent names */
+
       var KNOWN_NAMES = [
         'james','arthur','millie','deren','elena','bruce','cooper','joseph',
         'nataly','suzzi','carl','kate','jesse','bob','marco','dale','elisabeth',
@@ -914,14 +909,16 @@ function loadSchedule(manual){
       scheduleCache=entries;
       console.log('[Schedule] Loaded. Today='+today+' nameCol='+nameCol+' codeCol='+codeCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
       if(manual) writeLog('SCHEDULE_REFRESH','Manual refresh — loaded '+(result.tabName||'SP Schedule'));
+      _loadingSchedule=false;
       applyScheduleToRows();
       var onShiftCount=rows.filter(function(r){ return r.agentIdx>=0; }).length;
-  setTimeout(checkBreakReminder,500);
+      setTimeout(checkBreakReminder,500);
       schedStatus('ok','<strong>Schedule</strong> loaded · '+onShiftCount+' agent'+(onShiftCount!==1?'s':'')+' on shift now · next check in ~60s');
     })
     .catch(function(err){
       console.error('[Schedule] All months failed:',err);
       schedStatus('err','⚠ Could not load any monthly schedule — check connection');
+      _loadingSchedule=false;
     });
 }
 
