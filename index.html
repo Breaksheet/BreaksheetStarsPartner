@@ -604,16 +604,24 @@ function fetchScheduleWithFallback(){
     if(i >= attempts.length) return Promise.reject(new Error('No schedule found — checked all month/variant combinations'));
     var a = attempts[i];
     console.log('[Schedule] Trying ' + a.name + a.variant + '...');
-    return fetch(a.url).then(function(r){
+    /* 8-second timeout per attempt so we don't hang forever */
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeoutId = controller ? setTimeout(function(){ controller.abort(); }, 8000) : null;
+    var fetchOpts = controller ? {signal: controller.signal} : {};
+    return fetch(a.url, fetchOpts).then(function(r){
+      if(timeoutId) clearTimeout(timeoutId);
       if(!r.ok) throw new Error('HTTP ' + r.status);
       return r.text().then(function(csv){
-        /* Sanity check: make sure it returned actual schedule data, not an error page */
         if(csv.length < 100 || csv.indexOf(',') < 0) throw new Error('Empty or invalid CSV');
+        /* Reject VIP/iGate/wrong tabs: valid schedule must have "Days" in row[2][1] */
+        var _chkRows = csv.split('\n');
+        var _chkRow2 = (_chkRows[2]||'').split(',');
+        if((_chkRow2[1]||'').trim().toLowerCase() !== 'days') throw new Error('Wrong tab structure — not a support schedule tab');
         var tabName = a.name + a.variant;
         console.log('[Schedule] Found: ' + tabName);
         return {url:a.url, csv:csv, month:a.name, tabName:tabName};
       });
-    }).catch(function(){ return tryNext(i+1); });
+    }).catch(function(){ if(timeoutId) clearTimeout(timeoutId); return tryNext(i+1); });
   }
   return tryNext(0);
 }
@@ -713,10 +721,13 @@ function resolveRows(rawRows){
     var r={ id:i, agentIdx:-1, slots:makeEmptySlots() };
     /* Copy slots */
     if(Array.isArray(row.slots)) r.slots=row.slots;
-    /* Resolve agentNick → agentIdx */
-    if(row.agentNick&&row.agentNick.trim()){
+    /* Resolve agentNick → agentIdx.
+       Reject shift-code-looking nicks (stale Firebase data). */
+    var _nick = (row.agentNick||'').trim();
+    var _isValidNick = _nick && !/^\d{1,2}-\d{1,2}$/.test(_nick) && !/^\d+$/.test(_nick);
+    if(_isValidNick){
       for(var ai=0;ai<agents.length;ai++){
-        if((agents[ai]||'').trim().toLowerCase()===row.agentNick.trim().toLowerCase()){
+        if((agents[ai]||'').trim().toLowerCase()===_nick.toLowerCase()){
           r.agentIdx=ai; break;
         }
       }
@@ -842,7 +853,7 @@ function loadSchedule(manual){
       }
       /* Auto-detect name column — handles sheets where col[1] contains codes not names */
       var shiftCodePattern = /^\d{1,2}-\d{2}$/;
-      var skipCodes = ['OFF','OB','PTO','SICK','OUT','off','ob','pto'];
+      var skipCodes = ['OB','PTO','SICK','OUT','ob','pto'];
       var nameCol = 1;
       var col1CodeCount = 0, col1Total = 0;
       for(var r=4;r<Math.min(rows_csv.length,10);r++){
@@ -1186,7 +1197,7 @@ function importAgentsFromSchedule(){
       var rows_csv=parseCSV(csv);
       /* Find unique nicknames from col 1, rows 4+ */
       var shiftPat = /^\d{1,2}-\d{2}$/;
-      var skipC = ['OFF','OB','PTO','SICK','OUT','off','ob','pto'];
+      var skipC = ['OB','PTO','SICK','OUT','ob','pto'];
       var nCol = 1;
       var s1c=0, s1t=0;
       for(var r=4;r<Math.min(rows_csv.length,10);r++){
