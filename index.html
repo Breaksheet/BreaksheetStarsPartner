@@ -716,9 +716,8 @@ function initApp(){
       res[2].forEach(function(name,i){ if(i<agents.length) agents[i]=name||''; });
       console.log('[Agents] Loaded from Firebase');
     }
-    renderSetup(); setSyncStatus('ok');
+    renderSetup(); setSyncStatus('ok'); startSSE();
     loadSchedule(false);
-    setTimeout(startSSE, 2000); /* Start SSE after schedule loads */
   }).catch(function(e){ console.error(e); setSyncStatus('err'); renderSetup(); render(); loadSchedule(false); });
 }
 
@@ -805,11 +804,7 @@ function schedStatus(state,msg){
   console.log('[Schedule]',state,msg.replace(/<[^>]+>/g,''));
 }
 
-var _loadingSchedule=false, _lastLoad=0;
 function loadSchedule(manual){
-  var now=Date.now();
-  if(_loadingSchedule||(now-_lastLoad<30000&&!manual)) return;
-  _loadingSchedule=true; _lastLoad=now;
   schedStatus('loading','Loading schedule…');
 
   fetchScheduleWithFallback()
@@ -903,7 +898,6 @@ function loadSchedule(manual){
       scheduleCache=entries;
       console.log('[Schedule] Loaded. Today='+today+' nameCol='+nameCol+' codeCol='+codeCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
       if(manual) writeLog('SCHEDULE_REFRESH','Manual refresh — loaded '+(result.tabName||'SP Schedule'));
-      _loadingSchedule=false;
       applyScheduleToRows();
       var onShiftCount=rows.filter(function(r){ return r.agentIdx>=0; }).length;
       setTimeout(checkBreakReminder,500);
@@ -912,17 +906,12 @@ function loadSchedule(manual){
     .catch(function(err){
       console.error('[Schedule] All months failed:',err);
       schedStatus('err','⚠ Could not load any monthly schedule — check connection');
-      _loadingSchedule=false;
     });
 }
 
 
-var _applyingSchedule=false, _lastApply=0, _lastOnShiftNames='';
 function applyScheduleToRows(){
   if(!scheduleCache) return;
-  var now=Date.now();
-  if(_applyingSchedule||now-_lastApply<5000) return;
-  _applyingSchedule=true; _lastApply=now;
 
   /* Build set of agent indexes on shift RIGHT NOW
      agents[] is managed manually via Agent Setup + saved to Firebase.
@@ -964,10 +953,7 @@ function applyScheduleToRows(){
     for(var ri=0;ri<rows.length;ri++){ if(rows[ri].agentIdx<0){ emptyRi=ri; break; } }
     if(emptyRi<0){ console.warn('No empty row for agent',agents[idx]); return; }
     rows[emptyRi].agentIdx=idx;
-    /* Preserve existing slots if row had break data (e.g. after page refresh) */
-    var existingSlots=rows[emptyRi].slots;
-    var hasBreakData=existingSlots&&existingSlots.some(function(s){return s.from||s.started;});
-    if(!hasBreakData) rows[emptyRi].slots=makeEmptySlots();
+    rows[emptyRi].slots=makeEmptySlots();
     writeLog('AGENT_AUTO_ADDED',(agents[idx]||'?')+' shift started, placed in row '+(emptyRi+1));
     currentInRows[emptyRi]=idx; /* update local mirror */
     changed=true;
@@ -978,13 +964,8 @@ function applyScheduleToRows(){
   var h=kyivHour();
   schedStatus('ok','<strong>Schedule live</strong> · '+onShiftCount+' agent'+(onShiftCount!==1?'s':'')+' on shift now · next check in ~60s');
 
-  _applyingSchedule=false;
-  if(changed){
-    /* Only push if the actual set of on-shift agents changed */
-    var newNames=rows.filter(function(r){return r.agentIdx>=0;}).map(function(r){return agents[r.agentIdx];}).sort().join(',');
-    if(newNames!==_lastOnShiftNames){ _lastOnShiftNames=newNames; pushRows(); }
-    render();
-  } else { render(); }
+  if(changed){ pushRows(); render(); }
+  else { render(); }
 }
 
 /* ── Time helpers ── */
