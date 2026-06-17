@@ -964,7 +964,10 @@ function applyScheduleToRows(){
     for(var ri=0;ri<rows.length;ri++){ if(rows[ri].agentIdx<0){ emptyRi=ri; break; } }
     if(emptyRi<0){ console.warn('No empty row for agent',agents[idx]); return; }
     rows[emptyRi].agentIdx=idx;
-    rows[emptyRi].slots=makeEmptySlots();
+    /* Preserve existing slots if row had break data (e.g. after page refresh) */
+    var existingSlots=rows[emptyRi].slots;
+    var hasBreakData=existingSlots&&existingSlots.some(function(s){return s.from||s.started;});
+    if(!hasBreakData) rows[emptyRi].slots=makeEmptySlots();
     writeLog('AGENT_AUTO_ADDED',(agents[idx]||'?')+' shift started, placed in row '+(emptyRi+1));
     currentInRows[emptyRi]=idx; /* update local mirror */
     changed=true;
