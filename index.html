@@ -646,6 +646,7 @@ function startSSE(){
     try{
       var d=JSON.parse(e.data);
       if(d&&d.data&&Array.isArray(d.data)){
+        if(Date.now()<_ignoreSseUntil){ render(); return; } /* ignore stale SSE after push */
         rows=resolveRows(d.data);
         /* Just render on SSE updates — applyScheduleToRows runs on its own timer */
         render();
@@ -721,8 +722,10 @@ function initApp(){
   }).catch(function(e){ console.error(e); setSyncStatus('err'); renderSetup(); render(); loadSchedule(false); });
 }
 
+var _ignoreSseUntil=0;
 function pushRows(){
   setSyncStatus('syncing');
+  _ignoreSseUntil=Date.now()+3000; /* ignore SSE for 3s after push */
   /* Store agentNick (string) not agentIdx (volatile number) */
   var toStore=rows.map(function(row){
     return {
