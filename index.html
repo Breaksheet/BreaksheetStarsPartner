@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Break Sheet · LIVE</title>
-<!-- SP-v202606171810 -->
+<!-- SP-v202606172230 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -541,7 +541,7 @@
 <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
-/* VERSION: SP-v202606171810 */
+/* VERSION: SP-v202606172230 */
 /* ══════════════════════════════════════════════════════════
    BREAKSHEET — Schedule-aware build
    Rules:
@@ -712,13 +712,15 @@ function initApp(){
   /* Agents are NOT stored in Firebase — always derived from schedule CSV.
      This prevents stale names ("Mike - Mykhailo") from ever coming back. */
   Promise.all([fbGet('/rows'),fbGet('/wheelHistory'),fbGet('/agents')]).then(function(res){
-    if(res[0]&&Array.isArray(res[0])){ rows=resolveRows(res[0]); _rowsLoaded=true; }
-    if(res[1]) wmSetHistFromFB(res[1]);
+    /* Load agents[] FIRST, so resolveRows maps each stored nick against the
+       correct list. Resolving before this swap left every row pointing at the
+       wrong name after the list loaded — the source of the agent "flicker". */
     if(res[2]&&Array.isArray(res[2])){
-      /* Load saved agents from Firebase */
-      res[2].forEach(function(name,i){ if(i<agents.length) agents[i]=name||''; });
+      res[2].forEach(function(name,i){ if(i<agents.length && name) agents[i]=name; });
       console.log('[Agents] Loaded from Firebase');
     }
+    if(res[0]&&Array.isArray(res[0])){ rows=resolveRows(res[0]); _rowsLoaded=true; }
+    if(res[1]) wmSetHistFromFB(res[1]);
     renderSetup(); setSyncStatus('ok'); startSSE();
     loadSchedule(false);
   }).catch(function(e){ console.error(e); setSyncStatus('err'); renderSetup(); render(); loadSchedule(false); });
@@ -982,9 +984,14 @@ function applyScheduleToRows(){
   var currentInRows=rows.map(function(r){ return r.agentIdx; });
   shouldBeOnShift.forEach(function(idx){
     if(currentInRows.indexOf(idx)>=0) return; /* already there */
-    /* Find first empty row */
+    /* Find first TRULY empty row — no agent AND no booked break.
+       CRITICAL: a row can hold an unresolved agent's break (agentIdx=-1 because
+       the stored nick didn't match agents[]). It LOOKS empty but isn't. Reusing
+       it wipes a real break — this was the breaks-vanish-on-refresh bug. */
     var emptyRi=-1;
-    for(var ri=0;ri<rows.length;ri++){ if(rows[ri].agentIdx<0){ emptyRi=ri; break; } }
+    for(var ri=0;ri<rows.length;ri++){
+      if(rows[ri].agentIdx<0 && !rows[ri].slots.some(function(s){ return s&&(s.from||s.to); })){ emptyRi=ri; break; }
+    }
     if(emptyRi<0){ console.warn('No empty row for agent',agents[idx]); return; }
     rows[emptyRi].agentIdx=idx;
     rows[emptyRi].slots=makeEmptySlots();
