@@ -904,7 +904,6 @@ function loadSchedule(manual){
       console.log('[Schedule] Loaded. Today='+today+' nameCol='+nameCol+' codeCol='+codeCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
       if(manual) writeLog('SCHEDULE_REFRESH','Manual refresh — loaded '+(result.tabName||'SP Schedule'));
       _loadingSchedule=false;
-      _lastApply=0; /* force applyScheduleToRows to run immediately after fresh load */
       applyScheduleToRows();
       var onShiftCount=rows.filter(function(r){ return r.agentIdx>=0; }).length;
       setTimeout(checkBreakReminder,500);
