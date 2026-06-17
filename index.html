@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
+  <script>
+    /* LEADER ELECTION: Ensures only one tab manages the schedule */
+    var isLeader = false;
+    var LEADER_KEY = 'bs_leader_status';
+    function checkLeadership() {
+        var now = Date.now();
+        var lastLeader = localStorage.getItem(LEADER_KEY);
+        if (!lastLeader || (now - parseInt(lastLeader) > 30000)) {
+            isLeader = true;
+            localStorage.setItem(LEADER_KEY, now.toString());
+            setInterval(function() { localStorage.setItem(LEADER_KEY, Date.now().toString()); }, 10000);
+        }
+    }
+    checkLeadership();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -1296,7 +1311,16 @@ setInterval(render,10000);
    keep using a stale interpretation (e.g. treating Carl's 23-07 as still on-shift
    at 4am) and fight other clients. Re-reading keeps every client in agreement.
    The 30s throttle in loadSchedule keeps fetch volume to ~1/min. */
-setInterval(function(){ loadSchedule(false); },60000);
+/* STABILIZED SCHEDULE INTERVAL: Only the leader pushes updates to Firebase */
+setInterval(function(){ 
+    if (isLeader && scheduleCache) {
+        applyScheduleToRows(); 
+    } else if (scheduleCache) {
+        render();
+    } else {
+        loadSchedule(false);
+    }
+}, 60000);
 updateClock();
 
 /* ═══════════════════════════════════════════════════════════
