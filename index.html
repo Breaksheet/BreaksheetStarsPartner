@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Break Sheet · LIVE</title>
-<!-- SP-v202606172230 -->
+<!-- SP-v202606172330 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -541,7 +541,7 @@
 <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
-/* VERSION: SP-v202606172230 */
+/* VERSION: SP-v202606172330 */
 /* ══════════════════════════════════════════════════════════
    BREAKSHEET — Schedule-aware build
    Rules:
@@ -1289,8 +1289,14 @@ function updateClock(){
 }
 setInterval(updateClock,1000);
 setInterval(render,10000);
-/* Schedule re-check every 60 seconds */
-setInterval(function(){ if(scheduleCache) applyScheduleToRows(); else loadSchedule(false); },60000);
+/* Schedule re-check every 60 seconds.
+   IMPORTANT: this re-RUNS loadSchedule (re-fetch + re-interpret) rather than
+   just re-applying the cached schedule. The overnight "is this shift active now"
+   decision is time-dependent, so a tab left open across midnight would otherwise
+   keep using a stale interpretation (e.g. treating Carl's 23-07 as still on-shift
+   at 4am) and fight other clients. Re-reading keeps every client in agreement.
+   The 30s throttle in loadSchedule keeps fetch volume to ~1/min. */
+setInterval(function(){ loadSchedule(false); },60000);
 updateClock();
 
 /* ═══════════════════════════════════════════════════════════
