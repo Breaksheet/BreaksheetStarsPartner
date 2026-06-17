@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Break Sheet · LIVE</title>
-<!-- SP-v202606170334 -->
+<!-- SP-v202606171810 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -541,7 +541,7 @@
 <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
-/* VERSION: SP-v202606170316 */
+/* VERSION: SP-v202606171810 */
 /* ══════════════════════════════════════════════════════════
    BREAKSHEET — Schedule-aware build
    Rules:
@@ -648,6 +648,7 @@ function startSSE(){
       if(d&&d.data&&Array.isArray(d.data)){
         if(Date.now()<_ignoreSseUntil){ render(); return; } /* ignore stale SSE after push */
         rows=resolveRows(d.data);
+        _rowsLoaded=true;
         /* Just render on SSE updates — applyScheduleToRows runs on its own timer */
         render();
       }
@@ -677,6 +678,7 @@ var agents=DEFAULT_AGENTS.slice(); while(agents.length<40) agents.push('');
 function makeEmptySlots(){ return Array.from({length:MAX_SLOTS},function(){ return{from:'',to:'',started:false}; }); }
 function initRows(){ return Array.from({length:NUM_ROWS},function(_,i){ return{id:i,agentIdx:-1,slots:makeEmptySlots()}; }); }
 var rows=initRows();
+var _rowsLoaded=false; /* true once live /rows have arrived (fetch or SSE) */
 function countActiveAgents(){ return rows.filter(function(r){ return r.agentIdx>=0; }).length; }
 
 /* Convert stored rows (agentNick string) back to local agentIdx.
@@ -710,16 +712,14 @@ function initApp(){
   /* Agents are NOT stored in Firebase — always derived from schedule CSV.
      This prevents stale names ("Mike - Mykhailo") from ever coming back. */
   Promise.all([fbGet('/rows'),fbGet('/wheelHistory'),fbGet('/agents')]).then(function(res){
-    if(res[0]&&Array.isArray(res[0])) rows=resolveRows(res[0]);
+    if(res[0]&&Array.isArray(res[0])){ rows=resolveRows(res[0]); _rowsLoaded=true; }
     if(res[1]) wmSetHistFromFB(res[1]);
     if(res[2]&&Array.isArray(res[2])){
       /* Load saved agents from Firebase */
       res[2].forEach(function(name,i){ if(i<agents.length) agents[i]=name||''; });
       console.log('[Agents] Loaded from Firebase');
     }
-    renderSetup(); setSyncStatus('ok');
-    _ignoreSseUntil=Date.now()+5000; /* ignore SSE during initial load sequence */
-    startSSE();
+    renderSetup(); setSyncStatus('ok'); startSSE();
     loadSchedule(false);
   }).catch(function(e){ console.error(e); setSyncStatus('err'); renderSetup(); render(); loadSchedule(false); });
 }
@@ -809,7 +809,17 @@ function schedStatus(state,msg){
   console.log('[Schedule]',state,msg.replace(/<[^>]+>/g,''));
 }
 
+var _lastScheduleLoad=0;
 function loadSchedule(manual){
+  /* THROTTLE: never auto-fetch more than once per 30s, whatever calls us.
+     This is a hard stop against runaway loops (the AbortController loop class
+     that has bitten this app before). Manual 🔄 Refresh bypasses it. */
+  var _now=Date.now();
+  if(!manual && _now-_lastScheduleLoad<30000){
+    if(scheduleCache) applyScheduleToRows();
+    return;
+  }
+  _lastScheduleLoad=_now;
   schedStatus('loading','Loading schedule…');
 
   fetchScheduleWithFallback()
@@ -936,12 +946,31 @@ function applyScheduleToRows(){
 
   var changed=false;
 
-  /* Remove agents whose shift has ended */
+  /* SAFETY 1: don't run the destructive pass before real rows have loaded.
+     On refresh, fbGet or the initial SSE 'put' delivers the live rows within ~1s,
+     long before the schedule finishes (~17s). If neither has landed yet, skip —
+     otherwise we'd push empty rows over everyone's breaks. */
+  if(!_rowsLoaded){ render(); return; }
+
+  /* SAFETY 2: an empty on-shift set during working hours almost always means a
+     partial/failed schedule read (e.g. yesterday's overnight column not found in
+     the 00:00-07:00 window). Removing everyone here is exactly how all breaks used
+     to vanish — so we refuse to wipe and just re-render. */
+  if(shouldBeOnShift.length===0){
+    console.warn('[Schedule] shouldBeOnShift empty — skipping removal to protect breaks');
+    render(); return;
+  }
+
+  /* Remove agents whose shift has ended.
+     CRITICAL: never wipe a row that holds booked break data. If any slot has a
+     time set we keep the agent even if the schedule thinks they're off-shift.
+     A stale row is harmless and can be cleared manually; a deleted break is not. */
   for(var ri=0;ri<rows.length;ri++){
     var idx=rows[ri].agentIdx;
     if(idx<0) continue;
     if(shouldBeOnShift.indexOf(idx)<0){
-      /* Shift ended — wipe row completely */
+      var hasBreakData=rows[ri].slots.some(function(s){ return s&&(s.from||s.to); });
+      if(hasBreakData) continue; /* protect booked breaks */
       writeLog('AGENT_AUTO_REMOVED',(agents[idx]||'?')+' shift ended, row '+( ri+1)+' cleared');
       rows[ri].agentIdx=-1;
       rows[ri].slots=makeEmptySlots();
