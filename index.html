@@ -1,28 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
-  <script>
-    /* LEADER ELECTION: Ensures only one tab manages the schedule */
-    var isLeader = false;
-    var LEADER_KEY = 'bs_leader_status';
-    function checkLeadership() {
-        var now = Date.now();
-        var lastLeader = localStorage.getItem(LEADER_KEY);
-        if (!lastLeader || (now - parseInt(lastLeader) > 30000)) {
-            isLeader = true;
-            localStorage.setItem(LEADER_KEY, now.toString());
-            setInterval(function() { localStorage.setItem(LEADER_KEY, Date.now().toString()); }, 10000);
-        }
-    }
-    checkLeadership();
-</script>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Break Sheet · LIVE</title>
-<!-- SP-v202606172330 -->
+<!-- SP-v202606180100 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -556,7 +541,7 @@
 <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
-/* VERSION: SP-v202606172330 */
+/* VERSION: SP-v202606180100 */
 /* ══════════════════════════════════════════════════════════
    BREAKSHEET — Schedule-aware build
    Rules:
@@ -652,6 +637,57 @@ function setupNicknameInput(){ var inp=document.getElementById('nick-input'); if
 function fbGet(p){ return fetch(DB_URL+p+'.json').then(function(r){ return r.json(); }); }
 function fbSet(p,d){ return fetch(DB_URL+p+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){ return r.json(); }); }
 function fbPush(p,d){ return fetch(DB_URL+p+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){ return r.json(); }); }
+
+/* ── Leader election ───────────────────────────────────────────
+   Only ONE client manages row membership (auto add/remove agents)
+   at a time. Without this, every open browser runs applyScheduleToRows
+   and they fight over /rows — the cause of agents flickering and
+   Carl/Jaime reappearing. A lightweight lease lives at /leader:
+     { id: <clientId>, ts: <lastRenewMs> }
+   The leader renews every 5s; if the lease goes stale (>15s) any
+   client may claim it. Non-leaders still render and can still book
+   breaks — they just never add/remove agents themselves. */
+var CLIENT_ID = (function(){
+  try{
+    var k='bs_client_id', v=sessionStorage.getItem(k);
+    if(!v){ v=Date.now().toString(36)+Math.random().toString(36).slice(2,8); sessionStorage.setItem(k,v); }
+    return v;
+  }catch(e){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+})();
+var LEADER_TTL=15000;       /* lease is stale after 15s with no renew */
+var LEADER_HEARTBEAT=5000;  /* leader renews every 5s */
+var _isLeader=false;
+var _leaderCheckPending=false;
+
+function leaderTick(){
+  if(_leaderCheckPending) return;
+  _leaderCheckPending=true;
+  var was=_isLeader;
+  fbGet('/leader').then(function(cur){
+    var now=Date.now();
+    if(cur && cur.id===CLIENT_ID){
+      /* We already hold it — renew */
+      return fbSet('/leader',{id:CLIENT_ID,ts:now}).then(function(){ return true; });
+    }
+    var stale=!cur || typeof cur.ts!=='number' || (now-cur.ts)>LEADER_TTL;
+    if(stale){
+      /* Try to claim. Small random jitter avoids two clients claiming in lockstep. */
+      return new Promise(function(res){ setTimeout(res,Math.random()*400); })
+        .then(function(){ return fbSet('/leader',{id:CLIENT_ID,ts:Date.now()}); })
+        .then(function(){ return fbGet('/leader'); })            /* confirm last write was ours */
+        .then(function(check){ return !!(check && check.id===CLIENT_ID); });
+    }
+    return false; /* someone else holds a fresh lease */
+  }).then(function(amLeader){
+    if(amLeader!==was) console.log('[Leader] '+(amLeader?'Acquired leadership':'Lost leadership')+' · '+CLIENT_ID);
+    _isLeader=amLeader;
+    /* On becoming leader, reconcile immediately rather than waiting for the timer. */
+    if(_isLeader && !was && scheduleCache) applyScheduleToRows();
+  }).catch(function(){ /* transient error — keep previous role */ })
+    .then(function(){ _leaderCheckPending=false; });
+}
+setInterval(leaderTick,LEADER_HEARTBEAT);
+leaderTick(); /* claim ASAP on load */
 
 var rowsSSE=null,agentsSSE=null,wheelSSE=null;
 function startSSE(){
@@ -944,6 +980,11 @@ function loadSchedule(manual){
 
 function applyScheduleToRows(){
   if(!scheduleCache) return;
+
+  /* LEADER ONLY: just one client manages row membership. Non-leaders reflect
+     the leader's authoritative /rows via SSE — they never add/remove agents,
+     which is what stops multiple browsers fighting over the roster. */
+  if(!_isLeader){ render(); return; }
 
   /* Build set of agent indexes on shift RIGHT NOW
      agents[] is managed manually via Agent Setup + saved to Firebase.
@@ -1311,16 +1352,7 @@ setInterval(render,10000);
    keep using a stale interpretation (e.g. treating Carl's 23-07 as still on-shift
    at 4am) and fight other clients. Re-reading keeps every client in agreement.
    The 30s throttle in loadSchedule keeps fetch volume to ~1/min. */
-/* STABILIZED SCHEDULE INTERVAL: Only the leader pushes updates to Firebase */
-setInterval(function(){ 
-    if (isLeader && scheduleCache) {
-        applyScheduleToRows(); 
-    } else if (scheduleCache) {
-        render();
-    } else {
-        loadSchedule(false);
-    }
-}, 60000);
+setInterval(function(){ loadSchedule(false); },60000);
 updateClock();
 
 /* ═══════════════════════════════════════════════════════════
