@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Break Sheet · LIVE</title>
-<!-- SP-v202606180530 -->
+<!-- SP-v202606181645 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -541,8 +541,8 @@
 <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
-/* VERSION: SP-v202606180530 */
-var APP_VERSION_TAG='<!-- SP-v202606180530 -->';
+/* VERSION: SP-v202606181645 */
+var APP_VERSION_TAG='<!-- SP-v202606181645 -->';
 /* ══════════════════════════════════════════════════════════
    BREAKSHEET — Schedule-aware build
    Rules:
@@ -664,21 +664,37 @@ function leaderTick(){
   if(_leaderCheckPending) return;
   _leaderCheckPending=true;
   var was=_isLeader;
-  fbGet('/leader').then(function(cur){
-    var now=Date.now();
+  /* X-Firebase-ETag asks the server to return a version tag for /leader's
+     current value, which lets the claim PUT below be a true atomic
+     compare-and-swap via the 'if-match' header. */
+  fetch(DB_URL+'/leader.json',{headers:{'X-Firebase-ETag':'true'}}).then(function(r){
+    var etag=r.headers.get('ETag');
+    return r.json().then(function(cur){ return {cur:cur,etag:etag}; });
+  }).then(function(res){
+    var cur=res.cur,etag=res.etag,now=Date.now();
     if(cur && cur.id===CLIENT_ID){
-      /* We already hold it — renew */
+      /* We already hold it — renew. */
       return fbSet('/leader',{id:CLIENT_ID,ts:now}).then(function(){ return true; });
     }
     var stale=!cur || typeof cur.ts!=='number' || (now-cur.ts)>LEADER_TTL;
-    if(stale){
-      /* Try to claim. Small random jitter avoids two clients claiming in lockstep. */
-      return new Promise(function(res){ setTimeout(res,Math.random()*400); })
-        .then(function(){ return fbSet('/leader',{id:CLIENT_ID,ts:Date.now()}); })
-        .then(function(){ return fbGet('/leader'); })            /* confirm last write was ours */
-        .then(function(check){ return !!(check && check.id===CLIENT_ID); });
-    }
-    return false; /* someone else holds a fresh lease */
+    if(!stale) return false; /* someone else holds a fresh lease */
+    /* CONDITIONAL CLAIM: the PUT only succeeds (200) if /leader on the server
+       still matches the ETag we just read — if another client claims it first,
+       this PUT gets rejected (412) instead of silently overwriting them.
+       The previous approach (write, then re-read to "confirm") was NOT safe:
+       two clients racing for a stale lease could each see themselves as the
+       last writer within their own narrow timing window and both end up
+       believing they were leader for up to one heartbeat (~5s) — long enough
+       for both to run the reconciler at once, each against its own snapshot,
+       fighting over the same rows. That dual-leadership churn (visible in the
+       activity log as the same agents being added/removed/re-added by several
+       different users seconds apart) was the actual cause of breaks vanishing,
+       not a single-client race. */
+    return fetch(DB_URL+'/leader.json',{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','if-match':etag},
+      body:JSON.stringify({id:CLIENT_ID,ts:Date.now()})
+    }).then(function(r2){ return r2.status===200; });
   }).then(function(amLeader){
     if(amLeader!==was) console.log('[Leader] '+(amLeader?'Acquired leadership':'Lost leadership')+' · '+CLIENT_ID);
     _isLeader=amLeader;
@@ -1007,6 +1023,26 @@ function loadSchedule(manual){
 
         entries.push({nickname:nick,code:useCode});
       }
+
+      /* SANITY CHECK: the Google Sheets CSV export occasionally returns a
+         malformed or partial snapshot — the HTTP request succeeds and the text
+         still parses as CSV, but the name column gets misdetected (low bestScore)
+         or the row range is truncated, so `entries` collapses to far fewer agents
+         than the sheet actually has. A bad read like this used to go straight into
+         applyScheduleToRows(), and because it changes MANY agents' shift status at
+         once (not just one), it could read as "everyone's shift just ended" and
+         wipe most rows in a single pass — even with the per-agent strike counter,
+         because the SAME bad column flip can repeat on back-to-back 60s fetches.
+         If this read looks implausible compared to the last good one, ignore it
+         and keep serving the previous schedule; try again next cycle. */
+      var _lowConfidence = bestScore<3;
+      var _suspiciousDrop = scheduleCache && scheduleCache.length>=4 && entries.length < scheduleCache.length*0.6;
+      if(_lowConfidence || _suspiciousDrop){
+        console.warn('[Schedule] Rejecting suspicious read — bestScore='+bestScore+', entries '+(scheduleCache?scheduleCache.length:0)+' -> '+entries.length+'. Keeping previous schedule.');
+        schedStatus('err','⚠ Schedule read looked unreliable — kept previous data, retrying next cycle');
+        return;
+      }
+
       scheduleCache=entries;
       console.log('[Schedule] Loaded. Today='+today+' nameCol='+nameCol+' codeCol='+codeCol+'. Agents:',entries.map(function(e){ return e.nickname+'='+e.code; }).join(', '));
       if(manual) writeLog('SCHEDULE_REFRESH','Manual refresh — loaded '+(result.tabName||'SP Schedule'));
@@ -1022,6 +1058,7 @@ function loadSchedule(manual){
 }
 
 var _offShiftStrikes={}; /* agentIdx -> true once seen off-shift; cleared on re-confirmation */
+var _onShiftStrikes={}; /* agentIdx -> true once seen on-shift-but-unplaced; cleared on re-confirmation */
 
 function applyScheduleToRows(){
   if(!scheduleCache) return;
@@ -1107,10 +1144,16 @@ function _reconcileRows(shouldBeOnShift){
     }
   }
 
-  /* Add agents whose shift has started but aren't in a row yet */
+  /* Add agents whose shift has started but aren't in a row yet.
+     Same strike-counter rationale as removal: a single inconsistent schedule read
+     (the CSV source occasionally returns a slightly different snapshot a few
+     seconds apart) must not be able to drop a random person into a row. Require
+     the agent to show up as on-shift on two consecutive checks first. */
   var currentInRows=rows.map(function(r){ return r.agentIdx; });
   shouldBeOnShift.forEach(function(idx){
-    if(currentInRows.indexOf(idx)>=0) return; /* already there */
+    if(currentInRows.indexOf(idx)>=0){ delete _onShiftStrikes[idx]; return; } /* already there */
+    if(!_onShiftStrikes[idx]){ _onShiftStrikes[idx]=true; return; } /* first hit — wait for confirmation */
+    delete _onShiftStrikes[idx];
     /* Find first TRULY empty row — no agent AND no booked break.
        CRITICAL: a row can hold an unresolved agent's break (agentIdx=-1 because
        the stored nick didn't match agents[]). It LOOKS empty but isn't. Reusing
