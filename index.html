@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Break Sheet · LIVE</title>
-<!-- SP-v202606180415 -->
+<!-- SP-v202606180530 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -541,7 +541,8 @@
 <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
-/* VERSION: SP-v202606180415 */
+/* VERSION: SP-v202606180530 */
+var APP_VERSION_TAG='<!-- SP-v202606180530 -->';
 /* ══════════════════════════════════════════════════════════
    BREAKSHEET — Schedule-aware build
    Rules:
@@ -1020,6 +1021,7 @@ function loadSchedule(manual){
     });
 }
 
+var _offShiftStrikes={}; /* agentIdx -> true once seen off-shift; cleared on re-confirmation */
 
 function applyScheduleToRows(){
   if(!scheduleCache) return;
@@ -1081,18 +1083,27 @@ function _reconcileRows(shouldBeOnShift){
      CRITICAL: never wipe a row that holds a break which hasn't finished yet (still
      upcoming or in progress). A row whose breaks are all marked 'done' is safe to
      clear — otherwise an agent whose shift ended would be stuck in their row forever
-     once they'd taken any break at all. */
+     once they'd taken any break at all.
+     STRIKE COUNTER: a single off-shift reading can be wrong — either the CSV schedule
+     hiccuped, or the leader's fresh /rows fetch raced a break someone just committed
+     a moment earlier and saw it before it landed. Require two consecutive checks
+     (~60s apart) to agree before actually removing someone, so a one-off stale read
+     can never wipe a break — the next check will see the real data and protect it. */
   for(var ri=0;ri<rows.length;ri++){
     var idx=rows[ri].agentIdx;
     if(idx<0) continue;
     if(shouldBeOnShift.indexOf(idx)<0){
       var hasBreakData=rows[ri].slots.some(function(s){ return s&&(s.from||s.to)&&slotStatus(s)!=='done'; });
-      if(hasBreakData) continue; /* protect unfinished/booked breaks */
+      if(hasBreakData){ delete _offShiftStrikes[idx]; continue; } /* protect unfinished/booked breaks */
+      if(!_offShiftStrikes[idx]){ _offShiftStrikes[idx]=true; continue; } /* first miss — wait for confirmation */
+      delete _offShiftStrikes[idx];
       writeLog('AGENT_AUTO_REMOVED',(agents[idx]||'?')+' shift ended, row '+( ri+1)+' cleared');
       rows[ri].agentIdx=-1;
       rows[ri].slots=makeEmptySlots();
       _changedRows[ri]=true;
       changed=true;
+    } else {
+      delete _offShiftStrikes[idx];
     }
   }
 
@@ -1416,6 +1427,23 @@ setInterval(render,10000);
    at 4am) and fight other clients. Re-reading keeps every client in agreement.
    The 30s throttle in loadSchedule keeps fetch volume to ~1/min. */
 setInterval(function(){ loadSchedule(false); },60000);
+
+/* AUTO-UPDATE: tabs left open for hours keep running the JS they loaded with —
+   nothing about a server-side deploy ever reaches them. A stale tab can still
+   win leader election and run an old reconciliation pass against its own
+   hours-stale in-memory rows, wiping everyone's breaks while correctly
+   re-placing agents (since the schedule fetch itself is always fresh). Polling
+   the live page for a version bump and reloading closes that hole. */
+function checkForUpdate(){
+  if(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+  fetch(location.pathname+'?_v='+Date.now(),{cache:'no-store'})
+    .then(function(r){ return r.text(); })
+    .then(function(html){
+      var m=html.match(/<!-- (SP|BB)-v\d+ -->/);
+      if(m && m[0]!==APP_VERSION_TAG){ console.warn('[Update] New version live, reloading...'); location.reload(); }
+    }).catch(function(){});
+}
+setInterval(checkForUpdate,120000);
 updateClock();
 
 /* ═══════════════════════════════════════════════════════════
