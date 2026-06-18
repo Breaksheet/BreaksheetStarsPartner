@@ -535,9 +535,11 @@ function writeLog(event, detail) {
 }
 
 // ── Push helpers ──────────────────────────────────────────
-function pushRows() {
+function pushRows(ri) {
   setSyncStatus('syncing');
-  fbSet('/rows', rows).then(function(){ setSyncStatus('ok'); }).catch(function(){ setSyncStatus('err'); });
+  var path = (typeof ri === 'number') ? '/rows/'+ri : '/rows';
+  var payload = (typeof ri === 'number') ? rows[ri] : rows;
+  fbSet(path, payload).then(function(){ setSyncStatus('ok'); }).catch(function(){ setSyncStatus('err'); });
 }
 function pushAgents() {
   setSyncStatus('syncing');
@@ -549,15 +551,18 @@ function pushAgents() {
    This prevents overwriting someone mid-type. */
 function mergeIncomingRows(remoteRows) {
   if (!Array.isArray(remoteRows)) return;
-  var focusedInput = document.activeElement;
   remoteRows.forEach(function(remoteRow, ri) {
-    if (!remoteRow) return;
-    // Check if any input in this row has focus
-    var rowEl = document.querySelector('[data-row-id="'+ri+'"]');
-    var hasFocus = rowEl && rowEl.contains(focusedInput);
-    if (hasFocus) return; // skip — user is typing
-    rows[ri] = remoteRow;
+    mergeIncomingRow(ri, remoteRow);
   });
+}
+function mergeIncomingRow(ri, remoteRow) {
+  if (!remoteRow) return;
+  // Check if any input in this row has focus
+  var focusedInput = document.activeElement;
+  var rowEl = document.querySelector('[data-row-id="'+ri+'"]');
+  var hasFocus = rowEl && rowEl.contains(focusedInput);
+  if (hasFocus) return; // skip — user is typing
+  rows[ri] = remoteRow;
 }
 
 // ── SSE ───────────────────────────────────────────────────
@@ -568,8 +573,14 @@ function startSSE() {
   rowsSSE.addEventListener('put', function(e) {
     try {
       var d = JSON.parse(e.data);
-      if (d && d.data && Array.isArray(d.data)) {
+      if (d && Array.isArray(d.data)) {
+        // full /rows overwrite (e.g. clearAll or initial sync)
         mergeIncomingRows(d.data);
+        render();
+      } else if (d && typeof d.path === 'string' && /^\/\d+$/.test(d.path)) {
+        // single-row update, e.g. path "/3"
+        var ri = parseInt(d.path.slice(1), 10);
+        mergeIncomingRow(ri, d.data);
         render();
       }
     } catch(err) {}
@@ -757,13 +768,13 @@ function clickAvailSlot(t){
       pendingFrom=null; rows[ri].slots[si].from='';
       var fw=document.getElementById('fw-'+ri+'-'+si);
       if(fw){var segs=fw.querySelectorAll('.time-seg');segs[0].value='';segs[1].value='';}
-      pushRows(); render(); renderAvailableSlots(); return;
+      pushRows(ri); render(); renderAvailableSlots(); return;
     }
     rows[ri].slots[si].to=t;
     var tw=document.getElementById('tw-'+ri+'-'+si);
     if(tw){var segs=tw.querySelectorAll('.time-seg');var p=t.split(':');if(segs[0])segs[0].value=p[0];if(segs[1])segs[1].value=p[1];}
     writeLog('BREAK_BOOKED',rows[ri].agentName+' — Break '+(si+1)+' booked via grid: '+rows[ri].slots[si].from+' → '+t+' ('+dur+' min)');
-    pendingFrom=null; pushRows(); render(); return;
+    pendingFrom=null; pushRows(ri); render(); return;
   }
   var ri=activeRow,targetSi=-1;
   for(var si=0;si<rows[ri].slots.length;si++){if(!rows[ri].slots[si].from&&!rows[ri].slots[si].to){targetSi=si;break;}}
@@ -773,7 +784,7 @@ function clickAvailSlot(t){
   if(fw){var segs=fw.querySelectorAll('.time-seg');var p=t.split(':');if(segs[0])segs[0].value=p[0];if(segs[1])segs[1].value=p[1];}
   var tw=document.getElementById('tw-'+ri+'-'+targetSi);
   if(tw){var segs=tw.querySelectorAll('.time-seg');segs[0].value='';segs[1].value='';}
-  pendingFrom={ri:ri,si:targetSi,time:t}; pushRows(); render(); renderAvailableSlots();
+  pendingFrom={ri:ri,si:targetSi,time:t}; pushRows(ri); render(); renderAvailableSlots();
 }
 
 // ── Dropdown ──────────────────────────────────────────────
@@ -807,7 +818,7 @@ function selectAgent(ri, name){
   if(name) { activeRow=ri; pendingFrom=null; }
   if(!name) writeLog('AGENT_CLEARED','Row '+(ri+1)+' cleared (was: '+prevName+')');
   else writeLog('AGENT_SELECTED','Row '+(ri+1)+': '+name+(prevName&&prevName!==name?' (replaced: '+prevName+')':''));
-  pushRows(); render();
+  pushRows(ri); render();
 }
 document.addEventListener('click', function(e){ if(!e.target.closest('.agent-dropdown')){document.querySelectorAll('.agent-dropdown-menu.open').forEach(function(m){m.classList.remove('open');});} });
 
@@ -908,7 +919,7 @@ function commitTime(ri, si, field){
   var wrap=document.getElementById(prefix+ri+'-'+si); if(!wrap)return;
   var segs=wrap.querySelectorAll('.time-seg');
   var h=segs[0].value.trim(), m=segs[1].value.trim();
-  if(!h&&!m){ rows[ri].slots[si][field]=''; pushRows(); render(); return; }
+  if(!h&&!m){ rows[ri].slots[si][field]=''; pushRows(ri); render(); return; }
   if(!h||!m){ wrap.classList.add('invalid'); return; }
   var hN=parseInt(h), mN=parseInt(m);
   if(isNaN(hN)||hN<0||hN>23||isNaN(mN)||mN<0||mN>59){ wrap.classList.add('invalid'); segs[0].value=''; segs[1].value=''; return; }
@@ -941,7 +952,7 @@ function commitTime(ri, si, field){
     var bDur=toMins(finalSlot.to)-toMins(finalSlot.from); if(bDur<0)bDur+=1440;
     writeLog('BREAK_BOOKED',rows[ri].agentName+' — Break '+(si+1)+' booked: '+finalSlot.from+' → '+finalSlot.to+' ('+bDur+' min)');
   }
-  pushRows(); render();
+  pushRows(ri); render();
 }
 
 // ── Break actions ─────────────────────────────────────────
@@ -957,7 +968,7 @@ function startBreakNow(ri, si){
   var nTH=Math.floor(nT/60)%24, nTMin=Math.floor(nT%60);
   rows[ri].slots[si].from=newFrom; rows[ri].slots[si].to=pad(nTH)+':'+pad(nTMin); rows[ri].slots[si].started=true;
   writeLog('BREAK_STARTED',rows[ri].agentName+' — Break '+(si+1)+' started at '+newFrom+', ends '+pad(nTH)+':'+pad(nTMin)+' ('+dur+' min)');
-  pushRows(); render();
+  pushRows(ri); render();
 }
 function stopBreakNow(ri, si){
   var nowM=kyivNowMins(), nowH=Math.floor(nowM/60), nowMin=Math.floor(nowM%60);
@@ -966,21 +977,21 @@ function stopBreakNow(ri, si){
   var actualDur=toMins(stopTime)-toMins(startedAt); if(actualDur<0)actualDur+=1440;
   rows[ri].slots[si].to=stopTime; rows[ri].slots[si].started=false;
   writeLog('BREAK_STOPPED',rows[ri].agentName+' — Break '+(si+1)+' stopped at '+stopTime+' (started '+startedAt+', actual '+actualDur+' min)');
-  pushRows(); render();
+  pushRows(ri); render();
 }
 function clearSlot(ri, si){
   var s=rows[ri].slots[si];
   var detail=rows[ri].agentName+' — Break '+(si+1)+' cleared';
   if(s.from||s.to) detail+=' (was '+(s.from||'?')+' → '+(s.to||'?')+')';
   writeLog('SLOT_CLEARED',detail);
-  rows[ri].slots[si]={from:'',to:'',started:false}; pushRows(); render();
+  rows[ri].slots[si]={from:'',to:'',started:false}; pushRows(ri); render();
 }
 function clearRow(ri){
   var prevName=rows[ri].agentName;
   writeLog('ROW_CLEARED','Row '+(ri+1)+' fully cleared (agent was: '+prevName+')');
   rows[ri].agentName='';
   rows[ri].slots=[{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}];
-  pushRows(); render();
+  pushRows(ri); render();
 }
 function clearAll(){
   writeLog('ALL_CLEARED','All rows cleared by supervisor');
