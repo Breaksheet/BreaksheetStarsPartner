@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Break Sheet · LIVE</title>
-<!-- SP-v202606171530 -->
+<!-- SP-v202606180415 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -541,7 +541,7 @@
 <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Connecting...</span></div>
 
 <script>
-/* VERSION: SP-v202606171530 */
+/* VERSION: SP-v202606180415 */
 /* ══════════════════════════════════════════════════════════
    BREAKSHEET — Schedule-aware build
    Rules:
@@ -1078,15 +1078,16 @@ function _reconcileRows(shouldBeOnShift){
   var _changedRows={};
 
   /* Remove agents whose shift has ended.
-     CRITICAL: never wipe a row that holds booked break data. If any slot has a
-     time set we keep the agent even if the schedule thinks they're off-shift.
-     A stale row is harmless and can be cleared manually; a deleted break is not. */
+     CRITICAL: never wipe a row that holds a break which hasn't finished yet (still
+     upcoming or in progress). A row whose breaks are all marked 'done' is safe to
+     clear — otherwise an agent whose shift ended would be stuck in their row forever
+     once they'd taken any break at all. */
   for(var ri=0;ri<rows.length;ri++){
     var idx=rows[ri].agentIdx;
     if(idx<0) continue;
     if(shouldBeOnShift.indexOf(idx)<0){
-      var hasBreakData=rows[ri].slots.some(function(s){ return s&&(s.from||s.to); });
-      if(hasBreakData) continue; /* protect booked breaks */
+      var hasBreakData=rows[ri].slots.some(function(s){ return s&&(s.from||s.to)&&slotStatus(s)!=='done'; });
+      if(hasBreakData) continue; /* protect unfinished/booked breaks */
       writeLog('AGENT_AUTO_REMOVED',(agents[idx]||'?')+' shift ended, row '+( ri+1)+' cleared');
       rows[ri].agentIdx=-1;
       rows[ri].slots=makeEmptySlots();
