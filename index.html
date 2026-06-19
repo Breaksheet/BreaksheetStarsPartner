@@ -551,18 +551,17 @@ function pushAgents() {
    This prevents overwriting someone mid-type. */
 function mergeIncomingRows(remoteRows) {
   if (!Array.isArray(remoteRows)) return;
-  remoteRows.forEach(function(remoteRow, ri) {
-    mergeIncomingRow(ri, remoteRow);
-  });
+  for (var ri = 0; ri < NUM_ROWS; ri++) {
+    mergeIncomingRow(ri, remoteRows[ri]);
+  }
 }
 function mergeIncomingRow(ri, remoteRow) {
-  if (!remoteRow) return;
   // Check if any input in this row has focus
   var focusedInput = document.activeElement;
   var rowEl = document.querySelector('[data-row-id="'+ri+'"]');
   var hasFocus = rowEl && rowEl.contains(focusedInput);
   if (hasFocus) return; // skip — user is typing
-  rows[ri] = remoteRow;
+  rows[ri] = remoteRow || { id: ri, agentName: '', slots: [{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}] };
 }
 
 // ── SSE ───────────────────────────────────────────────────
@@ -617,8 +616,10 @@ function initApp() {
   setSyncStatus('syncing');
   Promise.all([fbGet('/rows'), fbGet('/agents'), fbGet('/wheelHistory')]).then(function(res) {
     if (res[0] && Array.isArray(res[0])) {
-      // Migrate old format (agentIdx) to new format (agentName) if needed
-      rows = res[0].map(function(r, i) {
+      // Migrate old format (agentIdx) to new format (agentName) if needed.
+      // Firebase trims trailing unset indexes, so always rebuild to NUM_ROWS length.
+      rows = Array.from({length: NUM_ROWS}, function(_, i) {
+        var r = res[0][i];
         if (!r) return initRows()[i];
         // If old format with agentIdx, convert
         if (typeof r.agentIdx === 'number' && r.agentIdx >= 0 && !r.agentName) {
