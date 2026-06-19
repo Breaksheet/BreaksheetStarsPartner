@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[Resource from github at repo://Breaksheet/BreaksheetStarsPartner/sha/df3440f81e82f2a92473a8592f6efcfc82ed9a47/contents/index.html] <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -812,6 +812,7 @@ function filterDropdown(ri, query){
 function selectAgent(ri, name){
   var prevName = rows[ri].agentName;
   rows[ri].agentName = name;
+  if(!name) rows[ri].slots=[{from:'',to:'',started:false},{from:'',to:'',started:false},{from:'',to:'',started:false}];
   var label=document.getElementById('dd-label-'+ri);
   if(label) label.textContent = name||'— select agent —';
   var menu=document.getElementById('dd-menu-'+ri); if(menu)menu.classList.remove('open');
@@ -1220,3 +1221,4 @@ document.getElementById('wm-mcB').onclick=wmHideWinnerModal;
 </script>
 </body>
 </html>
+
